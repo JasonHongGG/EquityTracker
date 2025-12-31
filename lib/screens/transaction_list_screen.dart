@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/transaction_provider.dart';
 import '../widgets/date_header.dart';
+import '../widgets/dashboard_header_delegate.dart';
 import '../widgets/transaction_item.dart';
-import '../widgets/gradient_card.dart';
-import '../theme/app_colors.dart';
 import 'add_edit_transaction_screen.dart';
 
 class TransactionListScreen extends ConsumerWidget {
@@ -36,57 +35,13 @@ class TransactionListScreen extends ConsumerWidget {
       body: CustomScrollView(
         slivers: [
           // AppBar & Dashboard
-          SliverAppBar(
-            expandedHeight: 260,
-            floating: false,
+          SliverPersistentHeader(
             pinned: true,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
-                child: GradientCard(
-                  gradient: AppColors.backgroundGradientDark,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Total Balance',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondaryDark,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '\$$balance',
-                        style: Theme.of(context).textTheme.displaySmall
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                      ),
-                      const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildSummaryItem(
-                            context,
-                            'Income',
-                            income,
-                            AppColors.income,
-                          ),
-                          _buildSummaryItem(
-                            context,
-                            'Expense',
-                            expense,
-                            AppColors.expense,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            delegate: DashboardHeaderDelegate(
+              balance: balance,
+              income: income,
+              expense: expense,
+              topPadding: MediaQuery.of(context).padding.top,
             ),
           ),
 
@@ -142,49 +97,6 @@ class TransactionListScreen extends ConsumerWidget {
           const SliverPadding(padding: EdgeInsets.only(bottom: 100)),
         ],
       ),
-    );
-  }
-
-  Widget _buildSummaryItem(
-    BuildContext context,
-    String label,
-    int amount,
-    Color color,
-  ) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.2),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            label == 'Income' ? Icons.arrow_downward : Icons.arrow_upward,
-            color: color,
-            size: 16,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondaryDark,
-              ),
-            ),
-            Text(
-              '\$$amount',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 }
