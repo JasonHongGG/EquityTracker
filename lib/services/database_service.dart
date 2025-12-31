@@ -190,7 +190,16 @@ class DatabaseService {
 
   Future<int> insertTransaction(TransactionModel transaction) async {
     final db = await database;
-    return await db.insert('transactions', transaction.toMap());
+    try {
+      return await db.insert('transactions', transaction.toMap());
+    } catch (e) {
+      if (e.toString().contains('no column named title')) {
+        // Fallback migration for hot-reload scenarios
+        await db.execute('ALTER TABLE transactions ADD COLUMN title TEXT');
+        return await db.insert('transactions', transaction.toMap());
+      }
+      rethrow;
+    }
   }
 
   Future<int> updateTransaction(TransactionModel transaction) async {
@@ -225,5 +234,21 @@ class DatabaseService {
       orderBy: 'date DESC, createdAt DESC',
     );
     return List.generate(maps.length, (i) => TransactionModel.fromMap(maps[i]));
+  }
+
+  Future<List<String>> getRecentTitles({int limit = 50}) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      '''
+      SELECT DISTINCT title 
+      FROM transactions 
+      WHERE title IS NOT NULL AND title != ''
+      ORDER BY createdAt DESC
+      LIMIT ?
+    ''',
+      [limit],
+    );
+
+    return List.generate(maps.length, (i) => maps[i]['title'] as String);
   }
 }

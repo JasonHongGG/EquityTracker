@@ -28,6 +28,9 @@ class _AddEditTransactionScreenState
   late TextEditingController _noteController;
   String? _selectedCategoryId;
 
+  final FocusNode _amountFocusNode = FocusNode();
+  final FocusNode _titleFocusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +44,23 @@ class _AddEditTransactionScreenState
     _titleController = TextEditingController(text: t?.title ?? '');
     _noteController = TextEditingController(text: t?.note ?? '');
     _selectedCategoryId = t?.categoryId;
+
+    // Auto-focus amount if new
+    if (widget.transaction == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _amountFocusNode.requestFocus();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _titleController.dispose();
+    _noteController.dispose();
+    _amountFocusNode.dispose();
+    _titleFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -65,9 +85,9 @@ class _AddEditTransactionScreenState
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Top Section: Type & Amount
+            // Hero Section: Combined Amount & Title
             Container(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 30),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
                 children: [
                   // Type Switcher
@@ -86,39 +106,171 @@ class _AddEditTransactionScreenState
                     ),
                   ),
 
-                  // Amount
-                  const Text('Amount', style: TextStyle(color: Colors.grey)),
-                  IntrinsicWidth(
-                    child: TextField(
-                      controller: _amountController,
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        color: _type == TransactionType.income
-                            ? AppColors.income
-                            : AppColors.expense,
-                      ),
-                      decoration: const InputDecoration(
-                        prefixText: '\$ ',
-                        prefixStyle: TextStyle(
-                          fontSize: 30,
-                          color: Colors.grey,
+                  // Amount Input
+                  Consumer(
+                    builder: (context, ref, child) {
+                      return Focus(
+                        onFocusChange: (hasFocus) {
+                          // Force rebuild to update styling
+                          setState(() {});
+                        },
+                        child: IntrinsicWidth(
+                          child: TextField(
+                            controller: _amountController,
+                            focusNode: _amountFocusNode,
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            showCursor:
+                                false, // Hide the default blinking cursor
+                            textInputAction: TextInputAction.next,
+                            onSubmitted: (_) {
+                              // Auto-focus title when done
+                              _titleFocusNode.requestFocus();
+                            },
+                            style: TextStyle(
+                              fontFamily: 'Outfit',
+                              fontSize: 56,
+                              fontWeight: FontWeight.bold,
+                              color: _type == TransactionType.income
+                                  ? AppColors.income
+                                  : AppColors.expense,
+                              decoration: _amountFocusNode.hasFocus
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none,
+                              decorationColor: _type == TransactionType.income
+                                  ? AppColors.income.withValues(alpha: 0.3)
+                                  : AppColors.expense.withValues(alpha: 0.3),
+                            ),
+                            decoration: const InputDecoration(
+                              prefixText: '\$',
+                              prefixStyle: TextStyle(
+                                fontSize: 30,
+                                color: Colors.grey,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              border: InputBorder.none,
+                              hintText: '0',
+                              hintStyle: TextStyle(color: Colors.grey),
+                            ),
+                            onChanged: (val) =>
+                                _amount = int.tryParse(val) ?? 0,
+                          ),
                         ),
-                        border: InputBorder.none,
-                        hintText: '0',
-                        hintStyle: TextStyle(color: Colors.grey),
-                      ),
-                      onChanged: (val) => _amount = int.tryParse(val) ?? 0,
-                    ),
+                      );
+                    },
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Smart Title Autocomplete
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final recentTitlesAsync = ref.watch(recentTitlesProvider);
+                      final options = recentTitlesAsync.value ?? [];
+
+                      return LayoutBuilder(
+                        builder: (context, constraints) {
+                          return RawAutocomplete<String>(
+                            textEditingController: _titleController,
+                            focusNode:
+                                _titleFocusNode, // Use the shared focus node
+                            optionsBuilder:
+                                (TextEditingValue textEditingValue) {
+                                  if (textEditingValue.text == '') {
+                                    return const Iterable<String>.empty();
+                                  }
+                                  return options.where((String option) {
+                                    return option.toLowerCase().contains(
+                                      textEditingValue.text.toLowerCase(),
+                                    );
+                                  });
+                                },
+                            fieldViewBuilder:
+                                (
+                                  BuildContext context,
+                                  TextEditingController textEditingController,
+                                  FocusNode focusNode,
+                                  VoidCallback onFieldSubmitted,
+                                ) {
+                                  return TextField(
+                                    controller: textEditingController,
+                                    focusNode: focusNode,
+                                    textAlign: TextAlign.center,
+                                    textInputAction: TextInputAction.done,
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText: 'What is this for?',
+                                      hintStyle: TextStyle(
+                                        color: isDark
+                                            ? Colors.white38
+                                            : Colors.black38,
+                                      ),
+                                      border: InputBorder.none,
+                                      prefixIcon: const Icon(
+                                        Icons.edit,
+                                        color: Colors.transparent, // Spacer
+                                        size: 16,
+                                      ),
+                                      suffixIcon: const Icon(
+                                        Icons.edit,
+                                        color: Colors.grey,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  );
+                                },
+                            optionsViewBuilder:
+                                (
+                                  BuildContext context,
+                                  AutocompleteOnSelected<String> onSelected,
+                                  Iterable<String> options,
+                                ) {
+                                  return Align(
+                                    alignment: Alignment.topLeft,
+                                    child: Material(
+                                      elevation: 4.0,
+                                      color: isDark
+                                          ? AppColors.surfaceDark
+                                          : Colors.white,
+                                      borderRadius: BorderRadius.circular(15),
+                                      child: SizedBox(
+                                        width: constraints.maxWidth,
+                                        height: 200,
+                                        child: ListView.builder(
+                                          padding: EdgeInsets.zero,
+                                          itemCount: options.length,
+                                          itemBuilder:
+                                              (
+                                                BuildContext context,
+                                                int index,
+                                              ) {
+                                                final String option = options
+                                                    .elementAt(index);
+                                                return ListTile(
+                                                  title: Text(option),
+                                                  onTap: () {
+                                                    onSelected(option);
+                                                  },
+                                                );
+                                              },
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
             ),
 
-            // Main Form in a polished card
+            // Details Section
             Container(
               decoration: BoxDecoration(
                 color: isDark ? AppColors.surfaceDark : Colors.white,
@@ -137,37 +289,6 @@ class _AddEditTransactionScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title Input (Prominent)
-                  const Text(
-                    'Title',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _titleController,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: isDark
-                          ? AppColors.backgroundDark
-                          : Colors.grey[100],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                      hintText: 'e.g. Lunch, Taxi, Salary',
-                      prefixIcon: const Icon(
-                        Icons.edit_note,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Category
                   const Text(
                     'Category',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
@@ -244,7 +365,7 @@ class _AddEditTransactionScreenState
 
                   // Note (Optional, secondary)
                   const Text(
-                    'Internal Note (Optional)',
+                    'Internal Note',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
@@ -263,6 +384,7 @@ class _AddEditTransactionScreenState
                     ),
                   ),
 
+                  // Buttons... (Existing code handles this part if I don't overwrite effectively, but I should probably overwrite up to the end of body or just the input part)
                   const SizedBox(height: 40),
                   SizedBox(
                     width: double.infinity,

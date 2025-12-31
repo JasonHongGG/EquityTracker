@@ -186,3 +186,11 @@ final dailyTotalProvider = Provider<AsyncValue<Map<DateTime, int>>>((ref) {
     return totals;
   });
 });
+
+// Recent Titles for Autocomplete
+final recentTitlesProvider = FutureProvider<List<String>>((ref) async {
+  // refresh trigger via watching list provider if we want real-time updates when adding new ones
+  ref.watch(transactionListProvider);
+  final dbService = DatabaseService();
+  return await dbService.getRecentTitles();
+});
