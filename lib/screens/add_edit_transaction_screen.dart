@@ -396,6 +396,9 @@ class _AddEditTransactionScreenState
                         borderSide: BorderSide.none,
                       ),
                       hintText: 'Private details...',
+                      hintStyle: TextStyle(
+                        color: isDark ? Colors.white38 : Colors.grey[400],
+                      ),
                     ),
                   ),
 

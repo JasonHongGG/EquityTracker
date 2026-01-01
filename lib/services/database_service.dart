@@ -241,7 +241,7 @@ class DatabaseService {
     return List.generate(maps.length, (i) => TransactionModel.fromMap(maps[i]));
   }
 
-  Future<List<String>> getRecentTitles({int limit = 50}) async {
+  Future<List<String>> getRecentTitles({int limit = 1000}) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.rawQuery(
       '''

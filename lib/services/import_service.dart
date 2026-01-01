@@ -139,7 +139,7 @@ class ImportService {
         iconCodePoint: FontAwesomeIcons.question.codePoint,
         iconFontFamily: FontAwesomeIcons.question.fontFamily,
         iconFontPackage: FontAwesomeIcons.question.fontPackage,
-        colorValue: Colors.grey.toARGB32(),
+        colorValue: Colors.grey.value,
         type: TransactionType.expense,
         isSystem: false,
         isEnabled: true,
