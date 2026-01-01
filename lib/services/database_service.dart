@@ -245,10 +245,11 @@ class DatabaseService {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.rawQuery(
       '''
-      SELECT DISTINCT title 
+      SELECT title, COUNT(*) as frequency 
       FROM transactions 
       WHERE title IS NOT NULL AND title != ''
-      ORDER BY createdAt DESC
+      GROUP BY title
+      ORDER BY frequency DESC
       LIMIT ?
     ''',
       [limit],
