@@ -1,0 +1,3429 @@
+{
+    "database_id": "29909699e764807698d5de2998e36af6",
+    "exported_at": "2026-01-01T08:07:52.813134+00:00",
+    "format": "flat",
+    "results": [
+        {
+            "_id": "29a09699-e764-81a3-b138-e0d3deca6be1",
+            "_created_time": "2025-10-28T17:16:00.000Z",
+            "_last_edited_time": "2025-11-03T16:31:00.000Z",
+            "金額": 65,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "交通",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -65,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-10-28",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-10-28 [44]",
+            "IsFilterDay": false,
+            "Page": "抹茶奶酥吐司"
+        },
+        {
+            "_id": "29a09699-e764-81c0-9b46-f65049ec583f",
+            "_created_time": "2025-10-28T17:17:00.000Z",
+            "_last_edited_time": "2025-11-03T16:31:00.000Z",
+            "金額": 60,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "交通",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -60,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-10-28",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-10-28 [44]",
+            "IsFilterDay": false,
+            "Page": "剁椒雞絲麵"
+        },
+        {
+            "_id": "29a09699-e764-81e0-9b2c-fe81c12fb59a",
+            "_created_time": "2025-10-28T17:16:00.000Z",
+            "_last_edited_time": "2025-11-03T16:31:00.000Z",
+            "金額": 65,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "交通",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -65,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-10-28",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-10-28 [44]",
+            "IsFilterDay": false,
+            "Page": "巧克力奶酥土司"
+        },
+        {
+            "_id": "29b09699-e764-81b0-8f09-ccb4c3f09212",
+            "_created_time": "2025-10-29T12:44:00.000Z",
+            "_last_edited_time": "2025-11-03T16:14:00.000Z",
+            "金額": 100,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "領錢",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": 100,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-10-29T20:43:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-10-29 [44]",
+            "IsFilterDay": false,
+            "Page": "領錢"
+        },
+        {
+            "_id": "29b09699-e764-81f9-a962-cdfa9344f2ed",
+            "_created_time": "2025-10-29T10:17:00.000Z",
+            "_last_edited_time": "2025-11-03T16:31:00.000Z",
+            "金額": 230,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -230,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-10-29T00:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-10-28 [44]",
+            "IsFilterDay": false,
+            "Page": "拉麵"
+        },
+        {
+            "_id": "2a009699-e764-8006-9407-c1cdc1d70835",
+            "_created_time": "2025-11-03T15:22:00.000Z",
+            "_last_edited_time": "2025-11-03T16:31:00.000Z",
+            "金額": 250,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "生活",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -250,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-02 [44]",
+            "IsFilterDay": false,
+            "Page": "門票"
+        },
+        {
+            "_id": "2a009699-e764-804e-bf31-d4de95031470",
+            "_created_time": "2025-11-03T15:22:00.000Z",
+            "_last_edited_time": "2025-11-03T16:31:00.000Z",
+            "金額": 500,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "交通",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -500,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-02 [44]",
+            "IsFilterDay": false,
+            "Page": "加值"
+        },
+        {
+            "_id": "2a009699-e764-807a-b682-f63c5feb215c",
+            "_created_time": "2025-11-03T15:24:00.000Z",
+            "_last_edited_time": "2025-11-03T16:31:00.000Z",
+            "金額": 115,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -115,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-02 [44]",
+            "IsFilterDay": false,
+            "Page": "晨間"
+        },
+        {
+            "_id": "2a009699-e764-809c-aeac-de3027cc2cea",
+            "_created_time": "2025-11-03T15:21:00.000Z",
+            "_last_edited_time": "2025-11-03T16:31:00.000Z",
+            "金額": 250,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "交通",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -250,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-02 [44]",
+            "IsFilterDay": false,
+            "Page": "機車"
+        },
+        {
+            "_id": "2a009699-e764-80a7-8603-fcd43c2bf07d",
+            "_created_time": "2025-11-03T15:26:00.000Z",
+            "_last_edited_time": "2025-11-03T16:31:00.000Z",
+            "金額": 100,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -100,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-02 [44]",
+            "IsFilterDay": false,
+            "Page": "魚湯"
+        },
+        {
+            "_id": "2a009699-e764-80b8-90c8-fdf8ffcac75a",
+            "_created_time": "2025-11-03T15:25:00.000Z",
+            "_last_edited_time": "2025-11-03T16:31:00.000Z",
+            "金額": 50,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "加油",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -50,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-02 [44]",
+            "IsFilterDay": false,
+            "Page": "加油"
+        },
+        {
+            "_id": "2a009699-e764-80d4-a154-c58ea54c0b3e",
+            "_created_time": "2025-11-03T15:25:00.000Z",
+            "_last_edited_time": "2025-11-03T16:31:00.000Z",
+            "金額": 45,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -45,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-02 [44]",
+            "IsFilterDay": false,
+            "Page": "章魚燒"
+        },
+        {
+            "_id": "2a009699-e764-81d9-81a3-fffcc08a4f57",
+            "_created_time": "2025-11-03T10:24:00.000Z",
+            "_last_edited_time": "2025-11-03T15:55:00.000Z",
+            "金額": 50,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -50,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-03",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-03 [45]",
+            "IsFilterDay": false,
+            "Page": "紅豆餅"
+        },
+        {
+            "_id": "2a009699-e764-81ed-a6ee-ff5b231ddca9",
+            "_created_time": "2025-11-03T10:21:00.000Z",
+            "_last_edited_time": "2025-11-03T16:14:00.000Z",
+            "金額": 50,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -50,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-03",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-03 [45]",
+            "IsFilterDay": false,
+            "Page": "奶茶"
+        },
+        {
+            "_id": "2a109699-e764-8029-b3e4-c2e4330c2dda",
+            "_created_time": "2025-11-04T12:05:00.000Z",
+            "_last_edited_time": "2025-11-04T12:08:00.000Z",
+            "金額": 50,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -50,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-04",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-04 [45]",
+            "IsFilterDay": false,
+            "Page": "奶茶"
+        },
+        {
+            "_id": "2a109699-e764-802f-92f5-ee3c155f02ec",
+            "_created_time": "2025-11-04T12:10:00.000Z",
+            "_last_edited_time": "2025-11-04T12:11:00.000Z",
+            "金額": 120,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -120,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-03",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-03 [45]",
+            "IsFilterDay": false,
+            "Page": "牛肉炒麵"
+        },
+        {
+            "_id": "2a109699-e764-8090-9f6e-c249a00609eb",
+            "_created_time": "2025-11-04T12:04:00.000Z",
+            "_last_edited_time": "2025-11-04T12:08:00.000Z",
+            "金額": 70,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -70,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-04",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-04 [45]",
+            "IsFilterDay": false,
+            "Page": "香腸炒飯"
+        },
+        {
+            "_id": "2a109699-e764-809f-80ed-d00d3a983257",
+            "_created_time": "2025-11-04T12:04:00.000Z",
+            "_last_edited_time": "2025-11-04T12:08:00.000Z",
+            "金額": 80,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -80,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-04",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-04 [45]",
+            "IsFilterDay": false,
+            "Page": "烏龍麵"
+        },
+        {
+            "_id": "2a109699-e764-80dc-bb6d-d1f1e98c0334",
+            "_created_time": "2025-11-04T12:04:00.000Z",
+            "_last_edited_time": "2025-11-04T12:08:00.000Z",
+            "金額": 30,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -30,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-04",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-04 [45]",
+            "IsFilterDay": false,
+            "Page": "紅豆餅"
+        },
+        {
+            "_id": "2a209699-e764-8033-93fc-ccc763c1014e",
+            "_created_time": "2025-11-05T13:21:00.000Z",
+            "_last_edited_time": "2025-11-05T13:23:00.000Z",
+            "金額": 199,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -199,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-05",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-05 [45]",
+            "IsFilterDay": false,
+            "Page": "披薩"
+        },
+        {
+            "_id": "2a209699-e764-8087-ad4b-fd922c399f62",
+            "_created_time": "2025-11-05T13:22:00.000Z",
+            "_last_edited_time": "2025-11-05T13:23:00.000Z",
+            "金額": 80,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -80,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-05",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-05 [45]",
+            "IsFilterDay": false,
+            "Page": "慶三"
+        },
+        {
+            "_id": "2a309699-e764-80ae-b7e8-d35a0804e856",
+            "_created_time": "2025-11-06T13:24:00.000Z",
+            "_last_edited_time": "2025-11-06T13:24:00.000Z",
+            "金額": 40,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -40,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-06",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-06 [45]",
+            "IsFilterDay": false,
+            "Page": "蛋餅"
+        },
+        {
+            "_id": "2a309699-e764-80d7-8d66-f95e6f3091f1",
+            "_created_time": "2025-11-06T13:23:00.000Z",
+            "_last_edited_time": "2025-11-06T13:24:00.000Z",
+            "金額": 125,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -125,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-06",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-06 [45]",
+            "IsFilterDay": false,
+            "Page": "太麻里"
+        },
+        {
+            "_id": "2a309699-e764-80fc-906a-d1d1b81d5838",
+            "_created_time": "2025-11-06T13:24:00.000Z",
+            "_last_edited_time": "2025-11-06T13:24:00.000Z",
+            "金額": 80,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "加油",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -80,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-06",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-06 [45]",
+            "IsFilterDay": false,
+            "Page": "加油"
+        },
+        {
+            "_id": "2a409699-e764-804f-a5cf-eb0703fbb712",
+            "_created_time": "2025-11-07T11:00:00.000Z",
+            "_last_edited_time": "2025-11-07T11:00:00.000Z",
+            "金額": 140,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -140,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-07",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-07 [45]",
+            "IsFilterDay": false,
+            "Page": "肉控控"
+        },
+        {
+            "_id": "2a409699-e764-80d1-87f3-cee0aaecbdb7",
+            "_created_time": "2025-11-07T11:00:00.000Z",
+            "_last_edited_time": "2025-11-07T11:00:00.000Z",
+            "金額": 85,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -85,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-07",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-07 [45]",
+            "IsFilterDay": false,
+            "Page": "慶三"
+        },
+        {
+            "_id": "2a809699-e764-80d7-a0f0-e5c390d8ebaf",
+            "_created_time": "2025-11-11T05:37:00.000Z",
+            "_last_edited_time": "2025-11-11T05:39:00.000Z",
+            "金額": 115,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -115,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-11",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-11 [46]",
+            "IsFilterDay": false,
+            "Page": "大醬"
+        },
+        {
+            "_id": "2ab09699-e764-8001-b3a7-eae60ef01544",
+            "_created_time": "2025-11-14T05:40:00.000Z",
+            "_last_edited_time": "2025-11-14T05:44:00.000Z",
+            "金額": 55,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -55,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-11",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-11 [46]",
+            "IsFilterDay": false,
+            "Page": "豆腐冰"
+        },
+        {
+            "_id": "2ab09699-e764-801b-8eaa-fcc8ef361b2f",
+            "_created_time": "2025-11-14T05:41:00.000Z",
+            "_last_edited_time": "2025-11-14T05:44:00.000Z",
+            "金額": 85,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -85,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-12",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-12 [46]",
+            "IsFilterDay": false,
+            "Page": "壽司"
+        },
+        {
+            "_id": "2ab09699-e764-803b-9829-dc2ed56c81a0",
+            "_created_time": "2025-11-14T05:42:00.000Z",
+            "_last_edited_time": "2025-11-14T05:44:00.000Z",
+            "金額": 185,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -185,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-12",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-12 [46]",
+            "IsFilterDay": false,
+            "Page": "超市"
+        },
+        {
+            "_id": "2ab09699-e764-8068-bfd9-c256506be7a0",
+            "_created_time": "2025-11-14T05:41:00.000Z",
+            "_last_edited_time": "2025-11-14T05:44:00.000Z",
+            "金額": 50,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -50,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-12",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-12 [46]",
+            "IsFilterDay": false,
+            "Page": "蔥油餅"
+        },
+        {
+            "_id": "2ab09699-e764-80ae-83a4-d2f6745bb33e",
+            "_created_time": "2025-11-14T05:40:00.000Z",
+            "_last_edited_time": "2025-11-14T05:44:00.000Z",
+            "金額": 75,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -75,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-11",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-11 [46]",
+            "IsFilterDay": false,
+            "Page": "水餃"
+        },
+        {
+            "_id": "2ab09699-e764-80d6-a59e-fb8e1f07202f",
+            "_created_time": "2025-11-14T05:43:00.000Z",
+            "_last_edited_time": "2025-11-14T05:44:00.000Z",
+            "金額": 165,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -165,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-13",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-13 [46]",
+            "IsFilterDay": false,
+            "Page": "太麻里"
+        },
+        {
+            "_id": "2ab09699-e764-80ea-9b32-f435ef390d52",
+            "_created_time": "2025-11-14T05:44:00.000Z",
+            "_last_edited_time": "2025-11-14T05:44:00.000Z",
+            "金額": 85,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -85,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-14",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-14 [46]",
+            "IsFilterDay": false,
+            "Page": "慶三"
+        },
+        {
+            "_id": "2ab09699-e764-80ea-be84-f46af6c5ae1d",
+            "_created_time": "2025-11-14T05:43:00.000Z",
+            "_last_edited_time": "2025-11-14T05:44:00.000Z",
+            "金額": 115,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -115,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-13",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-13 [46]",
+            "IsFilterDay": false,
+            "Page": "大醬"
+        },
+        {
+            "_id": "2bc09699-e764-8017-b5dd-f5b06fe26707",
+            "_created_time": "2025-12-01T13:55:00.000Z",
+            "_last_edited_time": "2025-12-01T13:55:00.000Z",
+            "金額": 90,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -90,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-30",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-30 [48]",
+            "IsFilterDay": false,
+            "Page": "鴨販製造所"
+        },
+        {
+            "_id": "2bc09699-e764-8038-af72-c26bfa271886",
+            "_created_time": "2025-12-01T13:52:00.000Z",
+            "_last_edited_time": "2025-12-01T13:55:00.000Z",
+            "金額": 210,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -210,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-29",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-29 [48]",
+            "IsFilterDay": false,
+            "Page": "麥味登"
+        },
+        {
+            "_id": "2bc09699-e764-803e-9840-cd86539482a4",
+            "_created_time": "2025-12-01T13:55:00.000Z",
+            "_last_edited_time": "2025-12-01T14:28:00.000Z",
+            "金額": 155,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -155,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-30",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-30 [48]",
+            "IsFilterDay": false,
+            "Page": "一個人的鍋"
+        },
+        {
+            "_id": "2bc09699-e764-8044-83f7-c1207c08cc5c",
+            "_created_time": "2025-12-01T13:52:00.000Z",
+            "_last_edited_time": "2025-12-01T13:55:00.000Z",
+            "金額": 80,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -80,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-29",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-29 [48]",
+            "IsFilterDay": false,
+            "Page": "豆菜麵"
+        },
+        {
+            "_id": "2bc09699-e764-807f-ad84-ee2516777e5c",
+            "_created_time": "2025-12-01T13:53:00.000Z",
+            "_last_edited_time": "2025-12-01T13:55:00.000Z",
+            "金額": 110,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -110,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-28",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-28 [48]",
+            "IsFilterDay": false,
+            "Page": "宜華"
+        },
+        {
+            "_id": "2bc09699-e764-808d-b5fa-ce12debf8fc7",
+            "_created_time": "2025-12-01T13:56:00.000Z",
+            "_last_edited_time": "2025-12-01T14:28:00.000Z",
+            "金額": 60,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -60,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-30",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-30 [48]",
+            "IsFilterDay": false,
+            "Page": "春宅"
+        },
+        {
+            "_id": "2bc09699-e764-80a6-82ec-f088d376d08b",
+            "_created_time": "2025-12-01T13:53:00.000Z",
+            "_last_edited_time": "2025-12-01T13:55:00.000Z",
+            "金額": 165,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -165,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-28",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-28 [48]",
+            "IsFilterDay": false,
+            "Page": "太麻里"
+        },
+        {
+            "_id": "2bc09699-e764-80b6-a6f2-e37e42e4542e",
+            "_created_time": "2025-12-01T14:54:00.000Z",
+            "_last_edited_time": "2025-12-01T14:54:00.000Z",
+            "金額": 3000,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "領錢",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": 3000,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-28",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-28 [48]",
+            "IsFilterDay": false,
+            "Page": "領錢"
+        },
+        {
+            "_id": "2bc09699-e764-80c9-b87b-eb626a991987",
+            "_created_time": "2025-12-01T14:28:00.000Z",
+            "_last_edited_time": "2025-12-01T14:29:00.000Z",
+            "金額": 1200,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "生活",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -1200,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-11-28",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-11-28 [48]",
+            "IsFilterDay": false,
+            "Page": "健身房"
+        },
+        {
+            "_id": "2bf09699-e764-801b-9d9c-fef9ff35ebe9",
+            "_created_time": "2025-12-04T13:47:00.000Z",
+            "_last_edited_time": "2025-12-04T13:51:00.000Z",
+            "金額": 110,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -110,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-01",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-01 [49]",
+            "IsFilterDay": false,
+            "Page": "越南媽媽 河粉"
+        },
+        {
+            "_id": "2bf09699-e764-801f-9bae-d3c9aab8776f",
+            "_created_time": "2025-12-04T13:50:00.000Z",
+            "_last_edited_time": "2025-12-04T13:51:00.000Z",
+            "金額": 80,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -80,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-04",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-04 [49]",
+            "IsFilterDay": false,
+            "Page": "泰式"
+        },
+        {
+            "_id": "2bf09699-e764-802c-9a45-ef5f73bc2cca",
+            "_created_time": "2025-12-04T13:49:00.000Z",
+            "_last_edited_time": "2025-12-04T13:51:00.000Z",
+            "金額": 250,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -250,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-01",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-01 [49]",
+            "IsFilterDay": false,
+            "Page": "牛匠太郎 丼飯"
+        },
+        {
+            "_id": "2bf09699-e764-8033-94b5-ec495029f6e6",
+            "_created_time": "2025-12-04T13:48:00.000Z",
+            "_last_edited_time": "2025-12-04T13:51:00.000Z",
+            "金額": 100,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -100,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-02 [49]",
+            "IsFilterDay": false,
+            "Page": "煎餃"
+        },
+        {
+            "_id": "2bf09699-e764-8044-a47a-c1f321702477",
+            "_created_time": "2025-12-04T13:50:00.000Z",
+            "_last_edited_time": "2025-12-04T13:51:00.000Z",
+            "金額": 310,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -310,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-03",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-03 [49]",
+            "IsFilterDay": false,
+            "Page": "拉麵"
+        },
+        {
+            "_id": "2bf09699-e764-804d-9c92-f45dd38fdcc7",
+            "_created_time": "2025-12-04T13:51:00.000Z",
+            "_last_edited_time": "2025-12-04T13:51:00.000Z",
+            "金額": 115,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -115,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-04",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-04 [49]",
+            "IsFilterDay": false,
+            "Page": "餛飩麵"
+        },
+        {
+            "_id": "2bf09699-e764-8053-aca4-d43ee41233bd",
+            "_created_time": "2025-12-04T13:49:00.000Z",
+            "_last_edited_time": "2025-12-04T13:51:00.000Z",
+            "金額": 110,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -110,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-02 [49]",
+            "IsFilterDay": false,
+            "Page": "慶三"
+        },
+        {
+            "_id": "2bf09699-e764-80aa-ba56-c52c5e1c2e70",
+            "_created_time": "2025-12-04T13:52:00.000Z",
+            "_last_edited_time": "2025-12-04T13:53:00.000Z",
+            "金額": 680,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "交通",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -680,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-02 [49]",
+            "IsFilterDay": false,
+            "Page": "機車保養"
+        },
+        {
+            "_id": "2bf09699-e764-80d2-86d0-e16ca4b12a19",
+            "_created_time": "2025-12-04T13:47:00.000Z",
+            "_last_edited_time": "2025-12-04T13:51:00.000Z",
+            "金額": 110,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -110,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-02 [49]",
+            "IsFilterDay": false,
+            "Page": "臭臭鍋"
+        },
+        {
+            "_id": "2bf09699-e764-80e4-a36e-d85f6a46d5aa",
+            "_created_time": "2025-12-04T13:48:00.000Z",
+            "_last_edited_time": "2025-12-04T13:51:00.000Z",
+            "金額": 55,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -55,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-02",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-02 [49]",
+            "IsFilterDay": false,
+            "Page": "仙草奶烙"
+        },
+        {
+            "_id": "2bf09699-e764-80f1-9df5-de9b1b586988",
+            "_created_time": "2025-12-04T13:52:00.000Z",
+            "_last_edited_time": "2025-12-04T13:53:00.000Z",
+            "金額": 100,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "加油",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -100,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-04",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-04 [49]",
+            "IsFilterDay": false,
+            "Page": "加油"
+        },
+        {
+            "_id": "2bf09699-e764-80fd-a35a-ed1fa319c7ad",
+            "_created_time": "2025-12-04T13:50:00.000Z",
+            "_last_edited_time": "2025-12-04T13:51:00.000Z",
+            "金額": 60,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -60,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-04",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-04 [49]",
+            "IsFilterDay": false,
+            "Page": "春宅"
+        },
+        {
+            "_id": "2c009699-e764-8088-8bd9-c3d6da8c4eb5",
+            "_created_time": "2025-12-05T14:43:00.000Z",
+            "_last_edited_time": "2025-12-05T14:43:00.000Z",
+            "金額": 79,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -79,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-05",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-05 [49]",
+            "IsFilterDay": false,
+            "Page": "好朋友牛奶"
+        },
+        {
+            "_id": "2c009699-e764-80db-b3d4-f96c5f129d84",
+            "_created_time": "2025-12-05T14:42:00.000Z",
+            "_last_edited_time": "2025-12-05T14:43:00.000Z",
+            "金額": 205,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -205,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-05",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-05 [49]",
+            "IsFilterDay": false,
+            "Page": "佐二"
+        },
+        {
+            "_id": "2c009699-e764-80e9-9b48-e982627892b7",
+            "_created_time": "2025-12-05T14:42:00.000Z",
+            "_last_edited_time": "2025-12-05T14:43:00.000Z",
+            "金額": 115,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -115,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-05",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-05 [49]",
+            "IsFilterDay": false,
+            "Page": "大醬"
+        },
+        {
+            "_id": "2c209699-e764-8019-a7f1-c362f2baec22",
+            "_created_time": "2025-12-07T06:57:00.000Z",
+            "_last_edited_time": "2025-12-07T06:58:00.000Z",
+            "金額": 50,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -50,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-06",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-06 [49]",
+            "IsFilterDay": false,
+            "Page": "阿川粉圓"
+        },
+        {
+            "_id": "2c209699-e764-8055-8484-da351e737f89",
+            "_created_time": "2025-12-07T06:57:00.000Z",
+            "_last_edited_time": "2025-12-07T06:58:00.000Z",
+            "金額": 470,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -470,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-06",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-06 [49]",
+            "IsFilterDay": false,
+            "Page": "心居"
+        },
+        {
+            "_id": "2c209699-e764-8059-aa2f-fec396fc1318",
+            "_created_time": "2025-12-07T06:57:00.000Z",
+            "_last_edited_time": "2025-12-07T06:58:00.000Z",
+            "金額": 130,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -130,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-06",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-06 [49]",
+            "IsFilterDay": false,
+            "Page": "鼎富發"
+        },
+        {
+            "_id": "2c209699-e764-80a5-a6c2-e8a6e07d88fe",
+            "_created_time": "2025-12-07T06:56:00.000Z",
+            "_last_edited_time": "2025-12-07T06:58:00.000Z",
+            "金額": 295,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -295,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-06",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-06 [49]",
+            "IsFilterDay": false,
+            "Page": "早午餐"
+        },
+        {
+            "_id": "2c609699-e764-8013-9b6a-e4cc4a9b1e37",
+            "_created_time": "2025-12-11T14:58:00.000Z",
+            "_last_edited_time": "2025-12-11T15:00:00.000Z",
+            "金額": 31,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -31,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-09",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-09 [50]",
+            "IsFilterDay": false,
+            "Page": "紅茶"
+        },
+        {
+            "_id": "2c609699-e764-8053-abf2-c7124459bcfe",
+            "_created_time": "2025-12-11T14:59:00.000Z",
+            "_last_edited_time": "2025-12-11T15:00:00.000Z",
+            "金額": 115,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -115,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-11",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-11 [50]",
+            "IsFilterDay": false,
+            "Page": "大醬"
+        },
+        {
+            "_id": "2c609699-e764-8077-98d7-db65a98de76f",
+            "_created_time": "2025-12-11T14:58:00.000Z",
+            "_last_edited_time": "2025-12-11T15:00:00.000Z",
+            "金額": 110,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -110,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-10",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-10 [50]",
+            "IsFilterDay": false,
+            "Page": "鴨飯製造所"
+        },
+        {
+            "_id": "2c609699-e764-807a-9a8c-dca5f3ae4531",
+            "_created_time": "2025-12-11T14:56:00.000Z",
+            "_last_edited_time": "2025-12-11T15:00:00.000Z",
+            "金額": 165,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -165,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-08",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-08 [50]",
+            "IsFilterDay": false,
+            "Page": "鍋燒、粥"
+        },
+        {
+            "_id": "2c609699-e764-80a6-961a-c34319a3ec72",
+            "_created_time": "2025-12-11T15:00:00.000Z",
+            "_last_edited_time": "2025-12-11T15:00:00.000Z",
+            "金額": 79,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -79,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-11",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-11 [50]",
+            "IsFilterDay": false,
+            "Page": "巧克力好朋友"
+        },
+        {
+            "_id": "2c609699-e764-80ae-acd7-d7804c6df49b",
+            "_created_time": "2025-12-11T14:56:00.000Z",
+            "_last_edited_time": "2025-12-11T15:00:00.000Z",
+            "金額": 90,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -90,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-09",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-09 [50]",
+            "IsFilterDay": false,
+            "Page": "泰式"
+        },
+        {
+            "_id": "2c609699-e764-80be-b649-ff59cc086f2b",
+            "_created_time": "2025-12-11T14:59:00.000Z",
+            "_last_edited_time": "2025-12-11T15:00:00.000Z",
+            "金額": 135,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -135,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-11",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-11 [50]",
+            "IsFilterDay": false,
+            "Page": "太麻里"
+        },
+        {
+            "_id": "2c609699-e764-80e0-a67b-ddbefe40f0dd",
+            "_created_time": "2025-12-11T14:57:00.000Z",
+            "_last_edited_time": "2025-12-11T15:00:00.000Z",
+            "金額": 34,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -34,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-09",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-09 [50]",
+            "IsFilterDay": false,
+            "Page": "FIN"
+        },
+        {
+            "_id": "2c609699-e764-80e1-95f0-c91f86541d59",
+            "_created_time": "2025-12-11T14:55:00.000Z",
+            "_last_edited_time": "2025-12-11T15:00:00.000Z",
+            "金額": 90,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -90,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-08",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-08 [50]",
+            "IsFilterDay": false,
+            "Page": "鴨飯製造所"
+        },
+        {
+            "_id": "2c609699-e764-80fe-97be-c9cf2bfe6a82",
+            "_created_time": "2025-12-11T14:58:00.000Z",
+            "_last_edited_time": "2025-12-11T15:00:00.000Z",
+            "金額": 165,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -165,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-10",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-10 [50]",
+            "IsFilterDay": false,
+            "Page": "魚湯"
+        },
+        {
+            "_id": "2c709699-e764-801b-80a8-c1df0b216e62",
+            "_created_time": "2025-12-12T14:01:00.000Z",
+            "_last_edited_time": "2025-12-12T14:02:00.000Z",
+            "金額": 60,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -60,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-12",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-12 [50]",
+            "IsFilterDay": true,
+            "Page": "春宅"
+        },
+        {
+            "_id": "2c709699-e764-8062-b278-ce1a17dd0e63",
+            "_created_time": "2025-12-12T14:01:00.000Z",
+            "_last_edited_time": "2025-12-12T14:02:00.000Z",
+            "金額": 100,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -100,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-12",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-12 [50]",
+            "IsFilterDay": true,
+            "Page": "鍋燒"
+        },
+        {
+            "_id": "2c709699-e764-80e2-9c6f-efd97e8ee4e9",
+            "_created_time": "2025-12-12T14:01:00.000Z",
+            "_last_edited_time": "2025-12-12T14:02:00.000Z",
+            "金額": 85,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -85,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-12",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-12 [50]",
+            "IsFilterDay": true,
+            "Page": "慶三"
+        },
+        {
+            "_id": "2c909699-e764-8000-9910-e40cad55b4e7",
+            "_created_time": "2025-12-14T13:46:00.000Z",
+            "_last_edited_time": "2025-12-14T13:47:00.000Z",
+            "金額": 175,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -175,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-13",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-13 [50]",
+            "IsFilterDay": false,
+            "Page": "咖哩"
+        },
+        {
+            "_id": "2c909699-e764-8004-81c9-d3ac12c03181",
+            "_created_time": "2025-12-14T13:46:00.000Z",
+            "_last_edited_time": "2025-12-14T13:47:00.000Z",
+            "金額": 60,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -60,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-14",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-14 [50]",
+            "IsFilterDay": false,
+            "Page": "木瓜牛奶"
+        },
+        {
+            "_id": "2c909699-e764-8026-8862-f6413fbab948",
+            "_created_time": "2025-12-14T13:46:00.000Z",
+            "_last_edited_time": "2025-12-14T13:47:00.000Z",
+            "金額": 80,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -80,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-14",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-14 [50]",
+            "IsFilterDay": false,
+            "Page": "炒飯"
+        },
+        {
+            "_id": "2c909699-e764-802b-8f9f-d29bb9818c36",
+            "_created_time": "2025-12-14T13:46:00.000Z",
+            "_last_edited_time": "2025-12-14T13:47:00.000Z",
+            "金額": 35,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -35,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-14",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-14 [50]",
+            "IsFilterDay": false,
+            "Page": "豬小弟"
+        },
+        {
+            "_id": "2c909699-e764-8030-98b2-e768458c844c",
+            "_created_time": "2025-12-14T13:46:00.000Z",
+            "_last_edited_time": "2025-12-14T13:47:00.000Z",
+            "金額": 90,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -90,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-14",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-14 [50]",
+            "IsFilterDay": false,
+            "Page": "鴨肉炒麵"
+        },
+        {
+            "_id": "2c909699-e764-807a-bdce-fdb18aa30bfe",
+            "_created_time": "2025-12-14T13:45:00.000Z",
+            "_last_edited_time": "2025-12-14T13:47:00.000Z",
+            "金額": 260,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -260,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-13",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-13 [50]",
+            "IsFilterDay": false,
+            "Page": "夢想家"
+        },
+        {
+            "_id": "2c909699-e764-80e7-8fcf-d934987cd9d5",
+            "_created_time": "2025-12-14T13:45:00.000Z",
+            "_last_edited_time": "2025-12-14T13:47:00.000Z",
+            "金額": 50,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -50,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-13",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-13 [50]",
+            "IsFilterDay": false,
+            "Page": "得正"
+        },
+        {
+            "_id": "2c909699-e764-80fb-ad53-f662c8aa3277",
+            "_created_time": "2025-12-14T13:45:00.000Z",
+            "_last_edited_time": "2025-12-14T13:47:00.000Z",
+            "金額": 290,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -290,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-13",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-13 [50]",
+            "IsFilterDay": false,
+            "Page": "小廚房"
+        },
+        {
+            "_id": "2cb09699-e764-8014-854a-da55fd5f7f40",
+            "_created_time": "2025-12-16T15:15:00.000Z",
+            "_last_edited_time": "2025-12-16T15:17:00.000Z",
+            "金額": 65,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -65,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-16",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-16 [51]",
+            "IsFilterDay": false,
+            "Page": "甲上飽"
+        },
+        {
+            "_id": "2cb09699-e764-8024-95c3-e8bd7771815c",
+            "_created_time": "2025-12-16T15:12:00.000Z",
+            "_last_edited_time": "2025-12-16T15:17:00.000Z",
+            "金額": 90,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -90,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-15",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-15 [51]",
+            "IsFilterDay": false,
+            "Page": "鴨販製造所"
+        },
+        {
+            "_id": "2cb09699-e764-80ed-abc8-cd4090ebe922",
+            "_created_time": "2025-12-16T15:16:00.000Z",
+            "_last_edited_time": "2025-12-16T15:17:00.000Z",
+            "金額": 150,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -150,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-16",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-16 [51]",
+            "IsFilterDay": false,
+            "Page": "牛雜鍋"
+        },
+        {
+            "_id": "2cb09699-e764-80f7-bc1d-c2c6fbfc033d",
+            "_created_time": "2025-12-16T15:15:00.000Z",
+            "_last_edited_time": "2025-12-16T15:17:00.000Z",
+            "金額": 255,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -255,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-15",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-15 [51]",
+            "IsFilterDay": false,
+            "Page": "米花"
+        },
+        {
+            "_id": "2cb09699-e764-80f9-9824-d367a64a0f22",
+            "_created_time": "2025-12-16T15:14:00.000Z",
+            "_last_edited_time": "2025-12-16T15:17:00.000Z",
+            "金額": 65,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -65,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-14",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-14 [50]",
+            "IsFilterDay": false,
+            "Page": "綠豆蒜"
+        },
+        {
+            "_id": "2cf09699-e764-8010-8288-cafd6a698941",
+            "_created_time": "2025-12-20T08:33:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 65,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -65,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-18",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-18 [51]",
+            "IsFilterDay": false,
+            "Page": "太麻里"
+        },
+        {
+            "_id": "2cf09699-e764-8033-91f3-ec56218deff7",
+            "_created_time": "2025-12-20T08:33:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 310,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -310,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-17",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-17 [51]",
+            "IsFilterDay": false,
+            "Page": "拉麵"
+        },
+        {
+            "_id": "2cf09699-e764-804f-8c2e-e405ce2a6a66",
+            "_created_time": "2025-12-20T08:33:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 115,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -115,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-18",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-18 [51]",
+            "IsFilterDay": false,
+            "Page": "鍋燒"
+        },
+        {
+            "_id": "2cf09699-e764-80b8-9052-c466fad6af8d",
+            "_created_time": "2025-12-20T08:31:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 115,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -115,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-18",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-18 [51]",
+            "IsFilterDay": false,
+            "Page": "大醬"
+        },
+        {
+            "_id": "2cf09699-e764-80e6-bde7-c570c8db9c36",
+            "_created_time": "2025-12-20T08:31:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 137,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -137,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-19",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-19 [51]",
+            "IsFilterDay": false,
+            "Page": "飯丸屋"
+        },
+        {
+            "_id": "2d709699-e764-8022-823b-c20d524b72b3",
+            "_created_time": "2025-12-28T14:50:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 140,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -140,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-23",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-23 [52]",
+            "IsFilterDay": false,
+            "Page": "牛匠太郎"
+        },
+        {
+            "_id": "2d709699-e764-8032-b535-e1c1c5f845a9",
+            "_created_time": "2025-12-28T14:41:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 70,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -70,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-28",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-28 [52]",
+            "IsFilterDay": false,
+            "Page": "魷魚"
+        },
+        {
+            "_id": "2d709699-e764-803d-aa0b-fb3c88d0798b",
+            "_created_time": "2025-12-28T14:43:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 800,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "生活",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -800,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-27",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-27 [52]",
+            "IsFilterDay": false,
+            "Page": "密室"
+        },
+        {
+            "_id": "2d709699-e764-804e-a2f2-d89a08430cc1",
+            "_created_time": "2025-12-28T14:43:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 45,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -45,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-27",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-27 [52]",
+            "IsFilterDay": false,
+            "Page": "蜂蜜奶茶"
+        },
+        {
+            "_id": "2d709699-e764-8050-8b87-f131153d062e",
+            "_created_time": "2025-12-28T14:47:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 240,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -240,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-25",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-25 [52]",
+            "IsFilterDay": false,
+            "Page": "621"
+        },
+        {
+            "_id": "2d709699-e764-805a-a987-f94882c28f35",
+            "_created_time": "2025-12-28T14:48:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 280,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -280,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-25",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-25 [52]",
+            "IsFilterDay": false,
+            "Page": "朝思暮想"
+        },
+        {
+            "_id": "2d709699-e764-8061-883d-cd432beddc0d",
+            "_created_time": "2025-12-28T14:41:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 25,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -25,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-28",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-28 [52]",
+            "IsFilterDay": false,
+            "Page": "蔥油餅"
+        },
+        {
+            "_id": "2d709699-e764-806b-8200-cf54d794a956",
+            "_created_time": "2025-12-28T14:42:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 621,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -621,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-27",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-27 [52]",
+            "IsFilterDay": false,
+            "Page": "披薩"
+        },
+        {
+            "_id": "2d709699-e764-8070-bc4d-c4dd4c01f60b",
+            "_created_time": "2025-12-28T14:50:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 90,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -90,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-24",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-24 [52]",
+            "IsFilterDay": false,
+            "Page": "越南媽媽"
+        },
+        {
+            "_id": "2d709699-e764-808b-8514-fbf423b235cf",
+            "_created_time": "2025-12-28T14:49:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 204,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -204,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-26",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-26 [52]",
+            "IsFilterDay": false,
+            "Page": "德弘生日"
+        },
+        {
+            "_id": "2d709699-e764-80a8-9b06-fbbc63fd4332",
+            "_created_time": "2025-12-28T14:41:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 210,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -210,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-28",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-28 [52]",
+            "IsFilterDay": false,
+            "Page": "牛排"
+        },
+        {
+            "_id": "2d709699-e764-80c3-8450-d98139be3282",
+            "_created_time": "2025-12-28T14:44:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 398,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -398,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-26",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-26 [52]",
+            "IsFilterDay": false,
+            "Page": "沾米"
+        },
+        {
+            "_id": "2d709699-e764-80d0-af4d-cc5b7ab20ecd",
+            "_created_time": "2025-12-28T14:50:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 229,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -229,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-24",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-24 [52]",
+            "IsFilterDay": false,
+            "Page": "必勝客"
+        },
+        {
+            "_id": "2d709699-e764-80d6-8468-f58151cfb419",
+            "_created_time": "2025-12-28T14:42:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 50,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -50,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-27",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-27 [52]",
+            "IsFilterDay": false,
+            "Page": "阿川粉圓"
+        },
+        {
+            "_id": "2d709699-e764-80ea-b11e-e2238fc7bf5b",
+            "_created_time": "2025-12-28T14:52:00.000Z",
+            "_last_edited_time": "2025-12-28T14:54:00.000Z",
+            "金額": 60,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -60,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-23",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-23 [52]",
+            "IsFilterDay": false,
+            "Page": "春宅"
+        },
+        {
+            "_id": "2d909699-e764-802e-bab5-f939bc5b494f",
+            "_created_time": "2025-12-30T15:45:00.000Z",
+            "_last_edited_time": "2025-12-30T15:49:00.000Z",
+            "金額": 100,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "加油",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -100,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-29",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-29 [01]",
+            "IsFilterDay": false,
+            "Page": "加油"
+        },
+        {
+            "_id": "2d909699-e764-8040-91ba-f9b102ec39a3",
+            "_created_time": "2025-12-30T15:45:00.000Z",
+            "_last_edited_time": "2025-12-30T15:49:00.000Z",
+            "金額": 80,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -80,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-30",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-30 [01]",
+            "IsFilterDay": false,
+            "Page": "宜華"
+        },
+        {
+            "_id": "2d909699-e764-804b-99d2-d88053885352",
+            "_created_time": "2025-12-30T15:44:00.000Z",
+            "_last_edited_time": "2025-12-30T15:49:00.000Z",
+            "金額": 55,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -55,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-29",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-29 [01]",
+            "IsFilterDay": false,
+            "Page": "厚片"
+        },
+        {
+            "_id": "2d909699-e764-8061-abba-e4e8567210dd",
+            "_created_time": "2025-12-30T15:46:00.000Z",
+            "_last_edited_time": "2025-12-30T15:49:00.000Z",
+            "金額": 50,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -50,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-30",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-30 [01]",
+            "IsFilterDay": false,
+            "Page": "厚片"
+        },
+        {
+            "_id": "2d909699-e764-8079-8659-ec1a8fe109a8",
+            "_created_time": "2025-12-30T15:44:00.000Z",
+            "_last_edited_time": "2025-12-30T15:49:00.000Z",
+            "金額": 60,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -60,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-29",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-29 [01]",
+            "IsFilterDay": false,
+            "Page": "春宅"
+        },
+        {
+            "_id": "2d909699-e764-8090-8e2f-d72892a7b004",
+            "_created_time": "2025-12-30T15:44:00.000Z",
+            "_last_edited_time": "2025-12-30T15:49:00.000Z",
+            "金額": 95,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -95,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-29",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-29 [01]",
+            "IsFilterDay": false,
+            "Page": "口味鍋燒"
+        },
+        {
+            "_id": "2d909699-e764-80c0-bfcf-defc6f4afb2f",
+            "_created_time": "2025-12-30T15:44:00.000Z",
+            "_last_edited_time": "2025-12-30T15:49:00.000Z",
+            "金額": 40,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -40,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-29",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-29 [01]",
+            "IsFilterDay": false,
+            "Page": "蛋塔"
+        },
+        {
+            "_id": "2d909699-e764-80c6-9a5b-eccb190b2f11",
+            "_created_time": "2025-12-30T15:47:00.000Z",
+            "_last_edited_time": "2025-12-30T15:49:00.000Z",
+            "金額": 45,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -45,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-30",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-30 [01]",
+            "IsFilterDay": false,
+            "Page": "奶茶"
+        },
+        {
+            "_id": "2d909699-e764-80dd-aa75-e5169267e5c0",
+            "_created_time": "2025-12-30T15:46:00.000Z",
+            "_last_edited_time": "2025-12-30T15:49:00.000Z",
+            "金額": 95,
+            "Filter Link": [
+                "2a009699-e764-8010-b535-d6644f6df7d6"
+            ],
+            "Current Range": [
+                "昨天"
+            ],
+            "類別": "伙食",
+            "Now Format": "2026-01-01 [01]",
+            "Current Date": {
+                "start": "2025-12-12T09:00:00.000+08:00",
+                "end": null,
+                "time_zone": null
+            },
+            "收支金額": -95,
+            "IsVisible": false,
+            "時間": {
+                "start": "2025-12-30",
+                "end": null,
+                "time_zone": null
+            },
+            "時間 Fomat": "2025-12-30 [01]",
+            "IsFilterDay": false,
+            "Page": "百年鍋燒"
+        }
+    ]
+}

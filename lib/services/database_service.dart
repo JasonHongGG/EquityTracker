@@ -27,9 +27,8 @@ class DatabaseService {
     String path = join(await getDatabasesPath(), 'equity_tracker.db');
     return await openDatabase(
       path,
-      version: 2,
+      version: 1, // Reset to version 1 for clean install
       onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
     );
   }
 
@@ -66,12 +65,7 @@ class DatabaseService {
 
     await _seedCategories(db);
   }
-
-  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      await db.execute('ALTER TABLE transactions ADD COLUMN title TEXT');
-    }
-  }
+  // _onUpgrade removed
 
   Future<void> _seedCategories(Database db) async {
     const uuid = Uuid();
