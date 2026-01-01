@@ -80,7 +80,7 @@ class DatabaseService {
       // Expense
       Category(
         id: uuid.v4(),
-        name: '食物',
+        name: '伙食',
         iconCodePoint: FontAwesomeIcons.utensils.codePoint,
         iconFontFamily: FontAwesomeIcons.utensils.fontFamily,
         iconFontPackage: FontAwesomeIcons.utensils.fontPackage,
