@@ -48,18 +48,42 @@ class _HomeScreenState extends State<HomeScreen> {
               Positioned(
                 bottom: 100,
                 right: 20,
-                child: FloatingActionButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddEditTransactionScreen(),
+                child: Container(
+                  height: 60,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: AppColors.primaryGradient,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.3),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
                       ),
-                    );
-                  },
-                  backgroundColor: AppColors.secondary,
-                  foregroundColor: Colors.white,
-                  child: const Icon(FontAwesomeIcons.plus),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const AddEditTransactionScreen(),
+                          ),
+                        );
+                      },
+                      customBorder: const CircleBorder(),
+                      child: const Center(
+                        child: Icon(
+                          FontAwesomeIcons.plus,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
 
