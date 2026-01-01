@@ -50,6 +50,11 @@ class _AddEditTransactionScreenState
     _noteController = TextEditingController(text: t?.note ?? '');
     _selectedCategoryId = t?.categoryId;
 
+    // Listen to focus changes to toggle chip visibility
+    _titleFocusNode.addListener(() {
+      setState(() {});
+    });
+
     // Auto-focus amount if new
     if (widget.transaction == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -168,106 +173,111 @@ class _AddEditTransactionScreenState
                   const SizedBox(height: 10),
 
                   // Smart Title Autocomplete
+                  // Title Input
                   Consumer(
                     builder: (context, ref, child) {
                       final recentTitlesAsync = ref.watch(recentTitlesProvider);
-                      final options = recentTitlesAsync.value ?? [];
+                      final allOptions = recentTitlesAsync.value ?? [];
 
-                      return LayoutBuilder(
-                        builder: (context, constraints) {
-                          return RawAutocomplete<String>(
-                            textEditingController: _titleController,
-                            focusNode:
-                                _titleFocusNode, // Use the shared focus node
-                            optionsBuilder:
-                                (TextEditingValue textEditingValue) {
-                                  if (textEditingValue.text == '') {
-                                    return const Iterable<String>.empty();
-                                  }
-                                  return options.where((String option) {
-                                    return option.toLowerCase().contains(
-                                      textEditingValue.text.toLowerCase(),
-                                    );
-                                  });
-                                },
-                            fieldViewBuilder:
-                                (
-                                  BuildContext context,
-                                  TextEditingController textEditingController,
-                                  FocusNode focusNode,
-                                  VoidCallback onFieldSubmitted,
-                                ) {
-                                  return TextField(
-                                    controller: textEditingController,
-                                    focusNode: focusNode,
-                                    textAlign: TextAlign.center,
-                                    textInputAction: TextInputAction.done,
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    decoration: InputDecoration(
-                                      hintText: 'What is this for?',
-                                      hintStyle: TextStyle(
-                                        color: isDark
-                                            ? Colors.white38
-                                            : Colors.black38,
+                      // Filter options based on user input
+                      final filteredOptions = allOptions.where((String option) {
+                        return option.toLowerCase().contains(
+                          _titleController.text.toLowerCase(),
+                        );
+                      }).toList();
+
+                      // Only show limited number of suggestions
+                      final displayOptions = filteredOptions.take(10).toList();
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextField(
+                            controller: _titleController,
+                            focusNode: _titleFocusNode,
+                            textAlign: TextAlign.center,
+                            textInputAction: TextInputAction.done,
+                            onChanged: (value) {
+                              // Trigger rebuild to update suggestions
+                              setState(() {});
+                            },
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'What is this for?',
+                              hintStyle: TextStyle(
+                                color: isDark ? Colors.white38 : Colors.black38,
+                              ),
+                              border: InputBorder.none,
+                              prefixIcon: const Icon(
+                                Icons.edit,
+                                color: Colors.transparent, // Spacer
+                                size: 16,
+                              ),
+                              suffixIcon: const Icon(
+                                Icons.edit,
+                                color: Colors.grey,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+
+                          // Horizontal Suggestion Chips
+                          if (_titleFocusNode.hasFocus &&
+                              displayOptions.isNotEmpty)
+                            Container(
+                              height: 50,
+                              margin: const EdgeInsets.only(top: 8),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: displayOptions.map((option) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        right: 8.0,
                                       ),
-                                      border: InputBorder.none,
-                                      prefixIcon: const Icon(
-                                        Icons.edit,
-                                        color: Colors.transparent, // Spacer
-                                        size: 16,
-                                      ),
-                                      suffixIcon: const Icon(
-                                        Icons.edit,
-                                        color: Colors.grey,
-                                        size: 16,
-                                      ),
-                                    ),
-                                  );
-                                },
-                            optionsViewBuilder:
-                                (
-                                  BuildContext context,
-                                  AutocompleteOnSelected<String> onSelected,
-                                  Iterable<String> options,
-                                ) {
-                                  return Align(
-                                    alignment: Alignment.topLeft,
-                                    child: Material(
-                                      elevation: 4.0,
-                                      color: isDark
-                                          ? AppColors.surfaceDark
-                                          : Colors.white,
-                                      borderRadius: BorderRadius.circular(15),
-                                      child: SizedBox(
-                                        width: constraints.maxWidth,
-                                        height: 200,
-                                        child: ListView.builder(
-                                          padding: EdgeInsets.zero,
-                                          itemCount: options.length,
-                                          itemBuilder:
-                                              (
-                                                BuildContext context,
-                                                int index,
-                                              ) {
-                                                final String option = options
-                                                    .elementAt(index);
-                                                return ListTile(
-                                                  title: Text(option),
-                                                  onTap: () {
-                                                    onSelected(option);
-                                                  },
-                                                );
-                                              },
+                                      child: ActionChip(
+                                        label: Text(option),
+                                        backgroundColor: isDark
+                                            ? AppColors.surfaceDark
+                                            : Colors.white,
+                                        elevation: 2,
+                                        shadowColor: Colors.black12,
+                                        side: BorderSide.none,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
                                         ),
+                                        labelStyle: TextStyle(
+                                          color: isDark
+                                              ? Colors.white
+                                              : Colors.black87,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _titleController.text = option;
+                                            _titleController.selection =
+                                                TextSelection.fromPosition(
+                                                  TextPosition(
+                                                    offset: option.length,
+                                                  ),
+                                                );
+                                          });
+                                          // Keep focus or dismiss? User flow usually implies
+                                          // setting title then moving on. Let's keep focus
+                                          // so they can edit if needed, or they can tap outside.
+                                        },
                                       ),
-                                    ),
-                                  );
-                                },
-                          );
-                        },
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+                        ],
                       );
                     },
                   ),
