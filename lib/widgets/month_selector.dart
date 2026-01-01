@@ -49,7 +49,7 @@ class MonthSelector extends StatelessWidget {
               GestureDetector(
                 onTap: onTitleTap,
                 child: Text(
-                  DateFormat('yyyy/MM').format(selectedDate),
+                  DateFormat('yyyy / MM').format(selectedDate),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: isDark ? Colors.white : Colors.black87,

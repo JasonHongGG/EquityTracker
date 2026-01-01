@@ -281,11 +281,11 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                                 color: textColor.withOpacity(0.8),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 2),
                             GestureDetector(
                               onTap: onDateTap,
                               child: Text(
-                                DateFormat('yyyy/MM').format(selectedDate),
+                                DateFormat('yyyy / MM').format(selectedDate),
                                 style: TextStyle(
                                   color: textColor,
                                   fontWeight: FontWeight.bold,
@@ -293,7 +293,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 2),
                             IconButton(
                               onPressed: onNextMonth,
                               iconSize: 20,

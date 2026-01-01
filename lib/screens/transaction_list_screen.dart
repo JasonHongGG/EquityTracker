@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../widgets/search_dialog.dart';
 import '../providers/transaction_provider.dart';
 import '../widgets/date_header.dart';
 import '../widgets/dashboard_header_delegate.dart';
@@ -105,56 +106,33 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 },
                 onSearch: () {
                   // Show search dialog
+                  // Show search dialog
                   showDialog(
                     context: context,
                     builder: (context) {
-                      String query = '';
-                      return AlertDialog(
-                        title: const Text('Search Transactions'),
-                        content: TextField(
-                          autofocus: true,
-                          decoration: const InputDecoration(
-                            hintText: 'Search title or note...',
-                            prefixIcon: Icon(Icons.search),
-                          ),
-                          onChanged: (value) {
-                            query = value;
-                            // Real-time update? Or wait for confirm?
-                            // Let's do real-time for better UX
-                            ref
-                                .read(transactionFilterProvider.notifier)
-                                .update(
-                                  ref
-                                      .read(transactionFilterProvider)
-                                      .copyWith(searchQuery: value),
-                                );
-                          },
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              // Clear search on close if desired, OR keep it.
-                              // User probably wants to keep the filter to see results.
-                              // So maybe just a "Done" button.
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Done'),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              // Clear filter
-                              ref
-                                  .read(transactionFilterProvider.notifier)
-                                  .update(
-                                    ref
-                                        .read(transactionFilterProvider)
-                                        .copyWith(searchQuery: ''),
-                                  );
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Clear'),
-                          ),
-                        ],
+                      return SearchDialog(
+                        initialQuery:
+                            ref.read(transactionFilterProvider).searchQuery ??
+                            '',
+                        onChanged: (value) {
+                          ref
+                              .read(transactionFilterProvider.notifier)
+                              .update(
+                                ref
+                                    .read(transactionFilterProvider)
+                                    .copyWith(searchQuery: value),
+                              );
+                        },
+                        onClear: () {
+                          ref
+                              .read(transactionFilterProvider.notifier)
+                              .update(
+                                ref
+                                    .read(transactionFilterProvider)
+                                    .copyWith(searchQuery: ''),
+                              );
+                          Navigator.pop(context);
+                        },
                       );
                     },
                   );
