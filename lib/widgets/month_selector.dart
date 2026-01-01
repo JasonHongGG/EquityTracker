@@ -6,12 +6,14 @@ class MonthSelector extends StatelessWidget {
   final DateTime selectedDate;
   final VoidCallback onPrevious;
   final VoidCallback onNext;
+  final VoidCallback? onTitleTap;
 
   const MonthSelector({
     super.key,
     required this.selectedDate,
     required this.onPrevious,
     required this.onNext,
+    this.onTitleTap,
   });
 
   @override
@@ -34,11 +36,14 @@ class MonthSelector extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 16),
-          Text(
-            DateFormat('MMMM yyyy').format(selectedDate),
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : Colors.black87,
+          GestureDetector(
+            onTap: onTitleTap,
+            child: Text(
+              DateFormat('MMMM yyyy').format(selectedDate),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
             ),
           ),
           const SizedBox(width: 16),

@@ -4,6 +4,7 @@ import '../providers/transaction_provider.dart';
 import '../widgets/date_header.dart';
 import '../widgets/dashboard_header_delegate.dart';
 import '../widgets/month_selector.dart';
+import '../widgets/custom_month_picker.dart';
 import '../widgets/transaction_item.dart';
 import 'add_edit_transaction_screen.dart';
 
@@ -66,6 +67,15 @@ class TransactionListScreen extends ConsumerWidget {
                         DateTime(selectedMonth.year, selectedMonth.month + 1),
                       );
                 },
+                onTitleTap: () async {
+                  final newDate = await showCustomMonthPicker(
+                    context: context,
+                    initialDate: selectedMonth,
+                  );
+                  if (newDate != null) {
+                    ref.read(selectedMonthProvider.notifier).update(newDate);
+                  }
+                },
               ),
             ),
           ),
@@ -92,6 +102,15 @@ class TransactionListScreen extends ConsumerWidget {
                     .update(
                       DateTime(selectedMonth.year, selectedMonth.month + 1),
                     );
+              },
+              onDateTap: () async {
+                final newDate = await showCustomMonthPicker(
+                  context: context,
+                  initialDate: selectedMonth,
+                );
+                if (newDate != null) {
+                  ref.read(selectedMonthProvider.notifier).update(newDate);
+                }
               },
             ),
           ),

@@ -13,6 +13,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   final DateTime selectedDate;
   final VoidCallback onPreviousMonth;
   final VoidCallback onNextMonth;
+  final VoidCallback? onDateTap;
 
   DashboardHeaderDelegate({
     required this.balance,
@@ -22,6 +23,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
     required this.selectedDate,
     required this.onPreviousMonth,
     required this.onNextMonth,
+    this.onDateTap,
   });
 
   @override
@@ -235,12 +237,15 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              DateFormat('yyyy/MM').format(selectedDate),
-                              style: TextStyle(
-                                color: textColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                            GestureDetector(
+                              onTap: onDateTap,
+                              child: Text(
+                                DateFormat('yyyy/MM').format(selectedDate),
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 8),
