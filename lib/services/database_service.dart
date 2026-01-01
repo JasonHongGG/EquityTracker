@@ -257,4 +257,9 @@ class DatabaseService {
 
     return List.generate(maps.length, (i) => maps[i]['title'] as String);
   }
+
+  Future<void> clearAllTransactions() async {
+    final db = await database;
+    await db.delete('transactions');
+  }
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/import_service.dart';
+import '../services/database_service.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/settings_provider.dart';
 
@@ -77,6 +78,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                   )
                 : null,
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.delete_forever, color: Colors.red),
+            title: const Text(
+              'Clear All Data',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+            subtitle: const Text('Permanently delete all transactions'),
+            onTap: _showClearDataConfirmation,
           ),
         ],
       ),
@@ -182,6 +193,70 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Undo failed: $e')));
+      }
+    }
+  }
+
+  void _showClearDataConfirmation() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).cardColor,
+        title: const Text('Clear All Data?'),
+        content: const Text(
+          'This action cannot be undone. All transactions will be permanently deleted.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx); // Close dialog
+              await _clearAllData();
+            },
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _clearAllData() async {
+    try {
+      final db = DatabaseService();
+      await db.clearAllTransactions();
+
+      // Clear preferences related to import
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('last_import_ids');
+      setState(() {
+        _lastImportedIds = [];
+      });
+
+      // Refresh list
+      // ignore: unused_result
+      ref.refresh(transactionListProvider);
+      // ignore: unused_result
+      ref.refresh(recentTitlesProvider); // Ensure suggestions are cleared too
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('All data cleared.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to clear data: $e')));
       }
     }
   }
