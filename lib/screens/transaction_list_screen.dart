@@ -132,7 +132,18 @@ class TransactionListScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        DateHeader(date: date, totalAmount: dayTotal),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    AddEditTransactionScreen(initialDate: date),
+                              ),
+                            );
+                          },
+                          child: DateHeader(date: date, totalAmount: dayTotal),
+                        ),
                         for (var i = 0; i < transactions.length; i++) ...[
                           if (i > 0)
                             Padding(

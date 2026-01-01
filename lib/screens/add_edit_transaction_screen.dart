@@ -10,8 +10,13 @@ import '../widgets/category_grid.dart';
 
 class AddEditTransactionScreen extends ConsumerStatefulWidget {
   final TransactionModel? transaction;
+  final DateTime? initialDate;
 
-  const AddEditTransactionScreen({super.key, this.transaction});
+  const AddEditTransactionScreen({
+    super.key,
+    this.transaction,
+    this.initialDate,
+  });
 
   @override
   ConsumerState<AddEditTransactionScreen> createState() =>
@@ -36,7 +41,7 @@ class _AddEditTransactionScreenState
     super.initState();
     final t = widget.transaction;
     _type = t?.type ?? TransactionType.expense;
-    _date = t?.date ?? DateTime.now();
+    _date = t?.date ?? widget.initialDate ?? DateTime.now();
     _amount = t?.amount ?? 0;
     _amountController = TextEditingController(
       text: t != null ? t.amount.toString() : '',
