@@ -162,12 +162,15 @@ final filteredTransactionsProvider =
             return false;
           }
 
-          // 4. Search Query (Note)
+          // 4. Search Query (Title or Note)
           if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
-            if (t.note == null ||
-                !t.note!.toLowerCase().contains(
-                  filter.searchQuery!.toLowerCase(),
-                )) {
+            final query = filter.searchQuery!.toLowerCase();
+            final matchTitle =
+                t.title != null && t.title!.toLowerCase().contains(query);
+            final matchNote =
+                t.note != null && t.note!.toLowerCase().contains(query);
+
+            if (!matchTitle && !matchNote) {
               return false;
             }
           }
