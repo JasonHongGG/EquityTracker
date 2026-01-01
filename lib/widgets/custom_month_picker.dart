@@ -89,7 +89,7 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
 
             // Picker Area
             SizedBox(
-              height: 250, // 5 items visible (50px each)
+              height: 150, // 3 items visible (50px each)
               child: Stack(
                 children: [
                   // Selection Highlight (The "Pill")
