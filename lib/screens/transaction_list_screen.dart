@@ -8,38 +8,60 @@ import '../widgets/custom_month_picker.dart';
 import '../widgets/transaction_item.dart';
 import 'add_edit_transaction_screen.dart';
 
-class TransactionListScreen extends ConsumerWidget {
+class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TransactionListScreen> createState() =>
+      _TransactionListScreenState();
+}
+
+class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
+  bool _isMonthlyView = false;
+
+  @override
+  Widget build(BuildContext context) {
     final selectedMonth = ref.watch(selectedMonthProvider);
     final groupedTransactionsAsync = ref.watch(groupedTransactionsProvider);
     final dailyTotalsAsync = ref.watch(dailyTotalProvider);
     final filteredTransactionsAsync = ref.watch(filteredTransactionsProvider);
     final transactionsAsync = ref.watch(transactionListProvider);
 
-    // 1. Total Balance (All Time)
-    int balance = 0;
+    // 1. Total Balance & Stats (All Time)
+    int totalBalance = 0;
+    int totalIncome = 0;
+    int totalExpense = 0;
     if (transactionsAsync.hasValue) {
       for (var t in transactionsAsync.value!) {
         if (t.type.name == 'income') {
-          balance += t.amount;
+          totalIncome += t.amount;
+          totalBalance += t.amount;
         } else {
-          balance -= t.amount;
+          totalExpense += t.amount;
+          totalBalance -= t.amount;
         }
       }
     }
 
-    // 2. Income & Expense (Selected Month)
-    int income = 0;
-    int expense = 0;
+    // 2. Monthly Stats (Selected Month from Filter)
+    int monthlyBalance = 0;
+    int monthlyIncome = 0;
+    int monthlyExpense = 0;
+
+    // Use filtered transactions which already applies the month filter
+    // Note: filteredTransactionsProvider includes category filters if applied.
+    // Ideally "Monthly Stats" should be for the *whole* month regardless of other filters?
+    // Based on user request "Monthly Assets", it usually implies the whole month's context.
+    // However, if the user filters by category, they might want to see stats for that category in that month.
+    // For now, consistent with existing behavior, we use the filtered list.
     if (filteredTransactionsAsync.hasValue) {
       for (var t in filteredTransactionsAsync.value!) {
         if (t.type.name == 'income') {
-          income += t.amount;
+          monthlyIncome += t.amount;
+          monthlyBalance += t.amount;
         } else {
-          expense += t.amount;
+          monthlyExpense += t.amount;
+          monthlyBalance -= t.amount;
         }
       }
     }
@@ -84,9 +106,18 @@ class TransactionListScreen extends ConsumerWidget {
           SliverPersistentHeader(
             pinned: true,
             delegate: DashboardHeaderDelegate(
-              balance: balance,
-              income: income,
-              expense: expense,
+              totalBalance: totalBalance,
+              totalIncome: totalIncome,
+              totalExpense: totalExpense,
+              monthlyBalance: monthlyBalance,
+              monthlyIncome: monthlyIncome,
+              monthlyExpense: monthlyExpense,
+              isMonthlyView: _isMonthlyView,
+              onToggleView: () {
+                setState(() {
+                  _isMonthlyView = !_isMonthlyView;
+                });
+              },
               topPadding: MediaQuery.of(context).padding.top,
               selectedDate: selectedMonth,
               onPreviousMonth: () {

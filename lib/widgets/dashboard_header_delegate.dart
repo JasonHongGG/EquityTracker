@@ -6,21 +6,31 @@ import '../theme/app_colors.dart';
 import 'gradient_card.dart';
 
 class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final int balance;
-  final int income;
-  final int expense;
+  final int totalBalance;
+  final int totalIncome;
+  final int totalExpense;
+  final int monthlyBalance;
+  final int monthlyIncome;
+  final int monthlyExpense;
   final double topPadding;
   final DateTime selectedDate;
+  final bool isMonthlyView;
+  final VoidCallback onToggleView;
   final VoidCallback onPreviousMonth;
   final VoidCallback onNextMonth;
   final VoidCallback? onDateTap;
 
   DashboardHeaderDelegate({
-    required this.balance,
-    required this.income,
-    required this.expense,
+    required this.totalBalance,
+    required this.totalIncome,
+    required this.totalExpense,
+    required this.monthlyBalance,
+    required this.monthlyIncome,
+    required this.monthlyExpense,
     required this.topPadding,
     required this.selectedDate,
+    required this.isMonthlyView,
+    required this.onToggleView,
     required this.onPreviousMonth,
     required this.onNextMonth,
     this.onDateTap,
@@ -71,9 +81,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
     final Color? cardColor = isDarkTheme
         ? AppColors.surfaceDark
         : AppColors.surfaceLight;
-    final Gradient? cardGradient = isDarkTheme
-        ? null
-        : null; // Use solid colors for better contrast control
+    final Gradient? cardGradient = isDarkTheme ? null : null;
     final Color textColor = isDarkTheme
         ? Colors.white
         : AppColors.textPrimaryLight;
@@ -81,6 +89,14 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
         ? AppColors.textSecondaryDark
         : AppColors.textSecondaryLight;
     final Color iconBgTint = isDarkTheme ? Colors.white : Colors.black;
+
+    // Current Display Values
+    final int currentBalance = isMonthlyView ? monthlyBalance : totalBalance;
+    final int currentIncome = isMonthlyView ? monthlyIncome : totalIncome;
+    final int currentExpense = isMonthlyView ? monthlyExpense : totalExpense;
+    final String labelTitle = isMonthlyView
+        ? 'Monthly Balance'
+        : 'Total Balance';
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: overlayStyle,
@@ -90,7 +106,6 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
           fit: StackFit.expand,
           children: [
             // === 1. MOVING CARD CONTAINER (Background + Expanded Content) ===
-            // We group them so they move perfectly together without relative math errors.
             Positioned(
               top: 0,
               left: 0,
@@ -116,88 +131,114 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                     ),
 
                     // === EXPANDED STATE CONTENT ===
-                    // This moves WITH the card (respecting topMargin)
                     if (expandedOpacity > 0)
                       Positioned(
                         top: 0,
                         left: 0,
                         right: 0,
-                        bottom: 0, // Match card bottom padding
+                        bottom: 0,
                         child: Opacity(
                           opacity: expandedOpacity,
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                // Left Side: Total Balance
-                                Expanded(
-                                  flex: 5,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Total Balance',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium
-                                            ?.copyWith(color: subTextColor),
+                          child: GestureDetector(
+                            onTap: onToggleView,
+                            behavior: HitTestBehavior.opaque,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                24,
+                                16,
+                                24,
+                                16,
+                              ),
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 300),
+                                transitionBuilder:
+                                    (
+                                      Widget child,
+                                      Animation<double> animation,
+                                    ) {
+                                      // Simple fade transition, or Slide details
+                                      return FadeTransition(
+                                        opacity: animation,
+                                        child: child,
+                                      );
+                                    },
+                                child: Row(
+                                  // Key is important for AnimatedSwitcher to know it's a new widget
+                                  key: ValueKey<bool>(isMonthlyView),
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // Left Side: Balance
+                                    Expanded(
+                                      flex: 5,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            labelTitle,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(color: subTextColor),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            alignment: Alignment.centerLeft,
+                                            child: Text(
+                                              '\$$currentBalance',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .displayMedium
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.bold,
+                                                    color: textColor,
+                                                    letterSpacing: -1.0,
+                                                  ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(height: 8),
-                                      FittedBox(
-                                        fit: BoxFit.scaleDown,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          '\$$balance',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .displayMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                                color: textColor,
-                                                letterSpacing: -1.0,
-                                              ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                    ),
 
-                                const SizedBox(width: 16),
+                                    const SizedBox(width: 16),
 
-                                // Right Side: Income & Expense Column
-                                Expanded(
-                                  flex: 4,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      _buildExpandedSummaryItem(
-                                        context: context,
-                                        label: 'Income',
-                                        amount: income,
-                                        color: AppColors.income,
-                                        icon: Icons.arrow_downward,
-                                        textColor: textColor,
-                                        subTextColor: subTextColor,
-                                        iconBgTint: iconBgTint,
+                                    // Right Side: Income & Expense Column
+                                    Expanded(
+                                      flex: 4,
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          _buildExpandedSummaryItem(
+                                            context: context,
+                                            label: 'Income',
+                                            amount: currentIncome,
+                                            color: AppColors.income,
+                                            icon: Icons.arrow_downward,
+                                            textColor: textColor,
+                                            subTextColor: subTextColor,
+                                            iconBgTint: iconBgTint,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          _buildExpandedSummaryItem(
+                                            context: context,
+                                            label: 'Expense',
+                                            amount: currentExpense,
+                                            color: AppColors.expense,
+                                            icon: Icons.arrow_upward,
+                                            textColor: textColor,
+                                            subTextColor: subTextColor,
+                                            iconBgTint: iconBgTint,
+                                          ),
+                                        ],
                                       ),
-                                      const SizedBox(height: 12),
-                                      _buildExpandedSummaryItem(
-                                        context: context,
-                                        label: 'Expense',
-                                        amount: expense,
-                                        color: AppColors.expense,
-                                        icon: Icons.arrow_upward,
-                                        textColor: textColor,
-                                        subTextColor: subTextColor,
-                                        iconBgTint: iconBgTint,
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
@@ -208,6 +249,10 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
             ),
 
             // === 2. COLLAPSED CONTENT (Pinned to Top) ===
+            // When collapsed, we can also show the relevant stats or just keep it simple.
+            // Currently it shows what's passed in.
+            // Note: Collapsed view usually doesn't need to toggle, or it can follow the state.
+            // Let's make it follow the state too.
             if (collapsedOpacity > 0)
               Positioned(
                 top: topPadding,
@@ -262,51 +307,54 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                           ],
                         ),
 
-                        // Right: Compact Stats
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '\$$balance',
-                              style: TextStyle(
-                                color: textColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                fontFamily: 'Outfit',
+                        // Right: Compact Stats (Animated)
+                        GestureDetector(
+                          onTap: onToggleView,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                '\$$currentBalance',
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  fontFamily: 'Outfit',
+                                ),
                               ),
-                            ),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.arrow_downward,
-                                  color: AppColors.income,
-                                  size: 12,
-                                ),
-                                Text(
-                                  '\$$income',
-                                  style: TextStyle(
-                                    color: textColor.withOpacity(0.7),
-                                    fontSize: 11,
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.arrow_downward,
+                                    color: AppColors.income,
+                                    size: 12,
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                Icon(
-                                  Icons.arrow_upward,
-                                  color: AppColors.expense,
-                                  size: 12,
-                                ),
-                                Text(
-                                  '\$$expense',
-                                  style: TextStyle(
-                                    color: textColor.withOpacity(0.7),
-                                    fontSize: 11,
+                                  Text(
+                                    '\$$currentIncome',
+                                    style: TextStyle(
+                                      color: textColor.withOpacity(0.7),
+                                      fontSize: 11,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
+                                  const SizedBox(width: 8),
+                                  Icon(
+                                    Icons.arrow_upward,
+                                    color: AppColors.expense,
+                                    size: 12,
+                                  ),
+                                  Text(
+                                    '\$$currentExpense',
+                                    style: TextStyle(
+                                      color: textColor.withOpacity(0.7),
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -378,10 +426,12 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(DashboardHeaderDelegate oldDelegate) {
-    return oldDelegate.balance != balance ||
-        oldDelegate.income != income ||
-        oldDelegate.expense != expense ||
+    return oldDelegate.totalBalance != totalBalance ||
+        oldDelegate.monthlyBalance != monthlyBalance ||
+        oldDelegate.isMonthlyView != isMonthlyView ||
+        oldDelegate.selectedDate != selectedDate ||
         oldDelegate.topPadding != topPadding ||
-        oldDelegate.selectedDate != selectedDate;
+        oldDelegate.totalIncome != totalIncome ||
+        oldDelegate.monthlyIncome != monthlyIncome;
   }
 }
