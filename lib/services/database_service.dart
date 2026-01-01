@@ -105,6 +105,17 @@ class DatabaseService {
         isSystem: true,
         isEnabled: true,
       ),
+      Category(
+        id: uuid.v4(),
+        name: '加油',
+        iconCodePoint: FontAwesomeIcons.gasPump.codePoint,
+        iconFontFamily: FontAwesomeIcons.gasPump.fontFamily,
+        iconFontPackage: FontAwesomeIcons.gasPump.fontPackage,
+        colorValue: Colors.indigo.toARGB32(),
+        type: TransactionType.expense,
+        isSystem: true,
+        isEnabled: true,
+      ),
       // Income
       Category(
         id: uuid.v4(),
