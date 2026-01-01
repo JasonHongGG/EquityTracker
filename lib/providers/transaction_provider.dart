@@ -52,6 +52,19 @@ final transactionFilterProvider =
       TransactionFilterNotifier.new,
     );
 
+class SelectedMonthNotifier extends Notifier<DateTime> {
+  @override
+  DateTime build() => DateTime.now();
+
+  void update(DateTime date) {
+    state = date;
+  }
+}
+
+final selectedMonthProvider = NotifierProvider<SelectedMonthNotifier, DateTime>(
+  SelectedMonthNotifier.new,
+);
+
 // --- Transaction List Notifier ---
 class TransactionList extends AsyncNotifier<List<TransactionModel>> {
   @override
@@ -106,6 +119,7 @@ final filteredTransactionsProvider =
     Provider<AsyncValue<List<TransactionModel>>>((ref) {
       final transactionsAsync = ref.watch(transactionListProvider);
       final filter = ref.watch(transactionFilterProvider);
+      final selectedMonth = ref.watch(selectedMonthProvider);
 
       return transactionsAsync.whenData((transactions) {
         return transactions.where((t) {
@@ -120,12 +134,31 @@ final filteredTransactionsProvider =
             return false;
           }
 
-          // 3. Date Range
-          // Assuming t.date is at 00:00:00.000 for the day
-          if (filter.startDate != null && t.date.isBefore(filter.startDate!)) {
+          // 3. Date Range (Priority: Custom Filter > Selected Month)
+          DateTime? effectiveStart = filter.startDate;
+          DateTime? effectiveEnd = filter.endDate;
+
+          // If no custom range is set, use the selected month
+          if (effectiveStart == null && effectiveEnd == null) {
+            effectiveStart = DateTime(
+              selectedMonth.year,
+              selectedMonth.month,
+              1,
+            );
+            effectiveEnd = DateTime(
+              selectedMonth.year,
+              selectedMonth.month + 1,
+              0,
+              23,
+              59,
+              59,
+            );
+          }
+
+          if (effectiveStart != null && t.date.isBefore(effectiveStart)) {
             return false;
           }
-          if (filter.endDate != null && t.date.isAfter(filter.endDate!)) {
+          if (effectiveEnd != null && t.date.isAfter(effectiveEnd)) {
             return false;
           }
 

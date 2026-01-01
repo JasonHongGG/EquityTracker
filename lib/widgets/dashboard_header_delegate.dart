@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import '../theme/app_colors.dart';
 import 'gradient_card.dart';
 
@@ -9,12 +10,18 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   final int income;
   final int expense;
   final double topPadding;
+  final DateTime selectedDate;
+  final VoidCallback onPreviousMonth;
+  final VoidCallback onNextMonth;
 
   DashboardHeaderDelegate({
     required this.balance,
     required this.income,
     required this.expense,
     required this.topPadding,
+    required this.selectedDate,
+    required this.onPreviousMonth,
+    required this.onNextMonth,
   });
 
   @override
@@ -33,7 +40,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
     final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
 
     // Animation Values
-    final double topMargin = lerpDouble(60, 0, progress)!;
+    final double topMargin = lerpDouble(12.0, 0, progress)!;
     final double sideMargin = lerpDouble(20, 0, progress)!;
     final double bottomMargin = lerpDouble(
       20,
@@ -208,65 +215,95 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                 child: Opacity(
                   opacity: collapsedOpacity,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: NavigationToolbar(
-                      middle: Text(
-                        // Central Balance
-                        '\$$balance',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: textColor,
-                        ),
-                      ),
-                      leading: SizedBox(
-                        width: 100, // Fixed width for alignment
-                        child: Row(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Left: Compact Month Selector
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              Icons.arrow_downward,
-                              color: AppColors.income,
-                              size: 16,
+                            IconButton(
+                              onPressed: onPreviousMonth,
+                              iconSize: 20,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: Icon(
+                                Icons.chevron_left,
+                                color: textColor.withOpacity(0.8),
+                              ),
                             ),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                '\$$income',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: textColor.withOpacity(0.9),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                overflow: TextOverflow.ellipsis,
+                            const SizedBox(width: 8),
+                            Text(
+                              DateFormat('yyyy/MM').format(selectedDate),
+                              style: TextStyle(
+                                color: textColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              onPressed: onNextMonth,
+                              iconSize: 20,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                              icon: Icon(
+                                Icons.chevron_right,
+                                color: textColor.withOpacity(0.8),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      trailing: SizedBox(
-                        width: 100,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+
+                        // Right: Compact Stats
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Icon(
-                              Icons.arrow_upward,
-                              color: AppColors.expense,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                '\$$expense',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: textColor.withOpacity(0.9),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                overflow: TextOverflow.ellipsis,
+                            Text(
+                              '\$$balance',
+                              style: TextStyle(
+                                color: textColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                fontFamily: 'Outfit',
                               ),
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.arrow_downward,
+                                  color: AppColors.income,
+                                  size: 12,
+                                ),
+                                Text(
+                                  '\$$income',
+                                  style: TextStyle(
+                                    color: textColor.withOpacity(0.7),
+                                    fontSize: 11,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Icon(
+                                  Icons.arrow_upward,
+                                  color: AppColors.expense,
+                                  size: 12,
+                                ),
+                                Text(
+                                  '\$$expense',
+                                  style: TextStyle(
+                                    color: textColor.withOpacity(0.7),
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ),
+                      ],
                     ),
                   ),
                 ),
@@ -339,6 +376,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
     return oldDelegate.balance != balance ||
         oldDelegate.income != income ||
         oldDelegate.expense != expense ||
-        oldDelegate.topPadding != topPadding;
+        oldDelegate.topPadding != topPadding ||
+        oldDelegate.selectedDate != selectedDate;
   }
 }
