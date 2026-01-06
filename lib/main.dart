@@ -13,8 +13,8 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final themeMode =
-        ref.watch(settingsProvider).asData?.value ?? ThemeMode.system;
+    final settingsAsync = ref.watch(settingsProvider);
+    final themeMode = settingsAsync.value?.themeMode ?? ThemeMode.system;
 
     return MaterialApp(
       title: 'EquityTracker',

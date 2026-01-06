@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/search_dialog.dart';
 import '../providers/transaction_provider.dart';
+import '../providers/settings_provider.dart'; // Add this import
 import '../widgets/date_header.dart';
 import '../widgets/dashboard_header_delegate.dart';
 import '../widgets/month_selector.dart';
@@ -28,6 +29,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final filteredTransactionsAsync = ref.watch(filteredTransactionsProvider);
     final transactionsAsync = ref.watch(transactionListProvider);
     final currentFilter = ref.watch(transactionFilterProvider);
+
+    // Read privacy mode
+    final settingsAsync = ref.watch(settingsProvider);
+    final isPrivacyMode = settingsAsync.value?.isPrivacyModeEnabled ?? false;
+
     final isSearching =
         currentFilter.searchQuery != null &&
         currentFilter.searchQuery!.isNotEmpty;
@@ -191,6 +197,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   ref.read(selectedMonthProvider.notifier).update(newDate);
                 }
               },
+              isPrivacyMode: isPrivacyMode,
             ),
           ),
 

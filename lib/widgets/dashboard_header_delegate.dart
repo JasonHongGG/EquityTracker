@@ -20,6 +20,8 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   final VoidCallback onNextMonth;
   final VoidCallback? onDateTap;
 
+  final bool isPrivacyMode;
+
   DashboardHeaderDelegate({
     required this.totalBalance,
     required this.totalIncome,
@@ -34,6 +36,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
     required this.onPreviousMonth,
     required this.onNextMonth,
     this.onDateTap,
+    this.isPrivacyMode = false,
   });
 
   @override
@@ -48,36 +51,88 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
+    return _DashboardHeaderContent(
+      shrinkOffset: shrinkOffset,
+      maxExtent: maxExtent,
+      minExtent: minExtent,
+      delegate: this,
+    );
+  }
+
+  @override
+  bool shouldRebuild(DashboardHeaderDelegate oldDelegate) {
+    return oldDelegate.totalBalance != totalBalance ||
+        oldDelegate.monthlyBalance != monthlyBalance ||
+        oldDelegate.isMonthlyView != isMonthlyView ||
+        oldDelegate.selectedDate != selectedDate ||
+        oldDelegate.topPadding != topPadding ||
+        oldDelegate.totalIncome != totalIncome ||
+        oldDelegate.monthlyIncome != monthlyIncome ||
+        oldDelegate.isPrivacyMode != isPrivacyMode;
+  }
+}
+
+class _DashboardHeaderContent extends StatefulWidget {
+  final double shrinkOffset;
+  final double maxExtent;
+  final double minExtent;
+  final DashboardHeaderDelegate delegate;
+
+  const _DashboardHeaderContent({
+    required this.shrinkOffset,
+    required this.maxExtent,
+    required this.minExtent,
+    required this.delegate,
+  });
+
+  @override
+  State<_DashboardHeaderContent> createState() =>
+      _DashboardHeaderContentState();
+}
+
+class _DashboardHeaderContentState extends State<_DashboardHeaderContent> {
+  bool _isRevealed = false;
+
+  @override
+  void didUpdateWidget(covariant _DashboardHeaderContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reset reveal state if privacy mode changes to enabled?
+    // Or keep it. Let's keep it simple.
+  }
+
+  String _formatCurrency(int amount) {
+    if (widget.delegate.isPrivacyMode && !_isRevealed) {
+      return '****';
+    }
+    return '\$$amount';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final delegate = widget.delegate;
+
     // 0.0 -> Expanded, 1.0 -> Collapsed
-    final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+    final progress =
+        (widget.shrinkOffset / (widget.maxExtent - widget.minExtent)).clamp(
+          0.0,
+          1.0,
+        );
 
     // Animation Values
     final double topMargin = lerpDouble(12.0, 0, progress)!;
     final double sideMargin = lerpDouble(20, 0, progress)!;
-    final double bottomMargin = lerpDouble(
-      20,
-      0,
-      progress,
-    )!; // Smooth transition
+    final double bottomMargin = lerpDouble(20, 0, progress)!;
     final double radius = lerpDouble(30, 0, progress)!;
 
-    // Fade out expanded content
-    // End earlier (0.3) so it doesn't fight for space as height gets tiny
     final double expandedOpacity = (1.0 - (progress * 4.0)).clamp(0.0, 1.0);
-
-    // Fade in collapsed content
     final double collapsedOpacity = ((progress - 0.7) * 3.3).clamp(0.0, 1.0);
 
-    // Status bar style
     final isCollapsed = progress > 0.5;
     final isDarkTheme = Theme.of(context).brightness == Brightness.dark;
     final overlayStyle = isDarkTheme
         ? SystemUiOverlayStyle.light
-        : (isCollapsed
-              ? SystemUiOverlayStyle.dark
-              : SystemUiOverlayStyle.dark); // collapsed(white card)->dark icons
+        : (isCollapsed ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.dark);
 
-    // Theme Colors
     final Color? cardColor = isDarkTheme
         ? AppColors.surfaceDark
         : AppColors.surfaceLight;
@@ -90,11 +145,16 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
         : AppColors.textSecondaryLight;
     final Color iconBgTint = isDarkTheme ? Colors.white : Colors.black;
 
-    // Current Display Values
-    final int currentBalance = isMonthlyView ? monthlyBalance : totalBalance;
-    final int currentIncome = isMonthlyView ? monthlyIncome : totalIncome;
-    final int currentExpense = isMonthlyView ? monthlyExpense : totalExpense;
-    final String labelTitle = isMonthlyView
+    final int currentBalance = delegate.isMonthlyView
+        ? delegate.monthlyBalance
+        : delegate.totalBalance;
+    final int currentIncome = delegate.isMonthlyView
+        ? delegate.monthlyIncome
+        : delegate.totalIncome;
+    final int currentExpense = delegate.isMonthlyView
+        ? delegate.monthlyExpense
+        : delegate.totalExpense;
+    final String labelTitle = delegate.isMonthlyView
         ? 'Monthly Balance'
         : 'Total Balance';
 
@@ -140,7 +200,18 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                         child: Opacity(
                           opacity: expandedOpacity,
                           child: GestureDetector(
-                            onTap: onToggleView,
+                            onTap: () {
+                              if (delegate.isPrivacyMode) {
+                                setState(() {
+                                  _isRevealed = !_isRevealed;
+                                });
+                              }
+                            },
+                            onHorizontalDragEnd: (details) {
+                              if (details.primaryVelocity!.abs() > 300) {
+                                delegate.onToggleView();
+                              }
+                            },
                             behavior: HitTestBehavior.opaque,
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(
@@ -156,15 +227,13 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                                       Widget child,
                                       Animation<double> animation,
                                     ) {
-                                      // Simple fade transition, or Slide details
                                       return FadeTransition(
                                         opacity: animation,
                                         child: child,
                                       );
                                     },
                                 child: Row(
-                                  // Key is important for AnimatedSwitcher to know it's a new widget
-                                  key: ValueKey<bool>(isMonthlyView),
+                                  key: ValueKey<bool>(delegate.isMonthlyView),
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     // Left Side: Balance
@@ -188,7 +257,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                                             fit: BoxFit.scaleDown,
                                             alignment: Alignment.centerLeft,
                                             child: Text(
-                                              '\$$currentBalance',
+                                              _formatCurrency(currentBalance),
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .displayMedium
@@ -215,7 +284,9 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                                           _buildExpandedSummaryItem(
                                             context: context,
                                             label: 'Income',
-                                            amount: currentIncome,
+                                            displayAmount: _formatCurrency(
+                                              currentIncome,
+                                            ),
                                             color: AppColors.income,
                                             icon: Icons.arrow_downward,
                                             textColor: textColor,
@@ -226,7 +297,9 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                                           _buildExpandedSummaryItem(
                                             context: context,
                                             label: 'Expense',
-                                            amount: currentExpense,
+                                            displayAmount: _formatCurrency(
+                                              currentExpense,
+                                            ),
                                             color: AppColors.expense,
                                             icon: Icons.arrow_upward,
                                             textColor: textColor,
@@ -249,13 +322,9 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
             ),
 
             // === 2. COLLAPSED CONTENT (Pinned to Top) ===
-            // When collapsed, we can also show the relevant stats or just keep it simple.
-            // Currently it shows what's passed in.
-            // Note: Collapsed view usually doesn't need to toggle, or it can follow the state.
-            // Let's make it follow the state too.
             if (collapsedOpacity > 0)
               Positioned(
-                top: topPadding,
+                top: delegate.topPadding,
                 left: 0,
                 right: 0,
                 height: kToolbarHeight,
@@ -272,7 +341,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              onPressed: onPreviousMonth,
+                              onPressed: delegate.onPreviousMonth,
                               iconSize: 20,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
@@ -283,9 +352,11 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                             ),
                             const SizedBox(width: 2),
                             GestureDetector(
-                              onTap: onDateTap,
+                              onTap: delegate.onDateTap,
                               child: Text(
-                                DateFormat('yyyy / MM').format(selectedDate),
+                                DateFormat(
+                                  'yyyy / MM',
+                                ).format(delegate.selectedDate),
                                 style: TextStyle(
                                   color: textColor,
                                   fontWeight: FontWeight.bold,
@@ -295,7 +366,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                             ),
                             const SizedBox(width: 2),
                             IconButton(
-                              onPressed: onNextMonth,
+                              onPressed: delegate.onNextMonth,
                               iconSize: 20,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
@@ -309,13 +380,24 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
 
                         // Right: Compact Stats (Animated)
                         GestureDetector(
-                          onTap: onToggleView,
+                          onTap: () {
+                            if (delegate.isPrivacyMode) {
+                              setState(() {
+                                _isRevealed = !_isRevealed;
+                              });
+                            }
+                          },
+                          onHorizontalDragEnd: (details) {
+                            if (details.primaryVelocity!.abs() > 300) {
+                              delegate.onToggleView();
+                            }
+                          },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Text(
-                                '\$$currentBalance',
+                                _formatCurrency(currentBalance),
                                 style: TextStyle(
                                   color: textColor,
                                   fontWeight: FontWeight.bold,
@@ -332,7 +414,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                                     size: 12,
                                   ),
                                   Text(
-                                    '\$$currentIncome',
+                                    _formatCurrency(currentIncome),
                                     style: TextStyle(
                                       color: textColor.withOpacity(0.7),
                                       fontSize: 11,
@@ -345,7 +427,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                                     size: 12,
                                   ),
                                   Text(
-                                    '\$$currentExpense',
+                                    _formatCurrency(currentExpense),
                                     style: TextStyle(
                                       color: textColor.withOpacity(0.7),
                                       fontSize: 11,
@@ -370,22 +452,19 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   Widget _buildExpandedSummaryItem({
     required BuildContext context,
     required String label,
-    required int amount,
+    required String displayAmount,
     required Color color,
     required IconData icon,
     required Color textColor,
     required Color subTextColor,
     required Color iconBgTint,
   }) {
-    // Simplified Minimalist Design
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: color.withOpacity(
-              0.15,
-            ), // Use color itself for tint, cleaner
+            color: color.withOpacity(0.15),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 16),
@@ -409,7 +488,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '\$$amount',
+                  displayAmount,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: textColor,
@@ -422,16 +501,5 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
         ),
       ],
     );
-  }
-
-  @override
-  bool shouldRebuild(DashboardHeaderDelegate oldDelegate) {
-    return oldDelegate.totalBalance != totalBalance ||
-        oldDelegate.monthlyBalance != monthlyBalance ||
-        oldDelegate.isMonthlyView != isMonthlyView ||
-        oldDelegate.selectedDate != selectedDate ||
-        oldDelegate.topPadding != topPadding ||
-        oldDelegate.totalIncome != totalIncome ||
-        oldDelegate.monthlyIncome != monthlyIncome;
   }
 }

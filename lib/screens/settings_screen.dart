@@ -47,8 +47,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ListTile(
             title: const Text('Dark Mode'),
             trailing: themeModeAsync.when(
-              data: (mode) => Switch(
-                value: mode == ThemeMode.dark,
+              data: (settings) => Switch(
+                value: settings.themeMode == ThemeMode.dark,
                 onChanged: (val) {
                   ref
                       .read(settingsProvider.notifier)
@@ -57,6 +57,20 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               loading: () => const CircularProgressIndicator(),
               error: (e, s) => const Icon(Icons.error),
+            ),
+          ),
+          ListTile(
+            title: const Text('Privacy Mode'),
+            subtitle: const Text('Hide balance on dashboard by default'),
+            trailing: themeModeAsync.when(
+              data: (settings) => Switch(
+                value: settings.isPrivacyModeEnabled,
+                onChanged: (val) {
+                  ref.read(settingsProvider.notifier).setPrivacyMode(val);
+                },
+              ),
+              loading: () => const CircularProgressIndicator(),
+              error: (e, s) => const SizedBox(),
             ),
           ),
           const Divider(),
