@@ -85,7 +85,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
           rightTitles: const AxisTitles(
             sideTitles: SideTitles(
               showTitles: false,
-              reservedSize: 48, // Balance the left axis
+              reservedSize: 24, // Balance the left axis
             ),
           ),
           topTitles: const AxisTitles(
@@ -138,7 +138,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 24, // Tightened to shift chart left
+              reservedSize: 32, // Tightened to shift chart left
               interval: interval,
               getTitlesWidget: (value, meta) {
                 // Strict modulus check using calculated interval

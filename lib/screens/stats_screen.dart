@@ -81,6 +81,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
             final categories = categoriesAsync.asData?.value ?? [];
 
             return TabBarView(
+              physics: const NeverScrollableScrollPhysics(),
               children: [
                 // Tab 1: Trend
                 MonthlyTrendTab(
