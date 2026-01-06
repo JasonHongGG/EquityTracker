@@ -121,7 +121,7 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
           ),
         ),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 0),
         // Legend (Moved to bottom-left)
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -150,8 +150,7 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
         ),
 
         // DIVIDER / INFO
-        const SizedBox(height: 10),
-        const SizedBox(height: 10),
+        const SizedBox(height: 4),
 
         // LIST SECTION
         Expanded(

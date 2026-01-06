@@ -28,7 +28,7 @@ class CustomTabSelector extends StatelessWidget {
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 400),
-      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 6),
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: backgroundColor,
