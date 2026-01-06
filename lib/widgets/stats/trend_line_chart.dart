@@ -6,6 +6,7 @@ class TrendLineChart extends StatefulWidget {
   final Map<int, double> incomeSpots; // Day -> Amount
   final Map<int, double> expenseSpots; // Day -> Amount
   final int daysInMonth;
+  final int? selectedDay; // New: Receive selected day from parent
   final Function(int day)? onDateSelected;
 
   const TrendLineChart({
@@ -13,6 +14,7 @@ class TrendLineChart extends StatefulWidget {
     required this.incomeSpots,
     required this.expenseSpots,
     required this.daysInMonth,
+    this.selectedDay,
     this.onDateSelected,
   });
 
@@ -21,12 +23,21 @@ class TrendLineChart extends StatefulWidget {
 }
 
 class _TrendLineChartState extends State<TrendLineChart> {
-  int? touchedIndex;
+  // Use local state effectively but sync with parent
+  // actually we can just use widget.selectedDay for display
+  // but if we want internal touch handling, we can keep state
+
+  @override
+  void didUpdateWidget(TrendLineChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If parent updates selectedDay, ensure we know?
+    // Actually we can just use widget.selectedDay in build method to highlight if needed
+    // But existing logic uses touchedIndex.
+  }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     // Define Colors
     final incomeColor = const Color(0xFF34C759); // iOS Green
     final expenseColor = Colors.redAccent.shade200;
@@ -246,10 +257,8 @@ class _TrendLineChartState extends State<TrendLineChart> {
             if (event is FlTapUpEvent || event is FlPanUpdateEvent) {
               final spot = response.lineBarSpots!.first;
               final day = spot.x.toInt();
-              if (touchedIndex != day) {
-                setState(() {
-                  touchedIndex = day;
-                });
+              if (widget.selectedDay != day) {
+                // Check against prop
                 if (widget.onDateSelected != null) {
                   widget.onDateSelected!(day);
                 }

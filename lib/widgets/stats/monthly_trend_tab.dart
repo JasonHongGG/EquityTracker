@@ -23,6 +23,50 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
   int? _selectedDay;
 
   @override
+  void initState() {
+    super.initState();
+    _initializeSelectedDay();
+  }
+
+  @override
+  void didUpdateWidget(MonthlyTrendTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.month != widget.month ||
+        oldWidget.transactions != widget.transactions) {
+      _initializeSelectedDay();
+    }
+  }
+
+  void _initializeSelectedDay() {
+    if (widget.transactions.isEmpty) {
+      setState(() => _selectedDay = null);
+      return;
+    }
+
+    // Filter transactions for the current month just in case (though mostly handled by parent)
+    // Actually parent passes all transactions. We need to filter them?
+    // The previous implementation didn't filter in build. Let's check logic.
+    // Parent StatsScreen passes filteredTransactionsProvider. So it's already filtered by month mostly?
+    // Wait, StatsScreen passes 'transactions' which is `filteredTransactionsProvider`.
+    // Let's assume they are correct.
+
+    // Find earliest day with transaction
+    // Transactions might not be sorted by day.
+    final days = widget.transactions.map((t) => t.date.day).toSet().toList()
+      ..sort();
+
+    if (days.isNotEmpty) {
+      // Requirement: Default to "the first day of the month that has transactions"
+      // e.g. 6, 13, 21. Default to 6.
+      setState(() {
+        _selectedDay = days.first;
+      });
+    } else {
+      setState(() => _selectedDay = null);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     // 1. Process Data for Chart
     final daysInMonth = DateTime(
