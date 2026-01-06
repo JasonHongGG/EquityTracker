@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../models/transaction_model.dart';
@@ -10,8 +11,14 @@ import '../theme/app_colors.dart';
 class TransactionItem extends ConsumerWidget {
   final TransactionModel transaction;
   final VoidCallback? onTap;
+  final bool showDate;
 
-  const TransactionItem({super.key, required this.transaction, this.onTap});
+  const TransactionItem({
+    super.key,
+    required this.transaction,
+    this.onTap,
+    this.showDate = false,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -68,13 +75,16 @@ class TransactionItem extends ConsumerWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (transaction.title?.isNotEmpty == true)
+                  if (showDate || transaction.title?.isNotEmpty == true)
                     Text(
-                      category?.name ?? '',
+                      showDate
+                          ? DateFormat('MM/dd').format(transaction.date)
+                          : (category?.name ?? ''),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(
                           context,
                         ).colorScheme.onSurface.withValues(alpha: 0.5),
+                        fontSize: 12, // Ensure readable size
                       ),
                     ),
                   if (transaction.note != null && transaction.note!.isNotEmpty)

@@ -149,7 +149,7 @@ class CategoryAnalysisTab extends ConsumerWidget {
   ) {
     final categoryTransactions =
         allTransactions.where((t) => t.categoryId == category.id).toList()
-          ..sort((a, b) => b.date.compareTo(a.date));
+          ..sort((a, b) => a.date.compareTo(b.date));
 
     showModalBottomSheet(
       context: context,
@@ -205,6 +205,7 @@ class CategoryAnalysisTab extends ConsumerWidget {
                         return TransactionItem(
                           transaction: categoryTransactions[index],
                           onTap: () {}, // No action in modal for now
+                          showDate: true,
                         );
                       },
                     ),
