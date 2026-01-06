@@ -9,6 +9,8 @@ import '../services/database_service.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/settings_provider.dart';
 
+import '../widgets/settings_widgets.dart';
+
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -39,95 +41,140 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final themeModeAsync = ref.watch(settingsProvider);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
-      body: ListView(
-        children: [
-          ListTile(
-            title: const Text('Dark Mode'),
-            trailing: themeModeAsync.when(
-              data: (settings) => Switch(
-                value: settings.themeMode == ThemeMode.dark,
-                onChanged: (val) {
-                  ref
-                      .read(settingsProvider.notifier)
-                      .setThemeMode(val ? ThemeMode.dark : ThemeMode.light);
-                },
-              ),
-              loading: () => const CircularProgressIndicator(),
-              error: (e, s) => const Icon(Icons.error),
-            ),
-          ),
-          ListTile(
-            title: const Text('Privacy Mode'),
-            subtitle: const Text('Hide balance on dashboard by default'),
-            trailing: themeModeAsync.when(
-              data: (settings) => Switch(
-                value: settings.isPrivacyModeEnabled,
-                onChanged: (val) {
-                  ref.read(settingsProvider.notifier).setPrivacyMode(val);
-                },
-              ),
-              loading: () => const CircularProgressIndicator(),
-              error: (e, s) => const SizedBox(),
-            ),
-          ),
-          const Divider(),
-          const ListTile(
-            title: Text('Currency Symbol'),
-            subtitle: Text('\$ (Default)'),
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.upload_file),
-            title: const Text('Import Transactions'),
-            subtitle: const Text('Import from JSON file'),
-            onTap: _isLoading ? null : _importTransactions,
-            trailing: _lastImportedIds.isNotEmpty
-                ? TextButton.icon(
-                    onPressed: _undoImport,
-                    icon: const Icon(Icons.undo, color: Colors.red),
-                    label: const Text(
-                      'Undo',
-                      style: TextStyle(color: Colors.red),
+      backgroundColor: isDark
+          ? const Color(0xFF0F111A)
+          : const Color(0xFFF5F7FA),
+      appBar: AppBar(
+        title: const Text(
+          'Settings',
+          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.bold),
+        ),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 40),
+        child: Column(
+          children: [
+            // Section 1: Preferences
+            SettingsSection(
+              title: 'PREFERENCES',
+              children: [
+                SettingsTile(
+                  icon: Icons.dark_mode_rounded,
+                  iconColor: Colors.purpleAccent,
+                  title: 'Dark Mode',
+                  trailing: themeModeAsync.when(
+                    data: (settings) => Switch(
+                      value: settings.themeMode == ThemeMode.dark,
+                      onChanged: (val) {
+                        ref
+                            .read(settingsProvider.notifier)
+                            .setThemeMode(
+                              val ? ThemeMode.dark : ThemeMode.light,
+                            );
+                      },
                     ),
-                  )
-                : null,
-          ),
-          const Divider(),
+                    loading: () => const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    error: (e, s) => const Icon(Icons.error, size: 20),
+                  ),
+                ),
+                SettingsTile(
+                  icon: Icons.security_rounded,
+                  iconColor: const Color(0xFF34C759), // iOS Green
+                  title: 'Privacy Mode',
+                  subtitle: 'Hide balance on dashboard',
+                  trailing: themeModeAsync.when(
+                    data: (settings) => Switch(
+                      value: settings.isPrivacyModeEnabled,
+                      onChanged: (val) {
+                        ref.read(settingsProvider.notifier).setPrivacyMode(val);
+                      },
+                    ),
+                    loading: () => const SizedBox(height: 0),
+                    error: (e, s) => const SizedBox(height: 0),
+                  ),
+                ),
+                SettingsTile(
+                  icon: Icons.currency_exchange,
+                  iconColor: Colors.amber,
+                  title: 'Currency Symbol',
+                  subtitle: '\$ (USD)',
+                ),
+              ],
+            ),
 
-          const Divider(),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              'Backup & Restore',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+            // Section 2: Data Management
+            SettingsSection(
+              title: 'DATA MANAGEMENT',
+              children: [
+                SettingsTile(
+                  icon: Icons.file_upload_rounded,
+                  iconColor: Colors.blueAccent,
+                  title: 'Import Transactions',
+                  subtitle: 'From JSON backup',
+                  onTap: _isLoading ? null : _importTransactions,
+                ),
+                if (_lastImportedIds.isNotEmpty)
+                  SettingsTile(
+                    icon: Icons.undo_rounded,
+                    iconColor: Colors.orange,
+                    title: 'Undo Last Import',
+                    onTap: _undoImport,
+                  ),
+                SettingsTile(
+                  icon: Icons.file_download_rounded,
+                  iconColor: Colors.teal,
+                  title: 'Export Backup',
+                  subtitle: 'Save to JSON',
+                  onTap: _isLoading ? null : _exportBackup,
+                ),
+                SettingsTile(
+                  icon: Icons.restore_page_rounded,
+                  iconColor: Colors.indigoAccent,
+                  title: 'Restore Backup',
+                  subtitle: 'Merge from backup file',
+                  onTap: _isLoading ? null : _importBackup,
+                ),
+              ],
             ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.save_alt),
-            title: const Text('Export Backup'),
-            subtitle: const Text('Save data to a JSON file'),
-            onTap: _isLoading ? null : _exportBackup,
-          ),
-          ListTile(
-            leading: const Icon(Icons.restore_page),
-            title: const Text('Restore Backup'),
-            subtitle: const Text('Merge data from a backup file'),
-            onTap: _isLoading ? null : _importBackup,
-          ),
-          const Divider(), // Separator before the "Clear All Data" danger zone
-          ListTile(
-            leading: const Icon(Icons.delete_forever, color: Colors.red),
-            title: const Text(
-              'Clear All Data',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+
+            // Section 3: Danger Zone
+            SettingsSection(
+              title: 'DANGER ZONE',
+              children: [
+                SettingsTile(
+                  icon: Icons.delete_forever_rounded,
+                  iconColor: Colors.red,
+                  title: 'Clear All Data',
+                  subtitle: 'Permanently delete all records',
+                  isDestructive: true,
+                  onTap: _showClearDataConfirmation,
+                ),
+              ],
             ),
-            subtitle: const Text('Permanently delete all transactions'),
-            onTap: _showClearDataConfirmation,
-          ),
-        ],
+
+            const SizedBox(height: 20),
+            Center(
+              child: Text(
+                'Version 1.0.0',
+                style: TextStyle(
+                  color: isDark ? Colors.white24 : Colors.black26,
+                  fontFamily: 'Outfit',
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
