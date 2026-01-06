@@ -4,6 +4,7 @@ import '../../models/transaction_type.dart';
 import '../transaction_item.dart';
 import '../date_header.dart';
 import 'trend_line_chart.dart';
+import '../day_selector.dart';
 
 class MonthlyTrendTab extends StatefulWidget {
   final List<TransactionModel> transactions;
@@ -133,6 +134,17 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
                 color: Colors.redAccent.shade200,
                 label: 'Expense',
               ),
+              const Spacer(),
+              if (_selectedDay != null)
+                DaySelector(
+                  selectedDay: _selectedDay!,
+                  daysInMonth: daysInMonth,
+                  onDayChanged: (day) {
+                    setState(() {
+                      _selectedDay = day;
+                    });
+                  },
+                ),
             ],
           ),
         ),
