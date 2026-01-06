@@ -1,12 +1,12 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import '../../theme/app_colors.dart';
 
 class TrendLineChart extends StatefulWidget {
   final Map<int, double> incomeSpots; // Day -> Amount
   final Map<int, double> expenseSpots; // Day -> Amount
   final int daysInMonth;
-  final int? selectedDay; // New: Receive selected day from parent
+  final DateTime month; // New: For tooltip formatting
+  final int? selectedDay;
   final Function(int day)? onDateSelected;
 
   const TrendLineChart({
@@ -14,6 +14,7 @@ class TrendLineChart extends StatefulWidget {
     required this.incomeSpots,
     required this.expenseSpots,
     required this.daysInMonth,
+    required this.month,
     this.selectedDay,
     this.onDateSelected,
   });
@@ -60,11 +61,13 @@ class _TrendLineChartState extends State<TrendLineChart> {
     // Default to at least 1000 if empty or small
     if (maxY < 1000) maxY = 1000;
 
+    // Add breathing room for tooltip at the top (20%)
+    maxY = maxY * 1.2;
+
     // 2. Determine Interval based on maxY
     double interval = 5000;
     if (maxY <= 1000) {
       interval = 200;
-      // Ensure we have at least 5 lines
     } else if (maxY <= 3000) {
       interval = 500;
     } else if (maxY <= 6000) {
@@ -92,11 +95,10 @@ class _TrendLineChartState extends State<TrendLineChart> {
         ),
         titlesData: FlTitlesData(
           show: true,
-          // Add right titles to balance the chart horizontally
           rightTitles: const AxisTitles(
             sideTitles: SideTitles(
               showTitles: false,
-              reservedSize: 24, // Balance the left axis
+              reservedSize: 32, // Balance
             ),
           ),
           topTitles: const AxisTitles(
@@ -110,11 +112,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
               getTitlesWidget: (value, meta) {
                 final day = value.toInt();
                 final maxDay = widget.daysInMonth;
-
-                // 1. Basic Range Check
                 if (day < 1 || day > maxDay) return const SizedBox.shrink();
-
-                // 2. Show 1 as Origin
                 if (day == 1) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8.0),
@@ -128,10 +126,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
                     ),
                   );
                 }
-
-                // 3. Strict Interval Check: Hide if not a multiple of 5
                 if (day % 5 != 0) return const SizedBox.shrink();
-
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
@@ -149,14 +144,12 @@ class _TrendLineChartState extends State<TrendLineChart> {
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 32, // Tightened to shift chart left
+              reservedSize: 32, // Tightened
               interval: interval,
               getTitlesWidget: (value, meta) {
-                // Strict modulus check using calculated interval
                 if (value != 0 && value % interval != 0) {
                   return const SizedBox.shrink();
                 }
-
                 String text = value.toInt().toString();
                 if (value >= 1000) {
                   text = '${(value / 1000).toStringAsFixed(1)}k'.replaceAll(
@@ -167,14 +160,12 @@ class _TrendLineChartState extends State<TrendLineChart> {
                 return Align(
                   alignment: Alignment.centerRight,
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                      right: 2.0,
-                    ), // Reduced spacing
+                    padding: const EdgeInsets.only(right: 2.0),
                     child: Text(
                       text,
                       style: TextStyle(
                         color: isDark ? Colors.white54 : Colors.black54,
-                        fontSize: 11, // Slightly larger
+                        fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.right,
@@ -189,6 +180,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
         minX: 1,
         maxX: widget.daysInMonth.toDouble(),
         minY: 0,
+        maxY: maxY, // Apply enhanced maxY
         lineBarsData: [
           // Income Line
           LineChartBarData(
@@ -234,17 +226,61 @@ class _TrendLineChartState extends State<TrendLineChart> {
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
             getTooltipColor: (_) =>
-                isDark ? AppColors.surfaceDark : Colors.white,
+                isDark ? const Color(0xFF2C2C2E) : Colors.white,
+            tooltipPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+            fitInsideHorizontally: true,
+            fitInsideVertically: true, // Should work better with extra Y space
+            tooltipBorder: BorderSide(
+              color: isDark ? Colors.white10 : Colors.black12,
+            ),
             getTooltipItems: (touchedSpots) {
+              if (touchedSpots.isEmpty) return [];
+
+              // Common date header variables
+              final day = touchedSpots.first.x.toInt();
+              final dateStr =
+                  '${widget.month.month.toString().padLeft(2, '0')}/${day.toString().padLeft(2, '0')}';
+
               return touchedSpots.map((spot) {
                 final isIncome = spot.barIndex == 0;
-                return LineTooltipItem(
-                  '${isIncome ? '+' : '-'}\$${spot.y.toInt()}',
-                  TextStyle(
-                    color: isIncome ? incomeColor : expenseColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                );
+                final color = isIncome ? incomeColor : expenseColor;
+                final sign = isIncome ? '+' : '-';
+
+                // For the first item, show Date Header then Value
+                if (spot == touchedSpots.first) {
+                  return LineTooltipItem(
+                    '$dateStr\n', // Main text is just the date header
+                    TextStyle(
+                      color: isDark ? Colors.white70 : Colors.grey.shade600,
+                      fontSize: 12,
+                      fontWeight: FontWeight.normal,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: '$sign\$${spot.y.toInt()}',
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                    textAlign: TextAlign.center,
+                  );
+                } else {
+                  // Subsequent items only show value
+                  return LineTooltipItem(
+                    '$sign\$${spot.y.toInt()}',
+                    TextStyle(
+                      color: color,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  );
+                }
               }).toList();
             },
           ),

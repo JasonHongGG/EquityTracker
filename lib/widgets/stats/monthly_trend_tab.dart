@@ -109,6 +109,8 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
               incomeSpots: incomeData,
               expenseSpots: expenseData,
               daysInMonth: daysInMonth,
+              month: widget.month, // Pass the month
+              selectedDay: _selectedDay,
               onDateSelected: (day) {
                 setState(() {
                   _selectedDay = day;
