@@ -1,0 +1,6 @@
+Analyzing monthly_trend_tab.dart...                             
+
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\stats\monthly_trend_tab.dart:124:49 - deprecated_member_use
+  error - The returned type 'num' isn't returnable from a 'int' function, as required by the closure's context - lib\widgets\stats\monthly_trend_tab.dart:141:43 - return_of_invalid_type_from_closure
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\widgets\stats\monthly_trend_tab.dart:162:59 - deprecated_member_use
+

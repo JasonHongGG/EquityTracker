@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/transaction_model.dart';
 import '../../models/transaction_type.dart';
 import '../transaction_item.dart';
+import '../date_header.dart';
 import 'trend_line_chart.dart';
 
 class MonthlyTrendTab extends StatefulWidget {
@@ -42,9 +43,10 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
     }
 
     // 2. Filter List based on selection
-    final selectedTransactions =
+    // 2. Filter List based on selection
+    final List<TransactionModel> selectedTransactions =
         _selectedDay == null
-              ? []
+              ? <TransactionModel>[]
               : widget.transactions
                     .where((t) => t.date.day == _selectedDay)
                     .toList()
@@ -53,11 +55,12 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
     return Column(
       children: [
         // CHART SECTION
-        const SizedBox(height: 20),
+        const SizedBox(height: 10),
+
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: SizedBox(
-            height: 250,
+            height: 180,
             child: TrendLineChart(
               incomeSpots: incomeData,
               expenseSpots: expenseData,
@@ -71,28 +74,25 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
           ),
         ),
 
-        // DIVIDER / INFO
-        const SizedBox(height: 20),
+        const SizedBox(height: 8),
+        // Legend (Moved to bottom-left)
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(
-                _selectedDay != null
-                    ? 'Transactions on ${_selectedDay}/${widget.month.month}'
-                    : 'Tap on chart to view details',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+              _TrendLegendItem(color: const Color(0xFF34C759), label: 'Income'),
+              const SizedBox(width: 20),
+              _TrendLegendItem(
+                color: Colors.redAccent.shade200,
+                label: 'Expense',
               ),
-              const Spacer(),
-              if (_selectedDay != null) ...[
-                // Could show daily total here
-              ],
             ],
           ),
         ),
+
+        // DIVIDER / INFO
+        const SizedBox(height: 10),
         const SizedBox(height: 10),
 
         // LIST SECTION
@@ -111,19 +111,98 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
                     style: TextStyle(color: Theme.of(context).hintColor),
                   ),
                 )
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: selectedTransactions.length,
-                  itemBuilder: (context, index) {
-                    return TransactionItem(
-                      transaction: selectedTransactions[index],
-                      onTap: () {
-                        // Drill down? Or just view.
-                        // Ideally we can open edit screen but we need navigation context
-                      },
-                    );
-                  },
+              : ListView(
+                  padding: const EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 10,
+                    bottom: 100, // Extra padding for bottom nav
+                  ),
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          DateHeader(
+                            date: DateTime(
+                              widget.month.year,
+                              widget.month.month,
+                              _selectedDay!,
+                            ),
+                            totalAmount: selectedTransactions.fold<int>(
+                              0,
+                              (sum, t) => t.type == TransactionType.income
+                                  ? sum + t.amount
+                                  : sum - t.amount,
+                            ),
+                          ),
+                          for (
+                            var i = 0;
+                            i < selectedTransactions.length;
+                            i++
+                          ) ...[
+                            if (i > 0)
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 74,
+                                  right: 16,
+                                ),
+                                child: Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Theme.of(context).colorScheme.onSurface
+                                      .withValues(alpha: 0.05),
+                                ),
+                              ),
+                            TransactionItem(
+                              transaction: selectedTransactions[i],
+                              onTap: () {
+                                // Handle tap
+                              },
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TrendLegendItem extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _TrendLegendItem({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         ),
       ],
     );
