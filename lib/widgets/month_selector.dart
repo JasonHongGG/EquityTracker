@@ -10,6 +10,7 @@ class MonthSelector extends StatelessWidget {
   final VoidCallback onClearSearch;
   final bool isSearching;
   final VoidCallback? onTitleTap;
+  final bool enableSearch;
 
   const MonthSelector({
     super.key,
@@ -20,6 +21,7 @@ class MonthSelector extends StatelessWidget {
     required this.onClearSearch,
     this.isSearching = false,
     this.onTitleTap,
+    this.enableSearch = true,
   });
 
   @override
@@ -70,16 +72,17 @@ class MonthSelector extends StatelessWidget {
           ),
 
           // Right-aligned Search/Clear Button
-          Positioned(
-            right: 0,
-            child: IconButton(
-              onPressed: isSearching ? onClearSearch : onSearch,
-              icon: Icon(
-                isSearching ? Icons.close : Icons.search,
-                color: isDark ? Colors.white70 : Colors.black54,
+          if (enableSearch)
+            Positioned(
+              right: 0,
+              child: IconButton(
+                onPressed: isSearching ? onClearSearch : onSearch,
+                icon: Icon(
+                  isSearching ? Icons.close : Icons.search,
+                  color: isDark ? Colors.white70 : Colors.black54,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );

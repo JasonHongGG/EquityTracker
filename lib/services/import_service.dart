@@ -121,7 +121,7 @@ class ImportService {
       categoryId: matchedCategory.id,
       date: date,
       createdAt: DateTime.now(),
-      note: 'Imported',
+      note: '', // TODO: import 進來的檔案標記
     );
 
     return await _dbService.insertTransaction(transaction);

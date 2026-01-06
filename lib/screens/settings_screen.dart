@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/import_service.dart';
+import '../services/native_backup_service.dart'; // Add this
 import '../services/database_service.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/settings_provider.dart';
@@ -80,6 +82,28 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 : null,
           ),
           const Divider(),
+
+          const Divider(),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Text(
+              'Backup & Restore',
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.save_alt),
+            title: const Text('Export Backup'),
+            subtitle: const Text('Save data to a JSON file'),
+            onTap: _isLoading ? null : _exportBackup,
+          ),
+          ListTile(
+            leading: const Icon(Icons.restore_page),
+            title: const Text('Restore Backup'),
+            subtitle: const Text('Merge data from a backup file'),
+            onTap: _isLoading ? null : _importBackup,
+          ),
+          const Divider(), // Separator before the "Clear All Data" danger zone
           ListTile(
             leading: const Icon(Icons.delete_forever, color: Colors.red),
             title: const Text(
@@ -93,6 +117,130 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ),
     );
   }
+
+  // --- Native Backup Methods ---
+
+  Future<void> _exportBackup() async {
+    try {
+      // 1. Pick Directory
+      final String? selectedDirectory = await FilePicker.platform
+          .getDirectoryPath();
+
+      if (selectedDirectory == null) {
+        // User canceled
+        return;
+      }
+
+      setState(() => _isLoading = true);
+
+      // Show loading
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => const Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      // 2. Generate JSON
+      final backupService = NativeBackupService();
+      final jsonContent = await backupService.createBackupJson();
+
+      // 3. Write File
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final filename = 'equity_tracker_backup_$timestamp.json';
+      final path = '$selectedDirectory/$filename';
+
+      final file = File(path); // Requires 'dart:io'
+      await file.writeAsString(jsonContent);
+
+      if (mounted) {
+        Navigator.of(context).pop(); // Dismiss loading
+        setState(() => _isLoading = false);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Backup saved to: $filename'),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        if (_isLoading) {
+          Navigator.of(context).pop();
+          setState(() => _isLoading = false);
+        }
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+      }
+    }
+  }
+
+  Future<void> _importBackup() async {
+    try {
+      // 1. Pick File
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result != null && result.files.single.path != null) {
+        setState(() => _isLoading = true);
+
+        if (mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final path = result.files.single.path!;
+        final file = File(path);
+        final content = await file.readAsString();
+
+        // 2. Restore
+        final backupService = NativeBackupService();
+        final report = await backupService.restoreFromBackupContent(content);
+
+        // 3. Refresh UI
+        // ignore: unused_result
+        ref.refresh(transactionListProvider);
+        // ignore: unused_result
+        ref.refresh(
+          settingsProvider,
+        ); // If we synced settings later, but now just in case
+
+        if (mounted) {
+          Navigator.of(context).pop(); // Dismiss loading
+          setState(() => _isLoading = false);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Restored: ${report.categoriesImported} Categories, ${report.transactionsImported} Transactions',
+              ),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        if (_isLoading) {
+          Navigator.of(context).pop();
+          setState(() => _isLoading = false);
+        }
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Restore failed: $e')));
+      }
+    }
+  }
+
+  // --- End Native Backup Methods ---
 
   Future<void> _importTransactions() async {
     try {
