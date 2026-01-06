@@ -56,26 +56,54 @@ class CategoryAnalysisTab extends ConsumerWidget {
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
-            child: SizedBox(
-              height: 300,
-              child: CategoryPieChart(
-                data: sortedEntries,
-                totalAmount: totalExpense,
-              ),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 220,
+                  child: CategoryPieChart(
+                    data: sortedEntries,
+                    totalAmount: totalExpense,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: sortedEntries.map((entry) {
+                    final cat = entry.key;
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: cat.color,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          cat.name,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.white70
+                                : Colors.black87,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
           ),
         ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              'Ranking',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-            ),
-          ),
-        ),
+
         SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
             final entry = sortedEntries[index];
