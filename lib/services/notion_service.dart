@@ -16,6 +16,8 @@ class NotionService {
   factory NotionService() => _instance;
   NotionService._internal();
 
+  static const String _kNotionEnabled = 'notion_enabled';
+
   // Getters for settings UI
   Future<String?> get token async {
     final prefs = await SharedPreferences.getInstance();
@@ -27,17 +29,29 @@ class NotionService {
     return prefs.getString(_kNotionDatabaseId);
   }
 
+  Future<bool> get isEnabled async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_kNotionEnabled) ?? false;
+  }
+
   // Setters for settings UI
-  Future<void> setCredentials(String token, String dbId) async {
+  Future<void> setCredentials(String token, String dbId, bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kNotionToken, token);
     await prefs.setString(_kNotionDatabaseId, dbId);
+    await prefs.setBool(_kNotionEnabled, enabled);
+  }
+
+  Future<void> setEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kNotionEnabled, enabled);
   }
 
   Future<void> clearCredentials() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_kNotionToken);
     await prefs.remove(_kNotionDatabaseId);
+    await prefs.remove(_kNotionEnabled);
   }
 
   // Test Connection
@@ -72,7 +86,11 @@ class NotionService {
     final dbId = await databaseId;
 
     if (apiKey == null || dbId == null || apiKey.isEmpty || dbId.isEmpty) {
-      return; // Not configured, silently skip
+      return; // Not configured
+    }
+
+    if (!await isEnabled) {
+      return; // Disabled
     }
 
     try {

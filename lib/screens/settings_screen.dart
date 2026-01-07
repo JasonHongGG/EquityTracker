@@ -501,6 +501,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final notionService = NotionService();
     final token = await notionService.token ?? '';
     final dbId = await notionService.databaseId ?? '';
+    bool isEnabled = await notionService.isEnabled;
 
     final tokenController = TextEditingController(text: token);
     final dbIdController = TextEditingController(text: dbId);
@@ -509,69 +510,97 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     await showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Notion Integration 🧪'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Sync new transactions to a Notion Database.\n'
-                'Database must have columns: "名稱", "金額", "類別", "時間".',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Notion Integration 🧪'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SwitchListTile(
+                    title: const Text('Enable Sync'),
+                    value: isEnabled,
+                    onChanged: (val) {
+                      setState(() => isEnabled = val);
+                    },
+                  ),
+                  const Divider(),
+                  const Text(
+                    'Sync new transactions to a Notion Database.\n'
+                    'Database must have columns: "名稱", "金額", "類別", "時間".',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: tokenController,
+                    decoration: const InputDecoration(
+                      labelText: 'Integration Token',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    enabled: isEnabled, // Disable fields if feature is off
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: dbIdController,
+                    decoration: const InputDecoration(
+                      labelText: 'Database ID',
+                      border: OutlineInputBorder(),
+                    ),
+                    enabled: isEnabled,
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: tokenController,
-                decoration: const InputDecoration(
-                  labelText: 'Integration Token',
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: dbIdController,
-                decoration: const InputDecoration(
-                  labelText: 'Database ID',
-                  border: OutlineInputBorder(),
-                ),
+              ElevatedButton(
+                onPressed: () async {
+                  await notionService.setCredentials(
+                    tokenController.text.trim(),
+                    dbIdController.text.trim(),
+                    isEnabled,
+                  );
+
+                  if (ctx.mounted) {
+                    Navigator.pop(ctx);
+
+                    if (isEnabled) {
+                      final success = await notionService.testConnection();
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              success
+                                  ? 'Saved & Connected! ✅'
+                                  : 'Saved, but Connection Failed ❌',
+                            ),
+                            backgroundColor: success
+                                ? Colors.green
+                                : Colors.orange,
+                          ),
+                        );
+                      }
+                    } else {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Notion Sync Disabled.'),
+                          ),
+                        );
+                      }
+                    }
+                  }
+                },
+                child: const Text('Save'),
               ),
             ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await notionService.setCredentials(
-                tokenController.text.trim(),
-                dbIdController.text.trim(),
-              );
-
-              if (ctx.mounted) {
-                Navigator.pop(ctx);
-                final success = await notionService.testConnection();
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        success
-                            ? 'Connection Successful! ✅'
-                            : 'Connection Failed ❌. Check ID/Token.',
-                      ),
-                      backgroundColor: success ? Colors.green : Colors.red,
-                    ),
-                  );
-                }
-              }
-            },
-            child: const Text('Save & Test'),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
