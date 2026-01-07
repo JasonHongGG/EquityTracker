@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/transaction_model.dart';
-import '../models/category_model.dart'; // To get category name if needed
+import '../models/category_model.dart';
 import '../services/database_service.dart';
+import '../models/transaction_type.dart';
 
 class NotionService {
   static const String _kNotionToken = 'notion_token';
@@ -165,6 +166,151 @@ class NotionService {
       }
     } catch (e) {
       print('Notion Sync Error: $e');
+    }
+  }
+
+  // Fetch Transactions (Pull)
+  Future<List<TransactionModel>> fetchTransactions({DateTime? since}) async {
+    final apiKey = await token;
+    final dbId = await databaseId;
+
+    if (apiKey == null || dbId == null || apiKey.isEmpty || dbId.isEmpty) {
+      return [];
+    }
+
+    try {
+      final url = Uri.parse('https://api.notion.com/v1/databases/$dbId/query');
+      final List<TransactionModel> allTransactions = [];
+
+      bool hasMore = true;
+      String? nextCursor;
+
+      // Cache categories for lookup
+      final categories = await DatabaseService().getCategories();
+
+      while (hasMore) {
+        Map<String, dynamic> body = {};
+
+        // Filter
+        if (since != null) {
+          body["filter"] = {
+            "timestamp": "created_time",
+            "created_time": {"after": since.toIso8601String()},
+          };
+        }
+
+        // Pagination
+        if (nextCursor != null) {
+          body["start_cursor"] = nextCursor;
+        }
+
+        final response = await http.post(
+          url,
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Content-Type': 'application/json',
+            'Notion-Version': _kNotionVersion,
+          },
+          body: jsonEncode(body),
+        );
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final results = data['results'] as List;
+
+          hasMore = data['has_more'] as bool? ?? false;
+          nextCursor = data['next_cursor'] as String?;
+
+          for (var page in results) {
+            try {
+              final props = page['properties'];
+              if (props == null) continue;
+
+              // 1. Title (Name)
+              String? title;
+              final nameProp = props['名稱']?['title'];
+              if (nameProp != null && (nameProp as List).isNotEmpty) {
+                title = nameProp[0]['plain_text'];
+              }
+              if (title == null || title.isEmpty) title = 'Notion Import';
+
+              // 2. Amount (Number)
+              int amount = 0;
+              final amountProp = props['金額']?['number'];
+              if (amountProp != null) {
+                amount = (amountProp as num).toInt();
+              }
+              if (amount <= 0) continue; // Skip invalid amounts
+
+              // 3. Date (Date)
+              DateTime date = DateTime.now();
+              final dateProp = props['時間']?['date']?['start'];
+              if (dateProp != null) {
+                date = DateTime.parse(dateProp);
+              }
+
+              // 4. Category (Select/RichText) -> ID
+              String categoryId = 'other'; // Default
+              String? catName;
+
+              // Try Select
+              catName = props['類別']?['select']?['name'];
+              if (catName == null) {
+                // Try Rich Text (if user used Text instead of Select)
+                final richText = props['類別']?['rich_text'];
+                if (richText != null && (richText as List).isNotEmpty) {
+                  catName = richText[0]['plain_text'];
+                }
+              }
+
+              if (catName != null) {
+                final matched = categories.firstWhere(
+                  (c) => c.name.toLowerCase() == catName!.toLowerCase(),
+                  orElse: () => categories.firstWhere((c) => c.id == 'other'),
+                );
+                categoryId = matched.id;
+              }
+
+              // Determine Type based on Category?
+              // Or default to Expense?
+              // Notion doesn't strictly have "Type" in requirements.
+              // We can infer from Category if matched.
+              // If matched category is Income, use Income. Else Expense.
+              TransactionType type = TransactionType.expense;
+              if (catName != null) {
+                final matched = categories.firstWhere(
+                  (c) => c.name.toLowerCase() == catName!.toLowerCase(),
+                  orElse: () => categories.firstWhere((c) => c.id == 'other'),
+                );
+                type = matched.type;
+              }
+
+              allTransactions.add(
+                TransactionModel(
+                  title: title,
+                  amount: amount,
+                  type: type,
+                  categoryId: categoryId,
+                  date: date,
+                  createdAt: DateTime.now(), // Local creation time
+                  note: '',
+                ),
+              );
+            } catch (e) {
+              print('Error parsing page: $e');
+              continue;
+            }
+          }
+        } else {
+          print('Notion Fetch Failed: ${response.body}');
+          // If a page fails, we stop
+          hasMore = false;
+        }
+      }
+      return allTransactions;
+    } catch (e) {
+      print('Notion Fetch Error: $e');
+      return [];
     }
   }
 }

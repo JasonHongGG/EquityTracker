@@ -5,6 +5,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/import_service.dart';
 import '../services/notion_service.dart';
+import '../models/transaction_model.dart';
+import '../models/transaction_type.dart';
 import '../services/native_backup_service.dart'; // Add this
 import '../services/database_service.dart';
 import '../providers/transaction_provider.dart';
@@ -692,7 +694,113 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         prefixIcon: const Icon(Icons.dataset_rounded, size: 20),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    // Sync Functionality (Experimental)
+                    if (isEnabled) ...[
+                      const Divider(height: 48, color: Colors.white10),
+                      Text(
+                        "DATA SYNC",
+                        style: TextStyle(
+                          fontFamily: 'Outfit',
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                          color: isDark ? Colors.white38 : Colors.black38,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Sync Buttons
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _isLoading
+                                  ? null
+                                  : () => _syncFromNotion(setState, context),
+                              icon: _isLoading
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.download_rounded,
+                                      size: 18,
+                                    ),
+                              label: Text(
+                                _isLoading ? "Syncing..." : "Sync Now",
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                side: BorderSide(
+                                  color: isDark
+                                      ? Colors.white24
+                                      : Colors.grey.shade300,
+                                ),
+                                foregroundColor: isDark
+                                    ? Colors.white
+                                    : Colors.black87,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      // Undo Button (Only if available)
+                      FutureBuilder(
+                        future: SharedPreferences.getInstance().then(
+                          (p) => p.getStringList('notion_last_pull_ids'),
+                        ),
+                        builder: (ctx, snap) {
+                          if (!snap.hasData ||
+                              snap.data == null ||
+                              snap.data!.isEmpty)
+                            return const SizedBox.shrink();
+                          return Column(
+                            children: [
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                child: TextButton.icon(
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () => _undoNotionSync(setState),
+                                  icon: const Icon(
+                                    Icons.undo_rounded,
+                                    size: 18,
+                                    color: Colors.orange,
+                                  ),
+                                  label: const Text(
+                                    "Undo Last Sync",
+                                    style: TextStyle(color: Colors.orange),
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
+                                    backgroundColor: Colors.orange.withOpacity(
+                                      0.1,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 32),
+                    ],
 
                     // Actions
                     Row(
@@ -802,5 +910,191 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         },
       ),
     );
+  }
+
+  // --- Notion Sync Logic ---
+
+  Future<void> _syncFromNotion(
+    StateSetter setDialogState,
+    BuildContext dialogContext,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Save current inputs first? Ideally user hit Save.
+    // We assume user has saved credentials if this button is enabled.
+
+    setDialogState(() => _isLoading = true); // Local loading in dialog?
+    // Actually setDialogState updates the StatefulBuilder.
+    // But _isLoading is in the main class.
+    // Let's use a local loading indicator or reusing _isLoading is fine if we check mounted.
+
+    // Show Loading SnackBar
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Syncing from Notion... ⏳'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+
+    try {
+      final notionService = NotionService();
+
+      // 1. Get Last Sync Time
+      final lastSyncStr = prefs.getString('notion_last_sync_time');
+      final DateTime? lastSync = lastSyncStr != null
+          ? DateTime.parse(lastSyncStr)
+          : null;
+
+      // 2. Fetch
+      final transactions = await notionService.fetchTransactions(
+        since: lastSync,
+      );
+
+      if (transactions.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No new transactions found.')),
+          );
+        }
+        setDialogState(() => _isLoading = false);
+        return;
+      }
+
+      // 3. Deduplicate
+      // Get current transactions from provider
+      final currentTx = ref.read(transactionListProvider).value ?? [];
+      final List<TransactionModel> toInsert = [];
+
+      for (final tx in transactions) {
+        // Check if exists: Same Date, Amount, Title
+        // (Not perfect but good for experimental)
+        final exists = currentTx.any(
+          (existing) =>
+              existing.amount == tx.amount &&
+              existing.title == tx.title &&
+              DateUtils.isSameDay(existing.date, tx.date) &&
+              existing.type == tx.type,
+        );
+
+        if (!exists) {
+          toInsert.add(tx);
+        }
+      }
+
+      if (toInsert.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('All items were duplicates. Skipped.'),
+            ),
+          );
+        }
+        setDialogState(() => _isLoading = false);
+        return;
+      }
+
+      // 4. Insert
+      final List<int> insertedIds = [];
+      for (final tx in toInsert) {
+        // We need to add one by one to get IDs (or batch insert if supported)
+        // Provider addTransaction is void, but we can query latest?
+        // Or modify provider to return ID.
+        // As a workaround for "experimental":
+        // We will read DatabaseService direct insert which returns ID.
+        final id = await DatabaseService().insertTransaction(tx);
+        insertedIds.add(id);
+      }
+
+      // 5. Update State (Provider)
+      // ignore: unused_result
+      ref.refresh(transactionListProvider);
+
+      // 6. Save Sync State for Undo
+      await prefs.setStringList(
+        'notion_last_pull_ids',
+        insertedIds.map((e) => e.toString()).toList(),
+      );
+      if (lastSyncStr != null) {
+        await prefs.setString('notion_prev_sync_time', lastSyncStr);
+      } else {
+        await prefs.remove('notion_prev_sync_time');
+      }
+
+      // Update Last Sync Time to NOW
+      await prefs.setString(
+        'notion_last_sync_time',
+        DateTime.now().toIso8601String(),
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Synced ${insertedIds.length} items from Notion! 🎉'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Close Dialog? Or stay to let user undo?
+        // Let's Refresh the Dialog to show Undo button
+        setDialogState(() {});
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Sync Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      setDialogState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _undoNotionSync(StateSetter setDialogState) async {
+    final prefs = await SharedPreferences.getInstance();
+    final idsStr = prefs.getStringList('notion_last_pull_ids');
+    if (idsStr == null || idsStr.isEmpty) return;
+
+    try {
+      final ids = idsStr.map((e) => int.parse(e)).toList();
+
+      // 1. Delete
+      for (final id in ids) {
+        await DatabaseService().deleteTransaction(id);
+      }
+
+      // 2. Revert Time
+      final prevTime = prefs.getString('notion_prev_sync_time');
+      if (prevTime != null) {
+        await prefs.setString('notion_last_sync_time', prevTime);
+      } else {
+        await prefs.remove('notion_last_sync_time');
+      }
+
+      // 3. Clear Undo History
+      await prefs.remove('notion_last_pull_ids');
+      await prefs.remove('notion_prev_sync_time');
+
+      // 4. Refresh Provider
+      // ignore: unused_result
+      ref.refresh(transactionListProvider);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Last Notion Sync Reverted ↩️')),
+        );
+        setDialogState(() {});
+      }
+    } catch (e) {
+      print(e);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Undo Failed: $e')));
+      }
+    }
   }
 }
