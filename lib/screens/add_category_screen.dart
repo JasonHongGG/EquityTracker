@@ -45,8 +45,32 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
 
   // Predefined Icons (Material)
   final List<Map<String, dynamic>> _icons = [
+    // Top 12 - Diverse & Common
+    {'icon': Icons.fastfood, 'family': 'MaterialIcons', 'pkg': null}, // Food
+    {'icon': Icons.train, 'family': 'MaterialIcons', 'pkg': null}, // Transport
+    {
+      'icon': Icons.shopping_bag,
+      'family': 'MaterialIcons',
+      'pkg': null,
+    }, // Shopping
+    {'icon': Icons.house, 'family': 'MaterialIcons', 'pkg': null}, // Housing
+    {
+      'icon': Icons.sports_esports,
+      'family': 'MaterialIcons',
+      'pkg': null,
+    }, // Fun
+    {
+      'icon': Icons.medical_services,
+      'family': 'MaterialIcons',
+      'pkg': null,
+    }, // Health
+    {'icon': Icons.school, 'family': 'MaterialIcons', 'pkg': null}, // Education
+    {'icon': Icons.work, 'family': 'MaterialIcons', 'pkg': null}, // Income
+    {'icon': Icons.flight, 'family': 'MaterialIcons', 'pkg': null}, // Travel
+    {'icon': Icons.pets, 'family': 'MaterialIcons', 'pkg': null}, // Family
+    {'icon': Icons.receipt, 'family': 'MaterialIcons', 'pkg': null}, // Bills
+    {'icon': Icons.savings, 'family': 'MaterialIcons', 'pkg': null}, // Savings
     // Food & Drink
-    {'icon': Icons.fastfood, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.restaurant, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.local_cafe, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.local_bar, 'family': 'MaterialIcons', 'pkg': null},
@@ -55,32 +79,48 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
     {'icon': Icons.bakery_dining, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.liquor, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.restaurant_menu, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.breakfast_dining, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.brunch_dining, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.dinner_dining, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.lunch_dining, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.takeout_dining, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.kitchen, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.emoji_food_beverage, 'family': 'MaterialIcons', 'pkg': null},
 
     // Transport
     {'icon': Icons.directions_car, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.directions_bus, 'family': 'MaterialIcons', 'pkg': null},
-    {'icon': Icons.train, 'family': 'MaterialIcons', 'pkg': null},
-    {'icon': Icons.flight, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.local_taxi, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.pedal_bike, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.directions_walk, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.local_gas_station, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.local_parking, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.ev_station, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.subway, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.tram, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.moped, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.two_wheeler, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.airport_shuttle, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.commute, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.departure_board, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.directions_boat, 'family': 'MaterialIcons', 'pkg': null},
 
     // Shopping
-    {'icon': Icons.shopping_bag, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.shopping_cart, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.local_grocery_store, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.card_giftcard, 'family': 'MaterialIcons', 'pkg': null},
-    {'icon': Icons.receipt, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.credit_card, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.checkroom, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.watch, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.style, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.store, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.storefront, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.redeem, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.loyalty, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.local_mall, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.local_offer, 'family': 'MaterialIcons', 'pkg': null},
 
     // Housing & Utilities
-    {'icon': Icons.house, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.apartment, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.hotel, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.weekend, 'family': 'MaterialIcons', 'pkg': null},
@@ -90,50 +130,89 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
     {'icon': Icons.wifi, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.phone_android, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.build, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.lightbulb, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.electrical_services, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.plumbing, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.cleaning_services, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.yard, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.chair, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.door_sliding, 'family': 'MaterialIcons', 'pkg': null},
 
     // Health & Wellness
-    {'icon': Icons.medical_services, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.local_hospital, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.medication, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.fitness_center, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.spa, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.pool, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.healing, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.monitor_heart, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.pregnant_woman, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.sanitizer, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.masks, 'family': 'MaterialIcons', 'pkg': null},
 
-    // Entertainment
+    // Entertainment & Sports
     {'icon': Icons.movie, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.theaters, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.music_note, 'family': 'MaterialIcons', 'pkg': null},
-    {'icon': Icons.sports_esports, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.sports_soccer, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.sports_basketball, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.casino, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.camera_alt, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.sports_tennis, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.sports_golf, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.sports_football, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.sports_baseball, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.sports_volleyball, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.surfing, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.skateboarding, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.hiking, 'family': 'MaterialIcons', 'pkg': null},
+
+    // Tech & Gadgets
+    {'icon': Icons.headphones, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.headset, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.keyboard, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.mouse, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.monitor, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.tablet, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.smartphone, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.videogame_asset, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.computer, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.speaker, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.memory, 'family': 'MaterialIcons', 'pkg': null},
 
     // Education & Work
-    {'icon': Icons.school, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.menu_book, 'family': 'MaterialIcons', 'pkg': null},
-    {'icon': Icons.work, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.laptop_mac, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.attach_money, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.trending_up, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.business_center, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.badge, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.groups, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.article, 'family': 'MaterialIcons', 'pkg': null},
 
     // Family & Personal
-    {'icon': Icons.pets, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.child_friendly, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.face, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.celebration, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.cake, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.local_florist, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.stroller, 'family': 'MaterialIcons', 'pkg': null},
 
-    // Misc
-    {'icon': Icons.savings, 'family': 'MaterialIcons', 'pkg': null},
+    // Finance & Misc
     {'icon': Icons.account_balance, 'family': 'MaterialIcons', 'pkg': null},
+    {
+      'icon': Icons.account_balance_wallet,
+      'family': 'MaterialIcons',
+      'pkg': null,
+    },
+    {'icon': Icons.currency_exchange, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.star, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.favorite, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.category, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.map, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.lock, 'family': 'MaterialIcons', 'pkg': null},
     {'icon': Icons.settings, 'family': 'MaterialIcons', 'pkg': null},
+    {'icon': Icons.notifications, 'family': 'MaterialIcons', 'pkg': null},
   ];
 
   @override
@@ -204,12 +283,10 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
         ),
         centerTitle: true,
         actions: [
-          TextButton(
+          IconButton(
             onPressed: _save,
-            child: const Text(
-              'Save',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
+            icon: const Icon(Icons.check_rounded, size: 28),
+            tooltip: 'Save Category',
           ),
         ],
       ),
@@ -219,8 +296,8 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
           children: [
             // 1. Preview (No Change)
             Container(
-              width: 80,
-              height: 80,
+              width: 80, // Reduced from 80
+              height: 80, // Reduced from 80
               decoration: BoxDecoration(
                 color: _selectedColor,
                 shape: BoxShape.circle,
@@ -239,11 +316,10 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                   fontPackage: _selectedFontPackage,
                 ),
                 color: Colors.white,
-                size: 40,
+                size: 32, // Reduced from 40
               ),
             ),
-            const SizedBox(height: 32),
-
+            const SizedBox(height: 16), // Reduced from 32
             // 2. Form Container
             Container(
               decoration: BoxDecoration(
@@ -262,7 +338,12 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                 children: [
                   // Combined Name & Type Row
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+                    padding: const EdgeInsets.fromLTRB(
+                      20,
+                      20,
+                      20,
+                      12,
+                    ), // Tighter padding
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -276,16 +357,15 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                                 'TYPE',
                                 style: TextStyle(
                                   fontFamily: 'Outfit',
-                                  fontSize: 12,
+                                  fontSize: 11, // Reduced font
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 1.0,
                                   color: theme.hintColor,
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8), // Reduced gap
                               Container(
-                                height:
-                                    60, // Match typical input height (~60px)
+                                height: 56, // Slightly reduced height
                                 padding: const EdgeInsets.all(4),
                                 decoration: BoxDecoration(
                                   color: isDark
@@ -325,13 +405,13 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                                 'CATEGORY NAME',
                                 style: TextStyle(
                                   fontFamily: 'Outfit',
-                                  fontSize: 12,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 1.0,
                                   color: theme.hintColor,
                                 ),
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 8),
                               TextField(
                                 controller: _nameController,
                                 style: const TextStyle(
@@ -366,8 +446,8 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                                     ),
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 18,
+                                    horizontal: 16,
+                                    vertical: 16, // Tighter input padding
                                   ),
                                 ),
                               ),
@@ -378,8 +458,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 8),
-
+                  const SizedBox(height: 4), // Reduced spacer
                   // 3. Inline Color Picker header
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -387,23 +466,24 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                       'COLOR',
                       style: TextStyle(
                         fontFamily: 'Outfit',
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.0,
                         color: theme.hintColor,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
 
                   // Horizontal Color List
                   SizedBox(
-                    height: 72,
+                    height: 56, // Reduced from 72
                     child: ListView.separated(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       scrollDirection: Axis.horizontal,
                       itemCount: _colors.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 16),
+                      separatorBuilder: (_, __) =>
+                          const SizedBox(width: 12), // Reduced spacing
                       itemBuilder: (context, index) {
                         final color = _colors[index];
                         final isSelected = _selectedColor.value == color.value;
@@ -412,8 +492,8 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                           child: Center(
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
-                              width: 48,
-                              height: 48,
+                              width: 42, // Reduced from 48
+                              height: 42,
                               decoration: BoxDecoration(
                                 color: color,
                                 shape: BoxShape.circle,
@@ -431,7 +511,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                                   ? const Icon(
                                       Icons.check,
                                       color: Colors.white,
-                                      size: 28,
+                                      size: 24,
                                     )
                                   : null,
                             ),
@@ -441,7 +521,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
                   // 4. Quick Icon Grid header
                   Padding(
@@ -453,7 +533,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                           'ICON',
                           style: TextStyle(
                             fontFamily: 'Outfit',
-                            fontSize: 12,
+                            fontSize: 11,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.0,
                             color: theme.hintColor,
@@ -473,7 +553,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                             'See All',
                             style: TextStyle(
                               fontFamily: 'Outfit',
-                              fontSize: 14,
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: theme.primaryColor,
                             ),
@@ -482,15 +562,15 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
 
                   // Inline Icon Grid (Top 10)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Wrap(
-                      spacing: 16,
-                      runSpacing: 16,
-                      children: _icons.take(10).map((iconData) {
+                      spacing: 12, // Reduced spacing
+                      runSpacing: 12,
+                      children: _icons.take(12).map((iconData) {
                         final icon = iconData['icon'] as IconData;
                         final isSelected = _selectedIconCode == icon.codePoint;
                         return GestureDetector(
