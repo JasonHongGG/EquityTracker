@@ -512,93 +512,292 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setState) {
-          return AlertDialog(
-            title: const Text('Notion Integration 🧪'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SwitchListTile(
-                    title: const Text('Enable Sync'),
-                    value: isEnabled,
-                    onChanged: (val) {
-                      setState(() => isEnabled = val);
-                    },
-                  ),
-                  const Divider(),
-                  const Text(
-                    'Sync new transactions to a Notion Database.\n'
-                    'Database must have columns: "名稱", "金額", "類別", "時間".',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: tokenController,
-                    decoration: const InputDecoration(
-                      labelText: 'Integration Token',
-                      border: OutlineInputBorder(),
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final backgroundColor = isDark
+              ? const Color(0xFF1E1E2C)
+              : Colors.white;
+          final inputFillColor = isDark ? Colors.black12 : Colors.grey.shade50;
+
+          return Dialog(
+            backgroundColor: backgroundColor,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Container(
+              width: double.maxFinite,
+              constraints: const BoxConstraints(maxWidth: 400),
+              padding: const EdgeInsets.all(24),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.greenAccent.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.science_rounded,
+                            color: Colors.green,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        const Expanded(
+                          child: Text(
+                            'Notion \nIntegration',
+                            style: TextStyle(
+                              fontFamily: 'Outfit',
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              height: 1.1,
+                            ),
+                          ),
+                        ),
+                        // Toggle Switch
+                        Transform.scale(
+                          scale: 0.9,
+                          child: Switch(
+                            value: isEnabled,
+                            activeColor: Colors.white,
+                            activeTrackColor: Colors.green,
+                            onChanged: (val) => setState(() => isEnabled = val),
+                          ),
+                        ),
+                      ],
                     ),
-                    obscureText: true,
-                    enabled: isEnabled, // Disable fields if feature is off
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: dbIdController,
-                    decoration: const InputDecoration(
-                      labelText: 'Database ID',
-                      border: OutlineInputBorder(),
+                    const SizedBox(height: 24),
+
+                    // Description
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.white.withOpacity(0.05)
+                            : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isDark ? Colors.white10 : Colors.grey.shade200,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline_rounded,
+                                size: 16,
+                                color: isDark ? Colors.white60 : Colors.black45,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                "Database Requirements",
+                                style: TextStyle(
+                                  fontFamily: 'Outfit',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark
+                                      ? Colors.white70
+                                      : Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            'Columns: "名稱", "金額", "類別", "時間"',
+                            style: TextStyle(
+                              fontFamily: 'Outfit',
+                              fontSize: 12,
+                              color: isDark ? Colors.white60 : Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    enabled: isEnabled,
-                  ),
-                ],
+                    const SizedBox(height: 24),
+
+                    // Inputs
+                    Text(
+                      "CREDENTIALS",
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                        color: isDark ? Colors.white38 : Colors.black38,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Token Field
+                    TextField(
+                      controller: tokenController,
+                      enabled: isEnabled,
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        color: isEnabled
+                            ? (isDark ? Colors.white : Colors.black)
+                            : (isDark ? Colors.white24 : Colors.black26),
+                      ),
+                      decoration: InputDecoration(
+                        labelText: 'Integration Token',
+                        labelStyle: const TextStyle(fontFamily: 'Outfit'),
+                        filled: true,
+                        fillColor: inputFillColor,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        prefixIcon: const Icon(Icons.key_rounded, size: 20),
+                      ),
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 16),
+
+                    // DB ID Field
+                    TextField(
+                      controller: dbIdController,
+                      enabled: isEnabled,
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        color: isEnabled
+                            ? (isDark ? Colors.white : Colors.black)
+                            : (isDark ? Colors.white24 : Colors.black26),
+                      ),
+                      decoration: InputDecoration(
+                        labelText: 'Database ID',
+                        labelStyle: const TextStyle(fontFamily: 'Outfit'),
+                        filled: true,
+                        fillColor: inputFillColor,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        prefixIcon: const Icon(Icons.dataset_rounded, size: 20),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Actions
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: Text(
+                              "Cancel",
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? Colors.white60 : Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              await notionService.setCredentials(
+                                tokenController.text.trim(),
+                                dbIdController.text.trim(),
+                                isEnabled,
+                              );
+
+                              if (ctx.mounted) {
+                                Navigator.pop(ctx);
+
+                                if (isEnabled) {
+                                  // Show checking snackbar
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Verifying connection...',
+                                        ),
+                                        duration: Duration(seconds: 1),
+                                      ),
+                                    );
+                                  }
+
+                                  final success = await notionService
+                                      .testConnection();
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          success
+                                              ? 'Connected Successfully! ✅'
+                                              : 'Connection Failed ❌',
+                                        ),
+                                        backgroundColor: success
+                                            ? Colors.green
+                                            : Colors.red,
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Notion Sync Disabled'),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
+                                }
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  Colors.black87, // Premium dark button
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: const Text(
+                              "Save",
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  await notionService.setCredentials(
-                    tokenController.text.trim(),
-                    dbIdController.text.trim(),
-                    isEnabled,
-                  );
-
-                  if (ctx.mounted) {
-                    Navigator.pop(ctx);
-
-                    if (isEnabled) {
-                      final success = await notionService.testConnection();
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              success
-                                  ? 'Saved & Connected! ✅'
-                                  : 'Saved, but Connection Failed ❌',
-                            ),
-                            backgroundColor: success
-                                ? Colors.green
-                                : Colors.orange,
-                          ),
-                        );
-                      }
-                    } else {
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Notion Sync Disabled.'),
-                          ),
-                        );
-                      }
-                    }
-                  }
-                },
-                child: const Text('Save'),
-              ),
-            ],
           );
         },
       ),
