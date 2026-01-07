@@ -38,6 +38,7 @@ class _AddEditTransactionScreenState
 
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _noteFocusNode = FocusNode();
+  final ScrollController _suggestionsScrollController = ScrollController();
 
   @override
   void initState() {
@@ -73,6 +74,7 @@ class _AddEditTransactionScreenState
     _noteController.dispose();
     _titleFocusNode.dispose();
     _noteFocusNode.dispose();
+    _suggestionsScrollController.dispose();
     super.dispose();
   }
 
@@ -219,7 +221,13 @@ class _AddEditTransactionScreenState
                                 ),
                                 border: InputBorder.none,
                               ),
-                              onChanged: (val) => setState(() {}),
+                              onChanged: (val) {
+                                setState(() {});
+                                // Reset scroll position to start when filtering changes
+                                if (_suggestionsScrollController.hasClients) {
+                                  _suggestionsScrollController.jumpTo(0);
+                                }
+                              },
                             ),
                             // Suggestion Chips
                             if (_titleFocusNode.hasFocus &&
@@ -228,6 +236,7 @@ class _AddEditTransactionScreenState
                                 height: 40,
                                 margin: const EdgeInsets.only(top: 4),
                                 child: SingleChildScrollView(
+                                  controller: _suggestionsScrollController,
                                   scrollDirection: Axis.horizontal,
                                   child: Row(
                                     children: displayOptions.map((option) {
