@@ -8,6 +8,7 @@ import '../providers/category_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/category_grid.dart';
 import '../widgets/calculator_pad.dart';
+import '../widgets/custom_date_picker_dialog.dart';
 import 'category_management_screen.dart';
 
 class AddEditTransactionScreen extends ConsumerStatefulWidget {
@@ -600,24 +601,13 @@ class _AddEditTransactionScreenState
   }
 
   Future<void> _pickDate() async {
-    final picked = await showDatePicker(
+    final picked = await showDialog<DateTime>(
       context: context,
-      initialDate: _date,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: AppColors.primary,
-              onPrimary: Colors.white,
-              surface: AppColors.surfaceDark,
-              onSurface: Colors.white,
-            ),
-          ),
-          child: child!,
-        );
-      },
+      builder: (context) => CustomDatePickerDialog(
+        initialDate: _date,
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2100),
+      ),
     );
     if (picked != null) {
       setState(() {
