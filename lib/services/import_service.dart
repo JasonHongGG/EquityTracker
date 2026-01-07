@@ -70,7 +70,7 @@ class ImportService {
     if (amountDynamic == null) return null; // Mandatory field
     final amount = (amountDynamic as num).toInt().abs();
 
-    final title = item['Page']?.toString() ?? 'Untitled';
+    final title = item['名稱']?.toString() ?? 'Untitled';
 
     // Date Parsing
     DateTime date;

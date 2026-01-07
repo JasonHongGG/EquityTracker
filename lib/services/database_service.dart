@@ -172,6 +172,17 @@ class DatabaseService {
         isSystem: true,
         isEnabled: true,
       ),
+      Category(
+        id: uuid.v4(),
+        name: '其他', // Other (Expense)
+        iconCodePoint: FontAwesomeIcons.circleQuestion.codePoint,
+        iconFontFamily: FontAwesomeIcons.circleQuestion.fontFamily,
+        iconFontPackage: FontAwesomeIcons.circleQuestion.fontPackage,
+        colorValue: Colors.grey.toARGB32(),
+        type: TransactionType.expense,
+        isSystem: true,
+        isEnabled: true,
+      ),
       // Income
       Category(
         id: uuid.v4(),
@@ -235,6 +246,17 @@ class DatabaseService {
         iconFontFamily: FontAwesomeIcons.moneyBill1.fontFamily,
         iconFontPackage: FontAwesomeIcons.moneyBill1.fontPackage,
         colorValue: Colors.indigo.shade400.toARGB32(),
+        type: TransactionType.income,
+        isSystem: true,
+        isEnabled: true,
+      ),
+      Category(
+        id: uuid.v4(),
+        name: '其他', // Other (Income)
+        iconCodePoint: FontAwesomeIcons.circleQuestion.codePoint,
+        iconFontFamily: FontAwesomeIcons.circleQuestion.fontFamily,
+        iconFontPackage: FontAwesomeIcons.circleQuestion.fontPackage,
+        colorValue: Colors.grey.toARGB32(),
         type: TransactionType.income,
         isSystem: true,
         isEnabled: true,
