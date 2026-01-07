@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../models/transaction_type.dart';
 import '../models/category_model.dart';
 import '../services/database_service.dart';
+import 'transaction_provider.dart';
 
 class CategoryList extends AsyncNotifier<List<Category>> {
   @override
@@ -68,6 +69,10 @@ class CategoryList extends AsyncNotifier<List<Category>> {
 
       // 3. Delete
       await db.deleteCategory(id);
+
+      // 4. Invalidate TransactionList to force refresh of updated categoryIds
+      ref.invalidate(transactionListProvider);
+
       return _fetchCategories();
     });
   }

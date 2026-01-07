@@ -7,6 +7,8 @@ import '../providers/transaction_provider.dart';
 import '../providers/category_provider.dart';
 import '../theme/app_colors.dart';
 import '../widgets/category_grid.dart';
+import '../widgets/calculator_pad.dart';
+import 'category_management_screen.dart';
 
 class AddEditTransactionScreen extends ConsumerStatefulWidget {
   final TransactionModel? transaction;
@@ -33,8 +35,8 @@ class _AddEditTransactionScreenState
   late TextEditingController _noteController;
   String? _selectedCategoryId;
 
-  final FocusNode _amountFocusNode = FocusNode();
   final FocusNode _titleFocusNode = FocusNode();
+  final FocusNode _noteFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -50,17 +52,10 @@ class _AddEditTransactionScreenState
     _noteController = TextEditingController(text: t?.note ?? '');
     _selectedCategoryId = t?.categoryId;
 
-    // Listen to focus changes to toggle chip visibility
+    // Add listener to rebuild UI when title focus changes (to show/hide suggestions)
     _titleFocusNode.addListener(() {
       setState(() {});
     });
-
-    // Auto-focus amount if new
-    if (widget.transaction == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _amountFocusNode.requestFocus();
-      });
-    }
   }
 
   @override
@@ -68,8 +63,8 @@ class _AddEditTransactionScreenState
     _amountController.dispose();
     _titleController.dispose();
     _noteController.dispose();
-    _amountFocusNode.dispose();
     _titleFocusNode.dispose();
+    _noteFocusNode.dispose();
     super.dispose();
   }
 
@@ -78,12 +73,28 @@ class _AddEditTransactionScreenState
     final categoriesAsync = ref.watch(categoryListProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Theme Colors
+    final bgColor = isDark
+        ? AppColors.backgroundDark
+        : AppColors.backgroundLight;
+    final surfaceColor = isDark ? AppColors.surfaceDark : Colors.white;
+    final txtColor = isDark ? Colors.white : Colors.black;
+
     return Scaffold(
-      backgroundColor: isDark
-          ? AppColors.backgroundDark
-          : AppColors.backgroundLight,
+      backgroundColor: bgColor,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text(widget.transaction == null ? 'New Entry' : 'Edit Entry'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.close, color: txtColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          widget.transaction == null ? 'New Entry' : 'Edit Entry',
+          style: TextStyle(color: txtColor, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
         actions: [
           if (widget.transaction != null)
             IconButton(
@@ -92,144 +103,111 @@ class _AddEditTransactionScreenState
             ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: SafeArea(
         child: Column(
           children: [
-            // Hero Section: Combined Amount & Title
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            // --- HEADER SECTION: Amount & Title ---
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 0,
+              ),
               child: Column(
                 children: [
-                  // Type Switcher
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 20),
-                    decoration: BoxDecoration(
-                      color: isDark ? AppColors.surfaceDark : Colors.grey[200],
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildTypeButton(TransactionType.expense, 'Expense'),
-                        _buildTypeButton(TransactionType.income, 'Income'),
-                      ],
-                    ),
-                  ),
-
-                  // Amount Input
-                  Consumer(
-                    builder: (context, ref, child) {
-                      return Focus(
-                        onFocusChange: (hasFocus) {
-                          // Force rebuild to update styling
-                          setState(() {});
-                        },
-                        child: IntrinsicWidth(
-                          child: TextField(
-                            controller: _amountController,
-                            focusNode: _amountFocusNode,
-                            keyboardType: TextInputType.number,
-                            textAlign: TextAlign.center,
-                            showCursor:
-                                false, // Hide the default blinking cursor
-                            textInputAction: TextInputAction.next,
-                            onSubmitted: (_) {
-                              // Auto-focus title when done
-                              _titleFocusNode.requestFocus();
-                            },
-                            style: TextStyle(
-                              fontFamily: 'Outfit',
-                              fontSize: 56,
-                              fontWeight: FontWeight.bold,
-                              color: _type == TransactionType.income
-                                  ? AppColors.income
-                                  : AppColors.expense,
-                              decoration: _amountFocusNode.hasFocus
-                                  ? TextDecoration.underline
-                                  : TextDecoration.none,
-                              decorationColor: _type == TransactionType.income
-                                  ? AppColors.income.withValues(alpha: 0.3)
-                                  : AppColors.expense.withValues(alpha: 0.3),
+                  // Amount Display (Tappable)
+                  GestureDetector(
+                    onTap: _showCalculatorSheet,
+                    child: IntrinsicWidth(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color:
+                                  (_type == TransactionType.income
+                                          ? AppColors.income
+                                          : AppColors.expense)
+                                      .withOpacity(0.3),
+                              width: 2,
                             ),
-                            decoration: const InputDecoration(
-                              prefixText: '\$',
-                              prefixStyle: TextStyle(
-                                fontSize: 30,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            const Text(
+                              '\$',
+                              style: TextStyle(
+                                fontSize: 24,
                                 color: Colors.grey,
                                 fontWeight: FontWeight.bold,
                               ),
-                              border: InputBorder.none,
-                              hintText: '0',
-                              hintStyle: TextStyle(color: Colors.grey),
                             ),
-                            onChanged: (val) =>
-                                _amount = int.tryParse(val) ?? 0,
-                          ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _amountController.text.isEmpty
+                                  ? '0'
+                                  : _amountController.text,
+                              style: TextStyle(
+                                fontSize: 48,
+                                fontWeight: FontWeight.bold,
+                                color: _type == TransactionType.income
+                                    ? AppColors.income
+                                    : AppColors.expense,
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
+                  const SizedBox(height: 12),
 
-                  const SizedBox(height: 10),
-
-                  // Smart Title Autocomplete
-                  // Title Input
+                  // Title Input (Compact with Suggestion Chips)
                   Consumer(
                     builder: (context, ref, child) {
                       final recentTitlesAsync = ref.watch(recentTitlesProvider);
                       final allOptions = recentTitlesAsync.value ?? [];
-
-                      // Filter options based on user input
                       final filteredOptions = allOptions.where((String option) {
                         return option.toLowerCase().contains(
                           _titleController.text.toLowerCase(),
                         );
                       }).toList();
-
-                      // Only show limited number of suggestions
                       final displayOptions = filteredOptions.take(10).toList();
 
                       return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           TextField(
                             controller: _titleController,
                             focusNode: _titleFocusNode,
                             textAlign: TextAlign.center,
-                            textInputAction: TextInputAction.done,
-                            onChanged: (value) {
-                              // Trigger rebuild to update suggestions
-                              setState(() {});
-                            },
-                            style: const TextStyle(
-                              fontSize: 20,
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: txtColor,
                               fontWeight: FontWeight.w500,
                             ),
                             decoration: InputDecoration(
+                              isDense: true,
                               hintText: 'What is this for?',
                               hintStyle: TextStyle(
-                                color: isDark ? Colors.white38 : Colors.black38,
+                                color: Colors.grey.withOpacity(0.5),
                               ),
                               border: InputBorder.none,
-                              prefixIcon: const Icon(
-                                Icons.edit,
-                                color: Colors.transparent, // Spacer
-                                size: 16,
-                              ),
-                              suffixIcon: const Icon(
-                                Icons.edit,
-                                color: Colors.grey,
-                                size: 16,
-                              ),
                             ),
+                            onChanged: (val) => setState(() {}),
                           ),
-
-                          // Horizontal Suggestion Chips
+                          // Suggestion Chips
                           if (_titleFocusNode.hasFocus &&
                               displayOptions.isNotEmpty)
                             Container(
-                              height: 50,
-                              margin: const EdgeInsets.only(top: 8),
+                              height: 40,
+                              margin: const EdgeInsets.only(top: 4),
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
@@ -237,25 +215,31 @@ class _AddEditTransactionScreenState
                                     return Padding(
                                       padding: const EdgeInsets.only(
                                         right: 8.0,
+                                        bottom: 4.0, // Space for shadow
                                       ),
                                       child: ActionChip(
                                         label: Text(option),
                                         backgroundColor: isDark
                                             ? AppColors.surfaceDark
                                             : Colors.white,
+                                        padding: EdgeInsets.zero,
+                                        labelStyle: TextStyle(
+                                          fontSize: 13,
+                                          color: isDark
+                                              ? Colors.white70
+                                              : Colors.grey[700],
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                         elevation: 2,
-                                        shadowColor: Colors.black12,
-                                        side: BorderSide.none,
+                                        shadowColor: Colors.black.withOpacity(
+                                          0.1,
+                                        ),
+                                        side: BorderSide
+                                            .none, // Remove strong border
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
                                             20,
                                           ),
-                                        ),
-                                        labelStyle: TextStyle(
-                                          color: isDark
-                                              ? Colors.white
-                                              : Colors.black87,
-                                          fontWeight: FontWeight.w500,
                                         ),
                                         onPressed: () {
                                           setState(() {
@@ -267,9 +251,6 @@ class _AddEditTransactionScreenState
                                                   ),
                                                 );
                                           });
-                                          // Keep focus or dismiss? User flow usually implies
-                                          // setting title then moving on. Let's keep focus
-                                          // so they can edit if needed, or they can tap outside.
                                         },
                                       ),
                                     );
@@ -284,151 +265,255 @@ class _AddEditTransactionScreenState
                 ],
               ),
             ),
+            const SizedBox(height: 12),
 
-            // Details Section
-            Container(
-              decoration: BoxDecoration(
-                color: isDark ? AppColors.surfaceDark : Colors.white,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(30),
+            // --- MAIN CARD: Date, Type Tabs, Category Grid ---
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: surfaceColor,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(30),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, -5),
+                    ),
+                  ],
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -5),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Category',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 10),
-                  categoriesAsync.when(
-                    data: (categories) {
-                      final filtered = categories
-                          .where((c) => c.type == _type && c.isEnabled)
-                          .toList();
-
-                      if (_selectedCategoryId == null &&
-                          widget.transaction == null) {
-                        if (filtered.isNotEmpty) {
-                          _selectedCategoryId = filtered.first.id;
-                        }
-                      }
-                      if (_selectedCategoryId != null &&
-                          !filtered.any((c) => c.id == _selectedCategoryId)) {
-                        _selectedCategoryId = filtered.isNotEmpty
-                            ? filtered.first.id
-                            : null;
-                      }
-
-                      if (filtered.isEmpty) {
-                        return const Text('No Categories');
-                      }
-
-                      // Use same Grid but maybe update styling later if needed
-                      return CategoryGrid(
-                        categories: filtered,
-                        selectedCategoryId: _selectedCategoryId,
-                        onSelected: (id) =>
-                            setState(() => _selectedCategoryId = id),
-                      );
-                    },
-                    loading: () => const CircularProgressIndicator(),
-                    error: (e, s) => const Text('Error'),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Date
-                  const Text(
-                    'Date',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  GestureDetector(
-                    onTap: _pickDate,
-                    child: Container(
-                      padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    // --- DATE SELECTOR (Moved to Top) ---
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      height: 48,
                       decoration: BoxDecoration(
-                        color: isDark
-                            ? AppColors.backgroundDark
-                            : Colors.grey[100],
-                        borderRadius: BorderRadius.circular(15),
+                        color: isDark ? Colors.black26 : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: isDark
+                              ? Colors.white10
+                              : Colors.black.withOpacity(0.05),
+                        ),
                       ),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Icon(
-                            Icons.calendar_today,
-                            size: 18,
-                            color: AppColors.primary,
+                          IconButton(
+                            icon: const Icon(
+                              Icons.arrow_left_rounded,
+                              size: 28,
+                            ),
+                            color: Colors.grey,
+                            padding: EdgeInsets.zero,
+                            onPressed: () => setState(
+                              () => _date = _date.subtract(
+                                const Duration(days: 1),
+                              ),
+                            ),
                           ),
-                          const SizedBox(width: 10),
-                          Text(
-                            DateFormat('yyyy / MM / dd  (EEEE)').format(_date),
+                          GestureDetector(
+                            onTap: _pickDate,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 14,
+                                  color: txtColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  DateFormat('yyyy/MM/dd EEEE').format(_date),
+                                  style: TextStyle(
+                                    color: txtColor,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.arrow_right_rounded,
+                              size: 28,
+                            ),
+                            color: Colors.grey,
+                            padding: EdgeInsets.zero,
+                            onPressed: () => setState(
+                              () => _date = _date.add(const Duration(days: 1)),
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
 
-                  // Note (Optional, secondary)
-                  const Text(
-                    'Internal Note',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _noteController,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: isDark
-                          ? AppColors.backgroundDark
-                          : Colors.grey[100],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
-                      hintText: 'Private details...',
-                      hintStyle: TextStyle(
-                        color: isDark ? Colors.white38 : Colors.grey[400],
+                    // --- TABS & SETTINGS ---
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? Colors.black26
+                                    : Colors.grey[200],
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                children: [
+                                  _buildTabItem(
+                                    TransactionType.expense,
+                                    'Expense',
+                                    _type == TransactionType.expense,
+                                  ),
+                                  _buildTabItem(
+                                    TransactionType.income,
+                                    'Income',
+                                    _type == TransactionType.income,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.black26 : Colors.grey[200],
+                              shape: BoxShape.circle,
+                            ),
+                            child: IconButton(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      const CategoryManagementScreen(),
+                                ),
+                              ),
+                              icon: const Icon(
+                                Icons.settings_outlined,
+                                size: 20,
+                              ),
+                              color: txtColor,
+                              tooltip: 'Manage Categories',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
 
-                  // Buttons... (Existing code handles this part if I don't overwrite effectively, but I should probably overwrite up to the end of body or just the input part)
-                  const SizedBox(height: 40),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _saveTransaction,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        elevation: 5,
-                        shadowColor: AppColors.primary.withValues(alpha: 0.5),
-                      ),
-                      child: const Text(
-                        'Save Transaction',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    // --- CATEGORY GRID ---
+                    Expanded(
+                      child: categoriesAsync.when(
+                        data: (categories) {
+                          final filtered = categories
+                              .where((c) => c.type == _type && c.isEnabled)
+                              .toList();
+                          // Auto-selection of first category for new transactions
+                          if (_selectedCategoryId == null &&
+                              widget.transaction == null &&
+                              filtered.isNotEmpty) {
+                            // _selectedCategoryId = filtered.first.id; // Avoid setState in build, maybe move to tabs logic
+                          }
+                          if (filtered.isEmpty) {
+                            return const Center(
+                              child: Text(
+                                'No Categories',
+                                style: TextStyle(color: Colors.grey),
+                              ),
+                            );
+                          }
+                          return SingleChildScrollView(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: CategoryGrid(
+                              categories: filtered,
+                              selectedCategoryId: _selectedCategoryId,
+                              onSelected: (id) =>
+                                  setState(() => _selectedCategoryId = id),
+                            ),
+                          );
+                        },
+                        loading: () =>
+                            const Center(child: CircularProgressIndicator()),
+                        error: (_, __) => const Center(child: Text('Error')),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
+
+                    // --- FOOTER (Note & Save) ---
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                      decoration: BoxDecoration(
+                        color: surfaceColor,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, -5),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? AppColors.backgroundDark
+                                  : Colors.grey[100],
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: TextField(
+                              controller: _noteController,
+                              style: TextStyle(color: txtColor),
+                              decoration: const InputDecoration(
+                                hintText: 'Add note...',
+                                border: InputBorder.none,
+                                icon: Icon(
+                                  Icons.edit,
+                                  size: 16,
+                                  color: Colors.grey,
+                                ),
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              onPressed: _saveTransaction,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                elevation: 0,
+                              ),
+                              child: const Text(
+                                'Save Entry',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -437,34 +522,80 @@ class _AddEditTransactionScreenState
     );
   }
 
-  Widget _buildTypeButton(TransactionType type, String label) {
-    final isSelected = _type == type;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _type = type;
-          _selectedCategoryId = null; // Reset category
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? (type == TransactionType.income
-                    ? AppColors.income
-                    : AppColors.expense)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey,
-            fontWeight: FontWeight.bold,
+  Widget _buildTabItem(TransactionType type, String label, bool isActive) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (!isActive) {
+            setState(() {
+              _type = type;
+              _selectedCategoryId = null; // Clear selection on switch
+            });
+          }
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: isActive ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: isActive
+                ? [BoxShadow(color: Colors.black12, blurRadius: 4)]
+                : [],
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isActive
+                  ? (type == TransactionType.income
+                        ? AppColors.income
+                        : AppColors.expense)
+                  : Colors.grey,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  void _showCalculatorSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent, // Sheet content background
+      barrierColor: Colors.transparent, // Remove dimmed background
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      clipBehavior: Clip.hardEdge, // Clip content to shape
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return CalculatorPad(
+              value: _amountController.text,
+              onChanged: (val) {
+                setState(() {
+                  // Update Main Screen Controller
+                  _amountController.text = val;
+                  // Logic check
+                  final parsed = int.tryParse(val);
+                  if (parsed != null) {
+                    _amount = parsed;
+                  }
+                });
+                // Rebuild Sheet (CalculatorPad)
+                setSheetState(() {});
+              },
+              onSubmit: () {
+                Navigator.pop(context);
+                _saveTransaction();
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -496,7 +627,18 @@ class _AddEditTransactionScreenState
   }
 
   void _saveTransaction() {
-    if (_amount <= 0) {
+    int finalAmount = _amount;
+    final val = _amountController.text;
+    final parsed = int.tryParse(val);
+    if (parsed == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid Amount')));
+      return;
+    }
+    finalAmount = parsed;
+
+    if (finalAmount <= 0) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Amount must be > 0')));
@@ -513,7 +655,7 @@ class _AddEditTransactionScreenState
       id: widget.transaction?.id,
       title: _titleController.text.isNotEmpty ? _titleController.text : null,
       type: _type,
-      amount: _amount,
+      amount: finalAmount,
       categoryId: _selectedCategoryId!,
       date: _date,
       createdAt: widget.transaction?.createdAt ?? DateTime.now(),
