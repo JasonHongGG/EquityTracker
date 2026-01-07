@@ -12,7 +12,7 @@ class AppColors {
   static const Color primary = Color(0xFF3B82F6); // Royal Blue
   static const Color secondary = Color(0xFF2AB5F6); // Sky Blue
 
-  static const Color income = Color(0xFF00F2A9); // Neon Mint
+  static const Color income = Color(0xFF34C759); // Requested Green
   static const Color expense = Color(0xFFFF4769); // Electric Coral
 
   // Gradients
@@ -27,7 +27,7 @@ class AppColors {
   );
 
   static const LinearGradient incomeGradient = LinearGradient(
-    colors: [Color(0xFF00F2A9), Color(0xFF00D28E)],
+    colors: [Color(0xFF34C759), Color(0xFF2DB852)],
   );
 
   static const LinearGradient expenseGradient = LinearGradient(

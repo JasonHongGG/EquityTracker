@@ -88,14 +88,13 @@ class _AddEditTransactionScreenState
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.close, color: txtColor),
+          icon: Icon(
+            Icons.close,
+            color: txtColor,
+            size: 28,
+          ), // Slightly bigger close icon
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          widget.transaction == null ? 'New Entry' : 'Edit Entry',
-          style: TextStyle(color: txtColor, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
         actions: [
           if (widget.transaction != null)
             IconButton(
@@ -148,7 +147,7 @@ class _AddEditTransactionScreenState
                               const Text(
                                 '\$',
                                 style: TextStyle(
-                                  fontSize: 24,
+                                  fontSize: 32,
                                   color: Colors.grey,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -159,7 +158,7 @@ class _AddEditTransactionScreenState
                                     ? '0'
                                     : _amountController.text,
                                 style: TextStyle(
-                                  fontSize: 48,
+                                  fontSize: 64,
                                   fontWeight: FontWeight.bold,
                                   color: _type == TransactionType.income
                                       ? AppColors.income
@@ -198,7 +197,7 @@ class _AddEditTransactionScreenState
                               focusNode: _titleFocusNode,
                               textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 24,
                                 color: txtColor,
                                 fontWeight: FontWeight.w500,
                               ),
