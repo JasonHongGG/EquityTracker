@@ -44,7 +44,8 @@ class DatabaseService {
         colorValue INTEGER,
         type TEXT,
         isSystem INTEGER,
-        isEnabled INTEGER
+        isEnabled INTEGER,
+        sortOrder INTEGER DEFAULT 0
       )
     ''');
 
@@ -85,22 +86,22 @@ class DatabaseService {
       ),
       Category(
         id: uuid.v4(),
-        name: '生活',
-        iconCodePoint: FontAwesomeIcons.basketShopping.codePoint,
-        iconFontFamily: FontAwesomeIcons.basketShopping.fontFamily,
-        iconFontPackage: FontAwesomeIcons.basketShopping.fontPackage,
-        colorValue: Colors.blue.toARGB32(),
+        name: '交通',
+        iconCodePoint: FontAwesomeIcons.trainSubway.codePoint,
+        iconFontFamily: FontAwesomeIcons.trainSubway.fontFamily,
+        iconFontPackage: FontAwesomeIcons.trainSubway.fontPackage,
+        colorValue: Colors.green.toARGB32(),
         type: TransactionType.expense,
         isSystem: true,
         isEnabled: true,
       ),
       Category(
         id: uuid.v4(),
-        name: '交通',
-        iconCodePoint: FontAwesomeIcons.trainSubway.codePoint,
-        iconFontFamily: FontAwesomeIcons.trainSubway.fontFamily,
-        iconFontPackage: FontAwesomeIcons.trainSubway.fontPackage,
-        colorValue: Colors.green.toARGB32(),
+        name: '生活',
+        iconCodePoint: FontAwesomeIcons.basketShopping.codePoint,
+        iconFontFamily: FontAwesomeIcons.basketShopping.fontFamily,
+        iconFontPackage: FontAwesomeIcons.basketShopping.fontPackage,
+        colorValue: Colors.blue.toARGB32(),
         type: TransactionType.expense,
         isSystem: true,
         isEnabled: true,

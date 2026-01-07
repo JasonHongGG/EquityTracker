@@ -57,6 +57,13 @@ class _AddEditTransactionScreenState
     _titleFocusNode.addListener(() {
       setState(() {});
     });
+
+    // Auto-focus calculator for new entries
+    if (widget.transaction == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showCalculatorSheet();
+      });
+    }
   }
 
   @override
@@ -431,12 +438,25 @@ class _AddEditTransactionScreenState
                             final filtered = categories
                                 .where((c) => c.type == _type && c.isEnabled)
                                 .toList();
-                            // Auto-selection of first category for new transactions
+
+                            // Auto-selection of default category '伙食' (Food) or first available
                             if (_selectedCategoryId == null &&
-                                widget.transaction == null &&
                                 filtered.isNotEmpty) {
-                              // _selectedCategoryId = filtered.first.id; // Avoid setState in build, maybe move to tabs logic
+                              // Try to find '伙食' (Food)
+                              final defaultCat = filtered.firstWhere(
+                                (c) => c.name == '伙食', // Or 'Food' if english
+                                orElse: () => filtered.first,
+                              );
+                              // Do not setState during build, defer to next frame
+                              Future.microtask(() {
+                                if (mounted && _selectedCategoryId == null) {
+                                  setState(() {
+                                    _selectedCategoryId = defaultCat.id;
+                                  });
+                                }
+                              });
                             }
+
                             if (filtered.isEmpty) {
                               return const Center(
                                 child: Text(
@@ -612,7 +632,8 @@ class _AddEditTransactionScreenState
               },
               onSubmit: () {
                 Navigator.pop(context);
-                // Just dismiss, don't save yet.
+                // Move focus to title
+                _titleFocusNode.requestFocus();
               },
             );
           },
