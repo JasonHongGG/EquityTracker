@@ -469,9 +469,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final db = DatabaseService();
       await db.clearAllTransactions();
 
-      // Clear preferences related to import
+      // Clear preferences related to import & Notion sync
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('last_import_ids');
+      await prefs.remove('notion_last_sync_time');
+      await prefs.remove('notion_last_pull_ids');
+      await prefs.remove('notion_prev_sync_time');
       setState(() {
         _lastImportedIds = [];
       });
