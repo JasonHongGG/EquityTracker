@@ -8,6 +8,7 @@ import '../services/native_backup_service.dart'; // Add this
 import '../services/database_service.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/settings_provider.dart';
+import 'category_management_screen.dart';
 
 import '../widgets/settings_widgets.dart';
 
@@ -117,6 +118,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             SettingsSection(
               title: 'DATA MANAGEMENT',
               children: [
+                SettingsTile(
+                  icon: Icons.category_rounded,
+                  iconColor: Colors.deepPurple,
+                  title: 'Manage Categories',
+                  subtitle: 'Add, Edit, or Remove',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CategoryManagementScreen(),
+                    ),
+                  ),
+                ),
                 SettingsTile(
                   icon: Icons.file_upload_rounded,
                   iconColor: Colors.blueAccent,

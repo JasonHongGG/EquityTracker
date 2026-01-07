@@ -28,6 +28,14 @@ class CategoryList extends AsyncNotifier<List<Category>> {
       return _fetchCategories();
     });
   }
+
+  Future<void> deleteCategory(String id) async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await DatabaseService().deleteCategory(id);
+      return _fetchCategories();
+    });
+  }
 }
 
 final categoryListProvider =

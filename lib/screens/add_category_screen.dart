@@ -7,8 +7,9 @@ import '../providers/category_provider.dart';
 
 class AddCategoryScreen extends ConsumerStatefulWidget {
   final TransactionType? initialType;
+  final Category? categoryToEdit;
 
-  const AddCategoryScreen({super.key, this.initialType});
+  const AddCategoryScreen({super.key, this.initialType, this.categoryToEdit});
 
   @override
   ConsumerState<AddCategoryScreen> createState() => _AddCategoryScreenState();
@@ -42,7 +43,6 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
     const Color(0xFF1C1C1E), // Black/Dark
   ];
 
-  // Predefined Icons (Material + FontAwesome mix)
   // Predefined Icons (Material)
   final List<Map<String, dynamic>> _icons = [
     // Food & Drink
@@ -139,7 +139,17 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedType = widget.initialType ?? TransactionType.expense;
+    if (widget.categoryToEdit != null) {
+      final c = widget.categoryToEdit!;
+      _selectedType = c.type;
+      _nameController.text = c.name;
+      _selectedIconCode = c.iconCodePoint;
+      _selectedFontFamily = c.iconFontFamily;
+      _selectedFontPackage = c.iconFontPackage;
+      _selectedColor = c.color;
+    } else {
+      _selectedType = widget.initialType ?? TransactionType.expense;
+    }
   }
 
   void _save() {
@@ -151,19 +161,28 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
       return;
     }
 
-    final newCategory = Category(
-      id: const Uuid().v4(),
+    // Reuse ID if editing, else new UUID
+    final id = widget.categoryToEdit?.id ?? const Uuid().v4();
+
+    final category = Category(
+      id: id,
       name: name,
       iconCodePoint: _selectedIconCode,
       iconFontFamily: _selectedFontFamily,
       iconFontPackage: _selectedFontPackage,
       colorValue: _selectedColor.value,
       type: _selectedType,
-      isSystem: false,
+      isSystem:
+          widget.categoryToEdit?.isSystem ?? false, // Preserve system status
       isEnabled: true,
     );
 
-    ref.read(categoryListProvider.notifier).addCategory(newCategory);
+    if (widget.categoryToEdit != null) {
+      ref.read(categoryListProvider.notifier).updateCategory(category);
+    } else {
+      ref.read(categoryListProvider.notifier).addCategory(category);
+    }
+
     Navigator.pop(context);
   }
 

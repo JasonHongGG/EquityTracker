@@ -172,6 +172,11 @@ class DatabaseService {
     );
   }
 
+  Future<void> deleteCategory(String id) async {
+    final db = await database;
+    await db.delete('categories', where: 'id = ?', whereArgs: [id]);
+  }
+
   Future<List<TransactionModel>> getTransactions() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
