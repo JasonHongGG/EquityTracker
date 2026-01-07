@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import '../models/transaction_model.dart';
 import '../models/transaction_type.dart';
 import '../services/database_service.dart';
+import '../services/notion_service.dart';
 
 // --- Filter State ---
 class TransactionFilter {
@@ -80,6 +81,10 @@ class TransactionList extends AsyncNotifier<List<TransactionModel>> {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await DatabaseService().insertTransaction(transaction);
+
+      // Experimental: Sync to Notion (Fire & Forget)
+      NotionService().syncTransaction(transaction);
+
       // Wait a bit or just refetch. SQLite is fast.
       return _fetchAll();
     });

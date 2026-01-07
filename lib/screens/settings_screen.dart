@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/import_service.dart';
+import '../services/notion_service.dart';
 import '../services/native_backup_service.dart'; // Add this
 import '../services/database_service.dart';
 import '../providers/transaction_provider.dart';
@@ -131,20 +132,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 SettingsTile(
-                  icon: Icons.file_upload_rounded,
-                  iconColor: Colors.blueAccent,
-                  title: 'Import Transactions',
-                  subtitle: 'From JSON backup',
-                  onTap: _isLoading ? null : _importTransactions,
-                ),
-                if (_lastImportedIds.isNotEmpty)
-                  SettingsTile(
-                    icon: Icons.undo_rounded,
-                    iconColor: Colors.orange,
-                    title: 'Undo Last Import',
-                    onTap: _undoImport,
-                  ),
-                SettingsTile(
                   icon: Icons.file_download_rounded,
                   iconColor: Colors.teal,
                   title: 'Export Backup',
@@ -161,7 +148,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ],
             ),
 
-            // Section 3: Danger Zone
+            // Section 3: Integrations (Experimental)
+            SettingsSection(
+              title: 'EXPERIMENTAL',
+              children: [
+                SettingsTile(
+                  icon: Icons.sync_rounded,
+                  iconColor: Colors.black87,
+                  title: 'Notion Integration',
+                  subtitle: 'Sync new transactions to Notion',
+                  onTap: _showNotionConfig,
+                ),
+                SettingsTile(
+                  icon: Icons.file_upload_rounded,
+                  iconColor: Colors.blueAccent,
+                  title: 'Import Transactions',
+                  subtitle: 'From JSON backup',
+                  onTap: _isLoading ? null : _importTransactions,
+                ),
+                if (_lastImportedIds.isNotEmpty)
+                  SettingsTile(
+                    icon: Icons.undo_rounded,
+                    iconColor: Colors.orange,
+                    title: 'Undo Last Import',
+                    onTap: _undoImport,
+                  ),
+              ],
+            ),
+            // Section 4: Danger Zone
             SettingsSection(
               title: 'DANGER ZONE',
               children: [
@@ -481,5 +495,84 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ).showSnackBar(SnackBar(content: Text('Failed to clear data: $e')));
       }
     }
+  }
+
+  Future<void> _showNotionConfig() async {
+    final notionService = NotionService();
+    final token = await notionService.token ?? '';
+    final dbId = await notionService.databaseId ?? '';
+
+    final tokenController = TextEditingController(text: token);
+    final dbIdController = TextEditingController(text: dbId);
+
+    if (!mounted) return;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Notion Integration 🧪'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Sync new transactions to a Notion Database.\n'
+                'Database must have columns: "名稱", "金額", "類別", "時間".',
+                style: TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: tokenController,
+                decoration: const InputDecoration(
+                  labelText: 'Integration Token',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: dbIdController,
+                decoration: const InputDecoration(
+                  labelText: 'Database ID',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await notionService.setCredentials(
+                tokenController.text.trim(),
+                dbIdController.text.trim(),
+              );
+
+              if (ctx.mounted) {
+                Navigator.pop(ctx);
+                final success = await notionService.testConnection();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        success
+                            ? 'Connection Successful! ✅'
+                            : 'Connection Failed ❌. Check ID/Token.',
+                      ),
+                      backgroundColor: success ? Colors.green : Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('Save & Test'),
+          ),
+        ],
+      ),
+    );
   }
 }
