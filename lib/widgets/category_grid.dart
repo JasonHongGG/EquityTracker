@@ -40,7 +40,7 @@ class CategoryGrid extends StatelessWidget {
                 child: Icon(
                   category.iconData,
                   color: isSelected ? Colors.white : category.color,
-                  size: 20,
+                  size: category.iconData.fontPackage == null ? 24 : 20,
                 ),
               ),
               const SizedBox(height: 4),

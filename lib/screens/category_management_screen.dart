@@ -300,7 +300,11 @@ class _CategoryManagementScreenState
                   color: category.color.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(category.iconData, color: category.color, size: 24),
+                child: Icon(
+                  category.iconData,
+                  color: category.color,
+                  size: category.iconData.fontPackage == null ? 28 : 24,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
