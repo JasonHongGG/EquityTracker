@@ -11,6 +11,7 @@ class Category {
   final TransactionType type;
   final bool isSystem;
   final bool isEnabled;
+  final int order; // For drag & drop reordering
 
   const Category({
     required this.id,
@@ -22,6 +23,7 @@ class Category {
     required this.type,
     required this.isSystem,
     required this.isEnabled,
+    this.order = 0,
   });
 
   IconData get iconData => IconData(
@@ -41,8 +43,9 @@ class Category {
       'iconFontPackage': iconFontPackage,
       'colorValue': colorValue,
       'type': type.toJson(),
-      'isSystem': isSystem ? 1 : 0, // SQLite boolean as INTEGER
+      'isSystem': isSystem ? 1 : 0,
       'isEnabled': isEnabled ? 1 : 0,
+      'sortOrder': order,
     };
   }
 
@@ -57,6 +60,7 @@ class Category {
       type: TransactionType.fromJson(map['type'] as String),
       isSystem: (map['isSystem'] as int) == 1,
       isEnabled: (map['isEnabled'] as int) == 1,
+      order: (map['sortOrder'] as int?) ?? 0,
     );
   }
 
@@ -70,6 +74,7 @@ class Category {
     TransactionType? type,
     bool? isSystem,
     bool? isEnabled,
+    int? order,
   }) {
     return Category(
       id: id ?? this.id,
@@ -81,6 +86,7 @@ class Category {
       type: type ?? this.type,
       isSystem: isSystem ?? this.isSystem,
       isEnabled: isEnabled ?? this.isEnabled,
+      order: order ?? this.order,
     );
   }
 }

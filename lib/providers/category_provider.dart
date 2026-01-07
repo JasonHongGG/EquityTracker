@@ -1,4 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../models/transaction_type.dart';
 import '../models/category_model.dart';
 import '../services/database_service.dart';
 
@@ -29,12 +33,50 @@ class CategoryList extends AsyncNotifier<List<Category>> {
     });
   }
 
-  Future<void> deleteCategory(String id) async {
+  Future<void> deleteCategory(String id, TransactionType type) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await DatabaseService().deleteCategory(id);
+      final db = DatabaseService();
+
+      // 1. Find or Create "Other" category
+      final categories = await db.getCategories();
+      Category? otherCategory;
+      try {
+        otherCategory = categories.firstWhere(
+          (c) => c.name == '其他' && c.type == type,
+        );
+      } catch (_) {
+        // Not found, create it
+        otherCategory = Category(
+          id: const Uuid().v4(),
+          name: '其他',
+          iconCodePoint: FontAwesomeIcons.circleQuestion.codePoint,
+          iconFontFamily: FontAwesomeIcons.circleQuestion.fontFamily,
+          iconFontPackage: FontAwesomeIcons.circleQuestion.fontPackage,
+          colorValue: Colors.grey.value,
+          type: type,
+          isSystem: true,
+          isEnabled: true,
+        );
+        await db.insertCategory(otherCategory);
+      }
+
+      // 2. Reassign to Other (only if not deleting "Other" itself, though UI should block that)
+      if (id != otherCategory.id) {
+        await db.reassignCategory(id, otherCategory.id);
+      }
+
+      // 3. Delete
+      await db.deleteCategory(id);
       return _fetchCategories();
     });
+  }
+
+  Future<void> updateOrder(List<Category> categories) async {
+    // Optimistic update
+    state = AsyncValue.data(categories);
+    // Background sync
+    await DatabaseService().updateCategoryOrder(categories);
   }
 }
 
