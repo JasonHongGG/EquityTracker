@@ -52,91 +52,106 @@ class _CustomDatePickerDialogState extends State<CustomDatePickerDialog> {
         horizontal: 20,
       ), // Maximize width
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        width: double.maxFinite, // Force full available width
-        constraints: const BoxConstraints(maxWidth: 400),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // --- MONTH NAVIGATOR (Top) ---
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.chevron_left, color: subTextColor),
-                  onPressed: () => _changeMonth(-1),
-                ),
-                // Expanded ensures text takes available space without pushing buttons out of bounds
-                Expanded(
-                  child: Text(
-                    DateFormat('MMMM yyyy').format(_currentMonth),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 18, // Slightly larger
-                      fontWeight: FontWeight.bold,
-                    ),
+      child: GestureDetector(
+        onVerticalDragEnd: (details) {
+          if (details.primaryVelocity == null) return;
+          if (details.primaryVelocity! > 0) {
+            _changeMonth(-1); // Swipe Down -> Previous Month
+          } else if (details.primaryVelocity! < 0) {
+            _changeMonth(1); // Swipe Up -> Next Month
+          }
+        },
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          width: double.maxFinite, // Force full available width
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // --- MONTH NAVIGATOR (Top) ---
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.chevron_left, color: subTextColor),
+                    onPressed: () => _changeMonth(-1),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.chevron_right, color: subTextColor),
-                  onPressed: () => _changeMonth(1),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // --- DAYS OF WEEK ---
-            Row(
-              children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-                  .map(
-                    (day) => Expanded(
-                      // dynamic width
-                      child: Text(
-                        day,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: subTextColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
+                  // Expanded ensures text takes available space without pushing buttons out of bounds
+                  Expanded(
+                    child: Text(
+                      DateFormat('MMMM yyyy').format(_currentMonth),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 18, // Slightly larger
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  )
-                  .toList(),
-            ),
-            const SizedBox(height: 12),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.chevron_right, color: subTextColor),
+                    onPressed: () => _changeMonth(1),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
 
-            // --- CALENDAR GRID ---
-            // Removed fixed SizedBox height
-            _buildCalendarGrid(textColor, accentColor),
+              // --- DAYS OF WEEK ---
+              Row(
+                children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+                    .map(
+                      (day) => Expanded(
+                        // dynamic width
+                        child: Text(
+                          day,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: subTextColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+              const SizedBox(height: 12),
 
-            const SizedBox(height: 24), // Increased bottom spacing for balance
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Cancel', style: TextStyle(color: subTextColor)),
-                ),
-                const SizedBox(width: 8),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, _selectedDate),
-                  child: Text(
-                    'OK',
-                    style: TextStyle(
-                      color: accentColor,
-                      fontWeight: FontWeight.bold,
+              // --- CALENDAR GRID ---
+              // Removed fixed SizedBox height
+              _buildCalendarGrid(textColor, accentColor),
+
+              const SizedBox(
+                height: 24,
+              ), // Increased bottom spacing for balance
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: subTextColor),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, _selectedDate),
+                    child: Text(
+                      'OK',
+                      style: TextStyle(
+                        color: accentColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      ), // Closing GestureDetector
+    ); // Closing Dialog
   }
 
   Widget _buildCalendarGrid(Color textColor, Color accentColor) {
@@ -155,6 +170,9 @@ class _CustomDatePickerDialogState extends State<CustomDatePickerDialog> {
     // Sun(7) % 7 = 0. Mon(1) % 7 = 1.
     final startOffset = (firstDayWeekday % 7);
 
+    // Force 6 rows (6 * 7 = 42 cells) to prevent height jumps
+    const totalCells = 42;
+
     return GridView.builder(
       shrinkWrap: true, // Allow Grid to take only needed space
       physics: const NeverScrollableScrollPhysics(),
@@ -163,12 +181,20 @@ class _CustomDatePickerDialogState extends State<CustomDatePickerDialog> {
         mainAxisSpacing: 4,
         crossAxisSpacing: 4,
       ),
-      itemCount: daysInMonth + startOffset,
+      itemCount: totalCells,
       itemBuilder: (context, index) {
+        // 1. Cells before the month starts
         if (index < startOffset) {
           return const SizedBox.shrink();
         }
+
         final day = index - startOffset + 1;
+
+        // 2. Cells after the month ends
+        if (day > daysInMonth) {
+          return const SizedBox.shrink();
+        }
+
         final date = DateTime(_currentMonth.year, _currentMonth.month, day);
         final isSelected =
             date.year == _selectedDate.year &&
