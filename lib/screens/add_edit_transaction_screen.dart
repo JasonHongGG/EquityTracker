@@ -93,31 +93,44 @@ class _AddEditTransactionScreenState
     return Scaffold(
       backgroundColor: bgColor,
       resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.close,
-            color: txtColor,
-            size: 28,
-          ), // Slightly bigger close icon
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          if (widget.transaction != null)
-            IconButton(
-              icon: const Icon(Icons.delete_outline, color: AppColors.expense),
-              onPressed: _deleteTransaction,
-            ),
-        ],
-      ),
       body: SafeArea(
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () => FocusScope.of(context).unfocus(),
           child: Column(
             children: [
+              // --- CUSTOM HEADER (Replaces AppBar) ---
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.close, color: txtColor, size: 28),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      visualDensity: VisualDensity.compact,
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    if (widget.transaction != null)
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: AppColors.expense,
+                        ),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        visualDensity: VisualDensity.compact,
+                        onPressed: _deleteTransaction,
+                      )
+                    else
+                      const SizedBox(width: 48), // Spacer to balance layout
+                  ],
+                ),
+              ),
               // --- HEADER SECTION: Amount & Title ---
               Padding(
                 padding: const EdgeInsets.symmetric(
