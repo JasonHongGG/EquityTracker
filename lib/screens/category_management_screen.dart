@@ -319,7 +319,7 @@ class _CategoryManagementScreenState
         ),
 
         // Delete Badge
-        if (isEditMode && !category.isSystem)
+        if (isEditMode && category.name != '其他')
           Positioned(
             right: 0,
             top: 0,
