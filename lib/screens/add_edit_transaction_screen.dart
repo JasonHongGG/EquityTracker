@@ -138,34 +138,37 @@ class _AddEditTransactionScreenState
                               ),
                             ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              const Text(
-                                '\$',
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.bold,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              children: [
+                                const Text(
+                                  '\$',
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                _amountController.text.isEmpty
-                                    ? '0'
-                                    : _amountController.text,
-                                style: TextStyle(
-                                  fontSize: 64,
-                                  fontWeight: FontWeight.bold,
-                                  color: _type == TransactionType.income
-                                      ? AppColors.income
-                                      : AppColors.expense,
+                                const SizedBox(width: 4),
+                                Text(
+                                  _amountController.text.isEmpty
+                                      ? '0'
+                                      : _amountController.text,
+                                  style: TextStyle(
+                                    fontSize: 64,
+                                    fontWeight: FontWeight.bold,
+                                    color: _type == TransactionType.income
+                                        ? AppColors.income
+                                        : AppColors.expense,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -609,7 +612,7 @@ class _AddEditTransactionScreenState
               },
               onSubmit: () {
                 Navigator.pop(context);
-                _saveTransaction();
+                // Just dismiss, don't save yet.
               },
             );
           },

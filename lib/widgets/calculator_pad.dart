@@ -113,6 +113,11 @@ class CalculatorPad extends StatelessWidget {
     // Operators
     final operatorTextColor = AppColors.secondary; // Sky Blue
 
+    // Button Backgrounds (Theme aware)
+    final buttonBgColor = isDark ? const Color(0xFF2C2F3E) : Colors.white;
+    final operatorBgColor = AppColors.secondary.withOpacity(0.1);
+    final dangerBgColor = AppColors.expense.withOpacity(0.1);
+
     return Container(
       color: backgroundColor,
       padding: const EdgeInsets.fromLTRB(
@@ -150,7 +155,8 @@ class CalculatorPad extends StatelessWidget {
                       rowHeight,
                       numberTextColor,
                       operatorTextColor,
-                      backgroundColor,
+                      buttonBgColor,
+                      operatorBgColor,
                     ),
                     const SizedBox(height: 8),
                     _buildRow(
@@ -158,7 +164,8 @@ class CalculatorPad extends StatelessWidget {
                       rowHeight,
                       numberTextColor,
                       operatorTextColor,
-                      backgroundColor,
+                      buttonBgColor,
+                      operatorBgColor,
                     ),
                     const SizedBox(height: 8),
                     _buildRow(
@@ -166,7 +173,8 @@ class CalculatorPad extends StatelessWidget {
                       rowHeight,
                       numberTextColor,
                       operatorTextColor,
-                      backgroundColor,
+                      buttonBgColor,
+                      operatorBgColor,
                     ),
                     const SizedBox(height: 8),
                     _buildRow(
@@ -174,7 +182,8 @@ class CalculatorPad extends StatelessWidget {
                       rowHeight,
                       numberTextColor,
                       operatorTextColor,
-                      backgroundColor,
+                      buttonBgColor,
+                      operatorBgColor,
                     ),
                   ],
                 ),
@@ -188,32 +197,33 @@ class CalculatorPad extends StatelessWidget {
                     _buildButton(
                       'AC',
                       height: rowHeight,
-                      color: isDark
-                          ? const Color(0xFF2C2F3E)
-                          : Colors.grey[200],
+                      color: dangerBgColor,
                       textColor: AppColors.expense,
                       isBold: true,
+                      enableShadow: true,
                     ),
                     const SizedBox(height: 8),
                     _buildButton(
-                      '⌫',
+                      '⌫ ',
                       height: rowHeight,
-                      color: isDark
-                          ? const Color(0xFF2C2F3E)
-                          : Colors.grey[200],
+                      color: dangerBgColor,
                       textColor: AppColors.expense, // Or secondary text
                       isBold: true,
+                      enableShadow: true,
                     ),
                     const SizedBox(height: 8),
+                    // Tall Button
                     // Tall Button
                     SizedBox(
                       height: (rowHeight * 2) + 8,
                       child: _buildButton(
                         _canCalculate ? '=' : 'OK',
                         height: (rowHeight * 2) + 8,
-                        color: primaryColor,
+                        color: primaryColor, // Fallback
+                        gradient: AppColors.primaryGradient, // Gradient Support
                         textColor: Colors.white,
                         isBold: true,
+                        enableShadow: true,
                         onTapOverride: () {
                           if (_canCalculate) {
                             _handleTap('=');
@@ -238,24 +248,29 @@ class CalculatorPad extends StatelessWidget {
     double height,
     Color numberColor,
     Color operatorColor,
-    Color bgColor,
+    Color buttonBgColor,
+    Color operatorBgColor,
   ) {
     return Row(
       children: items.map((text) {
         final isOperator = ['÷', 'x', '+', '-'].contains(text);
-        // Numbers: Transparent bg, styled text. Operators: same?
-        // To behave like standard keyboard, maybe subtle bg?
-        // Let's keep them clean/flat as per modern UI.
+
+        // Use buttonBgColor for numbers, operatorBgColor for operators
+        final btnColor = isOperator ? operatorBgColor : buttonBgColor;
+
+        // Operators now have shadow too, to match the premium feel
+        const enableShadow = true;
 
         return Expanded(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 6),
             child: _buildButton(
               text,
               height: height,
-              color: Colors.transparent, // Flat design
+              color: btnColor,
               textColor: isOperator ? operatorColor : numberColor,
               isOperator: isOperator,
+              enableShadow: enableShadow,
             ),
           ),
         );
@@ -267,35 +282,48 @@ class CalculatorPad extends StatelessWidget {
     String text, {
     required double height,
     Color? color,
+    Gradient? gradient, // New Parameter
     Color? textColor,
     bool isBold = false,
     bool isOperator = false,
+    bool enableShadow = false,
     VoidCallback? onTapOverride,
   }) {
     final isPill = text == 'OK' || text == '=';
-    // For AC/Backspace we might use rounded RECT or Circle. Let's use Circle for consistency with numbers if height allows,
-    // otherwise Rounded Rect.
-
     final shape = isPill ? BoxShape.rectangle : BoxShape.circle;
     final borderRadius = isPill ? BorderRadius.circular(30) : null;
 
-    // Decoration for touched state or bg?
-    // If color is transparent, we rely on text.
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTapOverride ?? () => _handleTap(text),
-        borderRadius: borderRadius ?? BorderRadius.circular(height / 2),
-        child: Ink(
-          height: height,
-          decoration: BoxDecoration(
-            color: color,
-            shape: shape,
-            borderRadius: borderRadius,
-          ),
-          child: Container(
-            alignment: Alignment.center,
+    final Widget button = Container(
+      height: height,
+      width: isPill ? null : height, // Force square for circles!
+      decoration: BoxDecoration(
+        color: color,
+        gradient: gradient,
+        shape: shape,
+        borderRadius: borderRadius,
+        boxShadow: enableShadow
+            ? [
+                BoxShadow(
+                  color:
+                      (gradient != null ? (color ?? Colors.blue) : Colors.black)
+                          .withOpacity(gradient != null ? 0.3 : 0.05),
+                  blurRadius: gradient != null ? 8 : 4,
+                  offset: gradient != null
+                      ? const Offset(0, 4)
+                      : const Offset(0, 2),
+                ),
+              ]
+            : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTapOverride ?? () => _handleTap(text),
+          // Ensure ripple is exactly circular for non-pill buttons
+          customBorder: isPill
+              ? RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))
+              : const CircleBorder(),
+          child: Center(
             child: Text(
               text,
               style: TextStyle(
@@ -310,6 +338,13 @@ class CalculatorPad extends StatelessWidget {
         ),
       ),
     );
+
+    // If it's a circle button (not pill), wrap in Center so it doesn't stretch
+    // to fill square cells if the cell is rectangular.
+    if (!isPill) {
+      return Center(child: button);
+    }
+    return button;
   }
 }
 
