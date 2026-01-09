@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <!-- Background color of the splash screen (white) -->
+        <item name="android:windowSplashScreenBackground">@android:color/white</item>
+        <!-- Make the icon transparent so it doesn't show up -->
+        <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
+        <!-- Duration of the splash screen (keep it short/default) -->
+        <item name="android:windowSplashScreenAnimationDuration">0</item>
+    </style>
+
+    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+</resources>
