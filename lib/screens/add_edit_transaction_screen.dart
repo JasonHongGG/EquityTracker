@@ -9,6 +9,7 @@ import '../theme/app_colors.dart';
 import '../widgets/category_grid.dart';
 import '../widgets/calculator_pad.dart';
 import '../widgets/custom_date_picker_dialog.dart';
+import '../widgets/scale_button.dart';
 import 'category_management_screen.dart';
 
 class AddEditTransactionScreen extends ConsumerStatefulWidget {
@@ -550,21 +551,23 @@ class _AddEditTransactionScreenState
                             SizedBox(
                               width: double.infinity,
                               height: 50,
-                              child: ElevatedButton(
+                              child: ScaleButton(
                                 onPressed: _saveTransaction,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primary,
-                                  shape: RoundedRectangleBorder(
+                                child: Container(
+                                  height: 50,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
                                     borderRadius: BorderRadius.circular(15),
                                   ),
-                                  elevation: 0,
-                                ),
-                                child: const Text(
-                                  'Save',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                  alignment: Alignment.center,
+                                  child: const Text(
+                                    'Save',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -585,8 +588,8 @@ class _AddEditTransactionScreenState
 
   Widget _buildTabItem(TransactionType type, String label, bool isActive) {
     return Expanded(
-      child: GestureDetector(
-        onTap: () {
+      child: ScaleButton(
+        onPressed: () {
           if (!isActive) {
             setState(() {
               _type = type;

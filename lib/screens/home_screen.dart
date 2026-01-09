@@ -5,6 +5,7 @@ import 'stats_screen.dart';
 import 'settings_screen.dart';
 import 'add_edit_transaction_screen.dart';
 import '../widgets/custom_bottom_nav.dart';
+import '../widgets/scale_button.dart';
 import '../theme/app_colors.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -48,39 +49,34 @@ class _HomeScreenState extends State<HomeScreen> {
               Positioned(
                 bottom: 100,
                 right: 20,
-                child: Container(
-                  height: 60,
-                  width: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: AppColors.primaryGradient,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
+                child: ScaleButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AddEditTransactionScreen(),
                       ),
-                    ],
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const AddEditTransactionScreen(),
-                          ),
-                        );
-                      },
-                      customBorder: const CircleBorder(),
-                      child: const Center(
-                        child: Icon(
-                          FontAwesomeIcons.plus,
-                          color: Colors.white,
-                          size: 24,
+                    );
+                  },
+                  child: Container(
+                    height: 60,
+                    width: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: AppColors.primaryGradient,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
                         ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        FontAwesomeIcons.plus,
+                        color: Colors.white,
+                        size: 24,
                       ),
                     ),
                   ),

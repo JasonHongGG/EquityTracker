@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../widgets/search_dialog.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/settings_provider.dart'; // Add this import
@@ -218,70 +219,85 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   final transactions = groupedTransactions[date]!;
                   final dayTotal = dailyTotalsAsync.asData?.value[date] ?? 0;
 
-                  return Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    AddEditTransactionScreen(initialDate: date),
-                              ),
-                            );
-                          },
-                          child: DateHeader(date: date, totalAmount: dayTotal),
-                        ),
-                        for (var i = 0; i < transactions.length; i++) ...[
-                          if (i > 0)
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 74,
-                                right: 16,
-                              ),
-                              child: Divider(
-                                height: 1,
-                                thickness: 1,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.05),
-                              ),
-                            ),
-                          TransactionItem(
-                            transaction: transactions[i],
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      AddEditTransactionScreen(
-                                        transaction: transactions[i],
-                                      ),
-                                ),
-                              );
-                            },
+                  return AnimationConfiguration.staggeredList(
+                    position: index,
+                    duration: const Duration(milliseconds: 375),
+                    child: SlideAnimation(
+                      verticalOffset: 50.0,
+                      child: FadeInAnimation(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
                           ),
-                        ],
-                        // Add some bottom padding if needed, or rely on the last item
-                        const SizedBox(height: 8),
-                      ],
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          AddEditTransactionScreen(
+                                            initialDate: date,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                child: DateHeader(
+                                  date: date,
+                                  totalAmount: dayTotal,
+                                ),
+                              ),
+                              for (var i = 0; i < transactions.length; i++) ...[
+                                if (i > 0)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 74,
+                                      right: 16,
+                                    ),
+                                    child: Divider(
+                                      height: 1,
+                                      thickness: 1,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.05),
+                                    ),
+                                  ),
+                                TransactionItem(
+                                  transaction: transactions[i],
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            AddEditTransactionScreen(
+                                              transaction: transactions[i],
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                              // Add some bottom padding if needed, or rely on the last item
+                              const SizedBox(height: 8),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   );
                 }, childCount: dates.length),
