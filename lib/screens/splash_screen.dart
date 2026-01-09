@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'home_screen.dart';
+import '../providers/update_provider.dart';
+import '../widgets/update_dialog.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -16,6 +18,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   late Animation<double> _logoFadeAnimation;
   late Animation<Offset> _textSlideAnimation;
   late Animation<double> _textFadeAnimation;
+  bool _isCheckingUpdate = false;
 
   @override
   void initState() {
@@ -61,24 +64,48 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       ),
     );
 
-    // Navigation after animation
+    // Navigation after animation - now with update check
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        Future.delayed(const Duration(milliseconds: 500), () {
-          if (mounted) {
-            Navigator.of(context).pushReplacement(
-              PageRouteBuilder(
-                pageBuilder: (_, __, ___) => const HomeScreen(),
-                transitionsBuilder: (_, animation, __, child) {
-                  return FadeTransition(opacity: animation, child: child);
-                },
-                transitionDuration: const Duration(milliseconds: 800),
-              ),
-            );
-          }
-        });
+        _checkForUpdateAndNavigate();
       }
     });
+  }
+
+  Future<void> _checkForUpdateAndNavigate() async {
+    if (_isCheckingUpdate) return;
+    _isCheckingUpdate = true;
+
+    // Check for updates
+    await ref.read(updateProvider.notifier).checkForUpdate();
+
+    if (!mounted) return;
+
+    final updateState = ref.read(updateProvider);
+
+    if (updateState.hasUpdate && updateState.releaseInfo?.downloadUrl != null) {
+      // Show update dialog
+      await showUpdateDialog(context);
+
+      // After dialog closes, check if user cancelled update
+      if (!mounted) return;
+    }
+
+    // Navigate to home screen
+    _navigateToHome();
+  }
+
+  void _navigateToHome() {
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => const HomeScreen(),
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 800),
+      ),
+    );
   }
 
   @override

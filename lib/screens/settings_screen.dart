@@ -9,8 +9,11 @@ import '../models/transaction_model.dart';
 import '../models/transaction_type.dart';
 import '../services/native_backup_service.dart'; // Add this
 import '../services/database_service.dart';
+import '../services/update_service.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/settings_provider.dart';
+import '../providers/update_provider.dart';
+import '../widgets/update_dialog.dart';
 import 'category_management_screen.dart';
 
 import '../widgets/settings_widgets.dart';
@@ -42,6 +45,54 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Future<void> _checkForUpdate() async {
+    // Show checking indicator
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(width: 12),
+            Text('正在檢查更新...'),
+          ],
+        ),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    // Check for updates
+    await ref.read(updateProvider.notifier).checkForUpdate();
+
+    if (!mounted) return;
+
+    // Hide snackbar
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
+    final updateState = ref.read(updateProvider);
+
+    if (updateState.hasUpdate && updateState.releaseInfo?.downloadUrl != null) {
+      // Show update dialog
+      await showUpdateDialog(context);
+    } else if (updateState.error != null) {
+      // Show error
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(updateState.error!)));
+    } else {
+      // Already up to date
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('已經是最新版本')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeModeAsync = ref.watch(settingsProvider);
@@ -62,7 +113,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 40),
+        padding: const EdgeInsets.only(bottom: 120),
         child: Column(
           children: [
             // Section 1: Preferences
@@ -194,11 +245,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
             const SizedBox(height: 20),
             Center(
-              child: Text(
-                'Version 1.0.0',
-                style: TextStyle(
-                  color: isDark ? Colors.white24 : Colors.black26,
-                  fontFamily: 'Outfit',
+              child: GestureDetector(
+                onTap: _checkForUpdate,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'Version $currentAppVersion',
+                    style: TextStyle(
+                      color: isDark ? Colors.white38 : Colors.black38,
+                      fontFamily: 'Outfit',
+                    ),
+                  ),
                 ),
               ),
             ),
