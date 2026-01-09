@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/import_service.dart';
 import '../services/notion_service.dart';
 import '../models/transaction_model.dart';
-import '../models/transaction_type.dart';
 import '../services/native_backup_service.dart'; // Add this
 import '../services/database_service.dart';
 import '../services/update_service.dart';
@@ -46,25 +45,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _checkForUpdate() async {
-    // Show checking indicator
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Row(
-          children: [
-            SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(width: 12),
-            Text('正在檢查更新...'),
-          ],
-        ),
-        duration: Duration(seconds: 2),
-      ),
+    // Show checking dialog
+    if (!mounted) return;
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const UpdateStatusDialog(message: '正在檢查 GitHub 版本...'),
     );
 
     // Check for updates
@@ -72,24 +60,76 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     if (!mounted) return;
 
-    // Hide snackbar
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    // Close loading dialog
+    Navigator.of(context).pop();
 
     final updateState = ref.read(updateProvider);
 
     if (updateState.hasUpdate && updateState.releaseInfo?.downloadUrl != null) {
-      // Show update dialog
+      // Show update dialog (built-in helper from update_dialog.dart)
       await showUpdateDialog(context);
     } else if (updateState.error != null) {
-      // Show error
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(updateState.error!)));
+      // Show error dialog
+      await showDialog(
+        context: context,
+        builder: (ctx) =>
+            UpdateStatusDialog(message: updateState.error!, isError: true),
+      );
     } else {
-      // Already up to date
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('已經是最新版本')));
+      // Already up to date - Show a nice success dialog briefly or a simple status dialog
+      await showDialog(
+        context: context,
+        builder: (ctx) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.check_rounded,
+                    color: Colors.green,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  '已是最新版本',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '目前使用版本 $currentAppVersion',
+                  style: const TextStyle(
+                    fontFamily: 'Outfit',
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: const Text('太棒了'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     }
   }
 
