@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../models/category_model.dart';
 import '../models/transaction_type.dart';
 import '../providers/category_provider.dart';
+import '../widgets/custom_toast.dart';
 
 class AddCategoryScreen extends ConsumerStatefulWidget {
   final TransactionType? initialType;
@@ -234,9 +235,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
   void _save() {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a category name')),
-      );
+      ToastService.showError(context, 'Please enter a category name');
       return;
     }
 

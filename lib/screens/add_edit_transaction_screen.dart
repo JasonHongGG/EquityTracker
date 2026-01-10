@@ -11,6 +11,7 @@ import '../widgets/calculator_pad.dart';
 import '../widgets/custom_date_picker_dialog.dart';
 import '../widgets/scale_button.dart';
 import 'category_management_screen.dart';
+import '../widgets/custom_toast.dart';
 
 class AddEditTransactionScreen extends ConsumerStatefulWidget {
   final TransactionModel? transaction;
@@ -685,23 +686,17 @@ class _AddEditTransactionScreenState
     final val = _amountController.text;
     final parsed = int.tryParse(val);
     if (parsed == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Invalid Amount')));
+      ToastService.showError(context, 'Invalid Amount');
       return;
     }
     finalAmount = parsed;
 
     if (finalAmount <= 0) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Amount must be > 0')));
+      ToastService.showError(context, 'Amount must be > 0');
       return;
     }
     if (_selectedCategoryId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a category')));
+      ToastService.showError(context, 'Please select a category');
       return;
     }
 

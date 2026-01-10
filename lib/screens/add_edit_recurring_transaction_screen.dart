@@ -13,6 +13,7 @@ import '../widgets/custom_wheel_picker.dart';
 import '../widgets/custom_month_day_picker.dart';
 
 import 'category_management_screen.dart';
+import '../widgets/custom_toast.dart';
 
 class AddEditRecurringTransactionScreen extends ConsumerStatefulWidget {
   final RecurringTransaction? transaction;
@@ -783,23 +784,17 @@ class _AddEditRecurringTransactionScreenState
     final val = _amountController.text;
     final parsed = int.tryParse(val);
     if (parsed == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Invalid Amount')));
+      ToastService.showError(context, 'Invalid Amount');
       return;
     }
     finalAmount = parsed;
 
     if (finalAmount <= 0) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Amount must be > 0')));
+      ToastService.showError(context, 'Amount must be > 0');
       return;
     }
     if (_selectedCategoryId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please select a category')));
+      ToastService.showError(context, 'Please select a category');
       return;
     }
 

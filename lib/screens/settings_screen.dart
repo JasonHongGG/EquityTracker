@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
@@ -14,6 +13,8 @@ import '../providers/settings_provider.dart';
 import '../providers/update_provider.dart';
 import '../widgets/update_dialog.dart';
 import 'category_management_screen.dart';
+import 'dart:io';
+import '../widgets/custom_toast.dart';
 
 import '../widgets/settings_widgets.dart';
 
@@ -353,12 +354,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         Navigator.of(context).pop(); // Dismiss loading
         setState(() => _isLoading = false);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Backup saved to: $filename'),
-            duration: const Duration(seconds: 4),
-          ),
-        );
+        ToastService.showSuccess(context, 'Backup saved to: $filename');
       }
     } catch (e) {
       if (mounted) {
@@ -366,9 +362,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Navigator.of(context).pop();
           setState(() => _isLoading = false);
         }
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
+        ToastService.showError(context, 'Export failed: $e');
       }
     }
   }
@@ -412,13 +406,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Navigator.of(context).pop(); // Dismiss loading
           setState(() => _isLoading = false);
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Restored: ${report.categoriesImported} Categories, ${report.transactionsImported} Transactions',
-              ),
-              duration: const Duration(seconds: 4),
-            ),
+          ToastService.showSuccess(
+            context,
+            'Restored: ${report.categoriesImported} Categories, ${report.transactionsImported} Transactions',
           );
         }
       }
@@ -428,9 +418,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Navigator.of(context).pop();
           setState(() => _isLoading = false);
         }
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Restore failed: $e')));
+        ToastService.showError(context, 'Restore failed: $e');
       }
     }
   }
@@ -483,14 +471,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             }
           }
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(message),
-              duration: const Duration(
-                seconds: 8,
-              ), // Longer duration to read error
-            ),
-          );
+          ToastService.showInfo(context, message);
 
           // Refresh the transaction list to show new data
           // ignore: unused_result
@@ -503,9 +484,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           Navigator.of(context).pop(); // Dismiss loading if active
           setState(() => _isLoading = false);
         }
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Import failed: $e')));
+        ToastService.showError(context, 'Import failed: $e');
       }
     }
   }
@@ -527,15 +506,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         // ignore: unused_result
         ref.refresh(transactionListProvider);
 
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Import reverted.')));
+        ToastService.showSuccess(context, 'Import reverted.');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Undo failed: $e')));
+        ToastService.showError(context, 'Undo failed: $e');
       }
     }
   }
@@ -675,18 +650,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ref.refresh(recentTitlesProvider); // Ensure suggestions are cleared too
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('All data cleared.'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ToastService.showSuccess(context, 'All data cleared.');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to clear data: $e')));
+        ToastService.showError(context, 'Failed to clear data: $e');
       }
     }
   }
@@ -1033,40 +1001,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                 if (isEnabled) {
                                   // Show checking snackbar
                                   if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Verifying connection...',
-                                        ),
-                                        duration: Duration(seconds: 1),
-                                      ),
+                                    ToastService.showInfo(
+                                      context,
+                                      'Verifying connection... ⏳',
                                     );
                                   }
 
                                   final success = await notionService
                                       .testConnection();
                                   if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          success
-                                              ? 'Connected Successfully! ✅'
-                                              : 'Connection Failed ❌',
-                                        ),
-                                        backgroundColor: success
-                                            ? Colors.green
-                                            : Colors.red,
-                                        behavior: SnackBarBehavior.floating,
-                                      ),
-                                    );
+                                    if (success) {
+                                      ToastService.showSuccess(
+                                        context,
+                                        'Connected Successfully! ✅',
+                                      );
+                                    } else {
+                                      ToastService.showError(
+                                        context,
+                                        'Connection Failed ❌',
+                                      );
+                                    }
                                   }
                                 } else {
                                   if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Notion Sync Disabled'),
-                                        behavior: SnackBarBehavior.floating,
-                                      ),
+                                    ToastService.showInfo(
+                                      context,
+                                      'Notion Sync Disabled',
                                     );
                                   }
                                 }
@@ -1122,12 +1082,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     // Show Loading SnackBar
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Syncing from Notion... ⏳'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      ToastService.showInfo(context, 'Syncing from Notion... ⏳');
     }
 
     try {
@@ -1146,9 +1101,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
       if (transactions.isEmpty) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No new transactions found.')),
-          );
+          ToastService.showInfo(context, 'No new transactions found.');
         }
         setDialogState(() => _isLoading = false);
         return;
@@ -1221,11 +1174,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Synced ${insertedIds.length} items from Notion! 🎉'),
-            backgroundColor: Colors.green,
-          ),
+        ToastService.showSuccess(
+          context,
+          'Synced ${insertedIds.length} items from Notion! 🎉',
         );
         // Close Dialog? Or stay to let user undo?
         // Let's Refresh the Dialog to show Undo button
@@ -1233,12 +1184,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Sync Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        ToastService.showError(context, 'Sync Error: $e');
       }
     } finally {
       setDialogState(() => _isLoading = false);
@@ -1275,17 +1221,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ref.refresh(transactionListProvider);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Last Notion Sync Reverted ↩️')),
-        );
+        ToastService.showSuccess(context, 'Last Notion Sync Reverted ↩️');
         setDialogState(() {});
       }
     } catch (e) {
-      print(e);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Undo Failed: $e')));
+        ToastService.showError(context, 'Undo Failed: $e');
       }
     }
   }
