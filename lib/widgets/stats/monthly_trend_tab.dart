@@ -5,6 +5,7 @@ import '../transaction_item.dart';
 import '../date_header.dart';
 import 'trend_line_chart.dart';
 import '../day_selector.dart';
+import '../../screens/add_edit_transaction_screen.dart';
 
 class MonthlyTrendTab extends StatefulWidget {
   final List<TransactionModel> transactions;
@@ -225,7 +226,15 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
                             TransactionItem(
                               transaction: selectedTransactions[i],
                               onTap: () {
-                                // Handle tap
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        AddEditTransactionScreen(
+                                          transaction: selectedTransactions[i],
+                                        ),
+                                  ),
+                                );
                               },
                             ),
                           ],

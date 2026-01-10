@@ -5,6 +5,7 @@ import '../../models/transaction_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'category_pie_chart.dart';
 import '../transaction_item.dart'; // Reuse for modal
+import '../../screens/add_edit_transaction_screen.dart';
 
 class CategoryAnalysisTab extends ConsumerWidget {
   final List<TransactionModel> transactions;
@@ -204,7 +205,16 @@ class CategoryAnalysisTab extends ConsumerWidget {
                       itemBuilder: (context, index) {
                         return TransactionItem(
                           transaction: categoryTransactions[index],
-                          onTap: () {}, // No action in modal for now
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddEditTransactionScreen(
+                                  transaction: categoryTransactions[index],
+                                ),
+                              ),
+                            );
+                          },
                           showDate: true,
                         );
                       },
