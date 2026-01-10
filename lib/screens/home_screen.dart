@@ -8,14 +8,18 @@ import '../widgets/custom_bottom_nav.dart';
 import '../widgets/scale_button.dart';
 import '../theme/app_colors.dart';
 
-class HomeScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/recurring_transaction_provider.dart';
+
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with WidgetsBindingObserver {
   int _selectedIndex = 0;
 
   static final List<Widget> _pages = <Widget>[
@@ -23,6 +27,32 @@ class _HomeScreenState extends State<HomeScreen> {
     const StatsScreen(),
     const RecurringTransactionsScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // Check on startup
+    Future.microtask(() => _checkRecurringTransactions());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkRecurringTransactions();
+    }
+  }
+
+  Future<void> _checkRecurringTransactions() async {
+    // Check for any due recurring transactions and process them
+    await ref.read(recurringTransactionListProvider.notifier).checkAndProcess();
+  }
 
   void _onItemTapped(int index) {
     setState(() {

@@ -503,6 +503,8 @@ class DatabaseService {
 
   /// Checks for due recurring transactions and generates them.
   /// Returns true if any transactions were generated.
+  /// Checks for due recurring transactions and generates them.
+  /// Returns true if any transactions were generated.
   Future<bool> checkAndProcessRecurringTransactions() async {
     final db = await database;
     bool generatedAny = false;
@@ -520,30 +522,33 @@ class DatabaseService {
     );
 
     final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
 
     for (var recurring in recurringList) {
       DateTime nextDue = recurring.nextDueDate;
-      // Normalize nextDue to start of day for comparison
-      DateTime nextDueDay = DateTime(nextDue.year, nextDue.month, nextDue.day);
+      // Store original time components to preserve them
+      final int hour = nextDue.hour;
+      final int minute = nextDue.minute;
 
       // Using a while loop to handle multiple missed periods
-      // Limit to 50 iterations to prevent infinite loop in case of bad data
+      // Limit to 50 iterations to prevent infinite loop
       int iterations = 0;
-      while ((nextDueDay.isBefore(today) ||
-              nextDueDay.isAtSameMomentAs(today)) &&
+
+      // key change: Compare EXACT time (nextDue) vs Current Time (now)
+      // This fixes "Premature Triggering" where future times today were fired immediately
+      while ((nextDue.isBefore(now) || nextDue.isAtSameMomentAs(now)) &&
           iterations < 50) {
         generatedAny = true;
         iterations++;
 
         // Create the transaction
+        // Use nextDue as the date so the record reflects when it SHOULD have happened
         final newTransaction = TransactionModel(
           title: recurring.title,
           type: recurring.type,
           amount: recurring.amount,
           categoryId: recurring.categoryId,
-          date: nextDueDay, // Set date to when it WAS due
-          createdAt: DateTime.now(),
+          date: nextDue,
+          createdAt: DateTime.now(), // But created now
           note:
               'Auto-generated: ${recurring.note ?? recurring.frequency.label}',
         );
@@ -551,45 +556,68 @@ class DatabaseService {
         await insertTransaction(newTransaction);
 
         // Update last generated date
-        DateTime lastGenerated = nextDueDay;
+        DateTime lastGenerated = nextDue;
 
         // Calculate new next due date
+        // Key change: We must reconstruct the date WITH the original time
+        // The previous logic used 'nextDueDay' which stripped time.
+
+        DateTime calcNewDate(DateTime base) {
+          return DateTime(base.year, base.month, base.day, hour, minute);
+        }
+
         switch (recurring.frequency) {
           case Frequency.daily:
-            nextDueDay = nextDueDay.add(const Duration(days: 1));
+            nextDue = nextDue.add(const Duration(days: 1));
             break;
           case Frequency.weekly:
-            nextDueDay = nextDueDay.add(const Duration(days: 7));
+            nextDue = nextDue.add(const Duration(days: 7));
             break;
           case Frequency.monthly:
             // Standard month addition logic
-            var newMonth = nextDueDay.month + 1;
-            var newYear = nextDueDay.year;
+            var newMonth = nextDue.month + 1;
+            var newYear = nextDue.year;
             if (newMonth > 12) {
               newMonth = 1;
               newYear++;
             }
-            int targetDay = recurring.nextDueDate.day;
-            // Handle end of month (e.g. 31st)
+            // Logic to preserve the "Day of Month" anchor if possible
+            // Note: recurring.nextDueDate is the anchor.
+            // Ideally we need to store "start day" separately if we want perfect "Jan 31 -> Feb 28 -> Mar 31" logic.
+            // But simplistic approach: use current nextDue day? No, use previous nextDue day?
+            // If nextDue was Jan 31, +1 month -> Feb 28 (via logic).
+            // If we just add month to Feb 28, we get Mar 28. We lose the "31st" anchor.
+            // For now, let's just stick to "Add 1 month to current nextDue".
+            // It will drift if we hit a shorter month.
+            // Improving logic to attempt to keep the original day would be better but requires schema change (store 'anchorDay').
+            // Let's stick to the previous implementation's logic but preserve time.
+
+            // Re-implementing previous logic safely:
+            int targetDay = nextDue.day;
+            // Ideally we want the targetDay to be the one from the *original* setting,
+            // but we don't have that stored separately. We only have 'nextDue'.
+            // So if it was already adjusted (Feb 28), it stays 28.
+
             int daysInNewMonth = DateUtils.getDaysInMonth(newYear, newMonth);
             int actualDay = targetDay > daysInNewMonth
                 ? daysInNewMonth
                 : targetDay;
 
-            nextDueDay = DateTime(newYear, newMonth, actualDay);
+            nextDue = DateTime(newYear, newMonth, actualDay, hour, minute);
             break;
           case Frequency.yearly:
-            var newYear = nextDueDay.year + 1;
-            int targetDay = recurring.nextDueDate.day;
+            var newYear = nextDue.year + 1;
+            // Same drift issue applies, but less frequent.
+            int targetDay = nextDue.day;
             int daysInNewMonth = DateUtils.getDaysInMonth(
               newYear,
-              nextDueDay.month,
+              nextDue.month,
             );
             int actualDay = targetDay > daysInNewMonth
                 ? daysInNewMonth
                 : targetDay;
 
-            nextDueDay = DateTime(newYear, nextDueDay.month, actualDay);
+            nextDue = DateTime(newYear, nextDue.month, actualDay, hour, minute);
             break;
         }
 
@@ -597,7 +625,7 @@ class DatabaseService {
         await updateRecurringTransaction(
           recurring.copyWith(
             lastGeneratedDate: lastGenerated,
-            nextDueDate: nextDueDay,
+            nextDueDate: nextDue,
           ),
         );
       }
