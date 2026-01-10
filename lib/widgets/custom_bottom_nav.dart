@@ -28,7 +28,7 @@ class CustomBottomNavBar extends StatelessWidget {
             children: [
               _buildNavItem(0, FontAwesomeIcons.wallet, 'Wallet'),
               _buildNavItem(1, FontAwesomeIcons.chartPie, 'Analysis'),
-              _buildNavItem(2, FontAwesomeIcons.gear, 'Settings'),
+              _buildNavItem(2, FontAwesomeIcons.repeat, 'Recurring'),
             ],
           ),
         ),

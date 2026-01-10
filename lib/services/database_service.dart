@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../models/category_model.dart';
 import '../models/transaction_model.dart';
 import '../models/transaction_type.dart';
+import '../models/recurring_transaction_model.dart';
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
@@ -25,11 +26,16 @@ class DatabaseService {
 
   Future<Database> _initDatabase() async {
     String path = join(await getDatabasesPath(), 'equity_tracker.db');
-    return await openDatabase(
+    final db = await openDatabase(
       path,
       version: 1, // Reset to version 1 for clean install
       onCreate: _onCreate,
     );
+
+    // Ensure recurring_transactions table exists for existing users
+    await _createRecurringTransactionsTable(db);
+
+    return db;
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -67,6 +73,25 @@ class DatabaseService {
     await _seedCategories(db);
   }
   // _onUpgrade removed
+
+  Future<void> _createRecurringTransactionsTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS recurring_transactions(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        amount INTEGER,
+        type TEXT,
+        categoryId TEXT,
+        frequency TEXT,
+        nextDueDate TEXT,
+        lastGeneratedDate TEXT,
+        isEnabled INTEGER,
+        note TEXT,
+        createdAt TEXT,
+        FOREIGN KEY(categoryId) REFERENCES categories(id)
+      )
+    ''');
+  }
 
   Future<void> _seedCategories(Database db) async {
     const uuid = Uuid();
@@ -432,5 +457,152 @@ class DatabaseService {
   Future<void> clearAllTransactions() async {
     final db = await database;
     await db.delete('transactions');
+  }
+
+  // Recurring Transactions Methods
+
+  Future<List<RecurringTransaction>> getRecurringTransactions() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'recurring_transactions',
+      orderBy: 'nextDueDate ASC',
+    );
+    return List.generate(
+      maps.length,
+      (i) => RecurringTransaction.fromMap(maps[i]),
+    );
+  }
+
+  Future<int> insertRecurringTransaction(
+    RecurringTransaction transaction,
+  ) async {
+    final db = await database;
+    return await db.insert('recurring_transactions', transaction.toMap());
+  }
+
+  Future<int> updateRecurringTransaction(
+    RecurringTransaction transaction,
+  ) async {
+    final db = await database;
+    return await db.update(
+      'recurring_transactions',
+      transaction.toMap(),
+      where: 'id = ?',
+      whereArgs: [transaction.id],
+    );
+  }
+
+  Future<int> deleteRecurringTransaction(int id) async {
+    final db = await database;
+    return await db.delete(
+      'recurring_transactions',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  /// Checks for due recurring transactions and generates them.
+  /// Returns true if any transactions were generated.
+  Future<bool> checkAndProcessRecurringTransactions() async {
+    final db = await database;
+    bool generatedAny = false;
+
+    // 1. Get all enabled recurring transactions
+    final List<Map<String, dynamic>> maps = await db.query(
+      'recurring_transactions',
+      where: 'isEnabled = ?',
+      whereArgs: [1],
+    );
+
+    final recurringList = List.generate(
+      maps.length,
+      (i) => RecurringTransaction.fromMap(maps[i]),
+    );
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    for (var recurring in recurringList) {
+      DateTime nextDue = recurring.nextDueDate;
+      // Normalize nextDue to start of day for comparison
+      DateTime nextDueDay = DateTime(nextDue.year, nextDue.month, nextDue.day);
+
+      // Using a while loop to handle multiple missed periods
+      // Limit to 50 iterations to prevent infinite loop in case of bad data
+      int iterations = 0;
+      while ((nextDueDay.isBefore(today) ||
+              nextDueDay.isAtSameMomentAs(today)) &&
+          iterations < 50) {
+        generatedAny = true;
+        iterations++;
+
+        // Create the transaction
+        final newTransaction = TransactionModel(
+          title: recurring.title,
+          type: recurring.type,
+          amount: recurring.amount,
+          categoryId: recurring.categoryId,
+          date: nextDueDay, // Set date to when it WAS due
+          createdAt: DateTime.now(),
+          note:
+              'Auto-generated: ${recurring.note ?? recurring.frequency.label}',
+        );
+
+        await insertTransaction(newTransaction);
+
+        // Update last generated date
+        DateTime lastGenerated = nextDueDay;
+
+        // Calculate new next due date
+        switch (recurring.frequency) {
+          case Frequency.daily:
+            nextDueDay = nextDueDay.add(const Duration(days: 1));
+            break;
+          case Frequency.weekly:
+            nextDueDay = nextDueDay.add(const Duration(days: 7));
+            break;
+          case Frequency.monthly:
+            // Standard month addition logic
+            var newMonth = nextDueDay.month + 1;
+            var newYear = nextDueDay.year;
+            if (newMonth > 12) {
+              newMonth = 1;
+              newYear++;
+            }
+            int targetDay = recurring.nextDueDate.day;
+            // Handle end of month (e.g. 31st)
+            int daysInNewMonth = DateUtils.getDaysInMonth(newYear, newMonth);
+            int actualDay = targetDay > daysInNewMonth
+                ? daysInNewMonth
+                : targetDay;
+
+            nextDueDay = DateTime(newYear, newMonth, actualDay);
+            break;
+          case Frequency.yearly:
+            var newYear = nextDueDay.year + 1;
+            int targetDay = recurring.nextDueDate.day;
+            int daysInNewMonth = DateUtils.getDaysInMonth(
+              newYear,
+              nextDueDay.month,
+            );
+            int actualDay = targetDay > daysInNewMonth
+                ? daysInNewMonth
+                : targetDay;
+
+            nextDueDay = DateTime(newYear, nextDueDay.month, actualDay);
+            break;
+        }
+
+        // Update the recurring record
+        await updateRecurringTransaction(
+          recurring.copyWith(
+            lastGeneratedDate: lastGenerated,
+            nextDueDate: nextDueDay,
+          ),
+        );
+      }
+    }
+
+    return generatedAny;
   }
 }
