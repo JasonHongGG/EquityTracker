@@ -9,6 +9,8 @@ import '../widgets/month_selector.dart';
 import '../widgets/custom_month_picker.dart';
 import '../widgets/custom_tab_selector.dart';
 
+import 'settings_screen.dart';
+
 class StatsScreen extends ConsumerStatefulWidget {
   const StatsScreen({super.key});
 
@@ -48,7 +50,15 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
         elevation: 0,
         backgroundColor: Colors.transparent,
         scrolledUnderElevation: 0,
+        automaticallyImplyLeading: false,
+        titleSpacing: 0,
         title: MonthSelector(
+          onSettings: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsScreen()),
+            );
+          },
           selectedDate: selectedMonth,
           onPrevious: () {
             ref

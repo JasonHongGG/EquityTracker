@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-// import '../theme/app_colors.dart'; removed
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class MonthSelector extends StatelessWidget {
   final DateTime selectedDate;
@@ -11,6 +11,7 @@ class MonthSelector extends StatelessWidget {
   final bool isSearching;
   final VoidCallback? onTitleTap;
   final bool enableSearch;
+  final VoidCallback? onSettings;
 
   const MonthSelector({
     super.key,
@@ -22,6 +23,7 @@ class MonthSelector extends StatelessWidget {
     this.isSearching = false,
     this.onTitleTap,
     this.enableSearch = true,
+    this.onSettings,
   });
 
   @override
@@ -34,6 +36,20 @@ class MonthSelector extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Left-aligned Settings Button
+          if (onSettings != null)
+            Positioned(
+              left: 0,
+              child: IconButton(
+                onPressed: onSettings,
+                icon: Icon(
+                  FontAwesomeIcons.gear, // Use gear icon
+                  color: isDark ? Colors.white70 : Colors.black54,
+                  size: 20,
+                ),
+              ),
+            ),
+
           // Centered Date Navigation
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'settings_screen.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import '../widgets/search_dialog.dart';
 import '../providers/transaction_provider.dart';
@@ -84,10 +85,21 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           // 1. Scrollable Month Selector
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(top: 20, bottom: 0),
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top,
+                bottom: 0,
+              ),
               child: MonthSelector(
                 selectedDate: selectedMonth,
                 isSearching: isSearching,
+                onSettings: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
+                },
                 onPrevious: () {
                   ref
                       .read(selectedMonthProvider.notifier)

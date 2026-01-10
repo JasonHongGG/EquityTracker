@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'transaction_list_screen.dart';
 import 'stats_screen.dart';
-import 'settings_screen.dart';
+import 'blank_screen.dart';
 import 'add_edit_transaction_screen.dart';
 import '../widgets/custom_bottom_nav.dart';
 import '../widgets/scale_button.dart';
@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static final List<Widget> _pages = <Widget>[
     const TransactionListScreen(),
     const StatsScreen(),
-    const SettingsScreen(),
+    const BlankScreen(),
   ];
 
   void _onItemTapped(int index) {
