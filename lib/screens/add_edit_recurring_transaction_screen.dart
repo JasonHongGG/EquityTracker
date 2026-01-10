@@ -11,6 +11,7 @@ import '../widgets/calculator_pad.dart';
 import '../widgets/scale_button.dart';
 import '../widgets/custom_wheel_picker.dart';
 import '../widgets/custom_month_day_picker.dart';
+import '../widgets/custom_time_picker.dart';
 
 import 'category_management_screen.dart';
 import '../widgets/custom_toast.dart';
@@ -207,7 +208,7 @@ class _AddEditRecurringTransactionScreenState
     }
 
     if (_frequency == Frequency.daily) {
-      final TimeOfDay? pickedTime = await showTimePicker(
+      final TimeOfDay? pickedTime = await showCustomTimePicker(
         context: context,
         initialTime: _time,
       );
@@ -222,7 +223,7 @@ class _AddEditRecurringTransactionScreenState
 
     // Helper to pick time
     Future<TimeOfDay?> pickTime() async {
-      return showTimePicker(context: context, initialTime: _time);
+      return showCustomTimePicker(context: context, initialTime: _time);
     }
 
     if (_frequency == Frequency.weekly) {
