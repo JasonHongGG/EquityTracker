@@ -32,7 +32,7 @@ class _AddEditRecurringTransactionScreenState
   late int _amount;
   late TextEditingController _amountController;
   late TextEditingController _titleController;
-  late TextEditingController _noteController;
+
   String? _selectedCategoryId;
   bool _isEnabled = true;
 
@@ -54,7 +54,7 @@ class _AddEditRecurringTransactionScreenState
       text: t != null ? t.amount.toString() : '',
     );
     _titleController = TextEditingController(text: t?.title ?? '');
-    _noteController = TextEditingController(text: t?.note ?? '');
+    _titleController = TextEditingController(text: t?.title ?? '');
     _selectedCategoryId = t?.categoryId;
     _isEnabled = t?.isEnabled ?? true;
     _time = TimeOfDay.fromDateTime(_nextDueDate);
@@ -74,7 +74,6 @@ class _AddEditRecurringTransactionScreenState
   void dispose() {
     _amountController.dispose();
     _titleController.dispose();
-    _noteController.dispose();
     _titleFocusNode.dispose();
     _suggestionsScrollController.dispose();
     super.dispose();
@@ -347,14 +346,33 @@ class _AddEditRecurringTransactionScreenState
                       icon: Icon(Icons.close, color: txtColor, size: 28),
                       onPressed: () => Navigator.pop(context),
                     ),
-                    if (widget.transaction != null)
-                      IconButton(
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: AppColors.expense,
+                    Row(
+                      children: [
+                        // Active Rule Toggle
+                        IconButton(
+                          icon: Icon(
+                            _isEnabled
+                                ? Icons.alarm_on_rounded
+                                : Icons.alarm_off_rounded,
+                            color: _isEnabled ? AppColors.primary : Colors.grey,
+                            size: 24, // Slightly smaller than close/delete
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isEnabled = !_isEnabled;
+                            });
+                          },
                         ),
-                        onPressed: _deleteTransaction,
-                      ),
+                        if (widget.transaction != null)
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: AppColors.expense,
+                            ),
+                            onPressed: _deleteTransaction,
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -687,60 +705,6 @@ class _AddEditRecurringTransactionScreenState
                         ),
                         child: Column(
                           children: [
-                            // Enable Switch for Recurring
-                            if (widget.transaction != null)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Active Rule',
-                                      style: TextStyle(
-                                        color: txtColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Switch(
-                                      value: _isEnabled,
-                                      onChanged: (v) =>
-                                          setState(() => _isEnabled = v),
-                                      activeColor: AppColors.primary,
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                            Container(
-                              margin: const EdgeInsets.only(bottom: 16),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? AppColors.backgroundDark
-                                    : Colors.grey[100],
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: TextField(
-                                controller: _noteController,
-                                style: TextStyle(color: txtColor),
-                                decoration: const InputDecoration(
-                                  hintText: 'Add note...',
-                                  border: InputBorder.none,
-                                  icon: Icon(
-                                    Icons.edit,
-                                    size: 16,
-                                    color: Colors.grey,
-                                  ),
-                                  isDense: true,
-                                  contentPadding: EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
                             SizedBox(
                               width: double.infinity,
                               height: 50,
@@ -853,7 +817,7 @@ class _AddEditRecurringTransactionScreenState
       nextDueDate: _nextDueDate,
       lastGeneratedDate: widget.transaction?.lastGeneratedDate,
       isEnabled: _isEnabled,
-      note: _noteController.text.trim(),
+      note: '',
       createdAt: widget.transaction?.createdAt ?? DateTime.now(),
     );
 
