@@ -8,6 +8,8 @@ import '../models/category_model.dart';
 import '../providers/category_provider.dart';
 import '../theme/app_colors.dart';
 
+import 'scale_button.dart';
+
 class TransactionItem extends ConsumerWidget {
   final TransactionModel transaction;
   final VoidCallback? onTap;
@@ -41,14 +43,12 @@ class TransactionItem extends ConsumerWidget {
         ? AppColors.income
         : AppColors.expense;
 
-    return GestureDetector(
+    return ScaleButton(
       onTap: onTap,
+      scale: 0.98,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          // Removed individual card styling
-        ),
+        decoration: BoxDecoration(color: Colors.transparent),
         child: Row(
           children: [
             // Icon Bubble
