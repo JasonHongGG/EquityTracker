@@ -219,8 +219,9 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
                                 child: Divider(
                                   height: 1,
                                   thickness: 1,
-                                  color: Theme.of(context).colorScheme.onSurface
-                                      .withValues(alpha: 0.05),
+                                  color: Theme.of(
+                                    context,
+                                  ).dividerColor.withOpacity(0.1),
                                 ),
                               ),
                             TransactionItem(

@@ -200,8 +200,12 @@ class CategoryAnalysisTab extends ConsumerWidget {
                     child: ListView.separated(
                       controller: scrollController,
                       itemCount: categoryTransactions.length,
-                      separatorBuilder: (_, __) =>
-                          const Divider(height: 1, indent: 70, endIndent: 16),
+                      separatorBuilder: (_, __) => Divider(
+                        height: 1,
+                        indent: 70,
+                        endIndent: 16,
+                        color: Theme.of(context).dividerColor.withOpacity(0.1),
+                      ),
                       itemBuilder: (context, index) {
                         return TransactionItem(
                           transaction: categoryTransactions[index],
