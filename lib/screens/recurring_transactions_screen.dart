@@ -44,24 +44,28 @@ class _RecurringTransactionsScreenState
           SliverAppBar(
             pinned: true,
             toolbarHeight: 65,
+            leadingWidth: 65, // allocate space for padding
             backgroundColor: isDark
                 ? AppColors.backgroundDark
                 : AppColors.backgroundLight,
             elevation: 0,
-            leading: IconButton(
-              icon: Icon(
-                FontAwesomeIcons.gear,
-                color: isDark ? Colors.white70 : Colors.black54,
-                size: 20,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 16.0),
+              child: IconButton(
+                icon: Icon(
+                  FontAwesomeIcons.gear,
+                  color: isDark ? Colors.white70 : Colors.black54,
+                  size: 20,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
+                },
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SettingsScreen(),
-                  ),
-                );
-              },
             ),
             title: Text(
               'Recurring',
@@ -85,7 +89,7 @@ class _RecurringTransactionsScreenState
                   );
                 },
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 16),
             ],
           ),
 
