@@ -220,25 +220,22 @@ class _AddEditRecurringTransactionScreenState
       return;
     }
 
-    // For other modes, default time is 00:00
-    const defaultTime = TimeOfDay(hour: 0, minute: 0);
+    // Helper to pick time
+    Future<TimeOfDay?> pickTime() async {
+      return showTimePicker(context: context, initialTime: _time);
+    }
 
     if (_frequency == Frequency.weekly) {
-      // Pick Day of Week
-      // Generate days starting from Monday
+      // 1. Pick Day of Week
       final days = List.generate(7, (index) {
-        // 1 = Monday
-        final dayNum = index + 1;
+        final dayNum = index + 1; // 1 = Monday
+        // Calculate a dummy date for label
         final now = DateTime.now();
-        // Calculate a date that is dayNum
         final diff = dayNum - now.weekday;
         final d = now.add(Duration(days: diff));
         return DateFormat('EEEE').format(d);
       });
 
-      // Find initial index based on _nextDueDate
-      // _nextDueDate is a valid date. weekday 1=Mon...7=Sun
-      // List index 0=Mon...6=Sun. So index = weekday - 1.
       final initialIndex = _nextDueDate.weekday - 1;
 
       final int? selectedIndex = await showCustomWheelPicker(
@@ -249,21 +246,25 @@ class _AddEditRecurringTransactionScreenState
       );
 
       if (selectedIndex != null) {
-        final dayNum = selectedIndex + 1;
-        update(
-          _calculateNextDate(
-            freq: Frequency.weekly,
-            dayOfWeek: dayNum,
-            time: defaultTime,
-          ),
-          defaultTime,
-        );
+        // 2. Pick Time
+        final t = await pickTime();
+        if (t != null) {
+          final dayNum = selectedIndex + 1;
+          update(
+            _calculateNextDate(
+              freq: Frequency.weekly,
+              dayOfWeek: dayNum,
+              time: t,
+            ),
+            t,
+          );
+        }
       }
       return;
     }
 
     if (_frequency == Frequency.monthly) {
-      // Pick Day 1-31
+      // 1. Pick Day 1-31
       final days = List.generate(31, (index) => '${index + 1}');
       final initialIndex = (_nextDueDate.day - 1).clamp(0, 30);
 
@@ -275,34 +276,44 @@ class _AddEditRecurringTransactionScreenState
       );
 
       if (selectedIndex != null) {
-        final day = selectedIndex + 1;
-        update(
-          _calculateNextDate(
-            freq: Frequency.monthly,
-            dayOfMonth: day,
-            time: defaultTime,
-          ),
-          defaultTime,
-        );
+        // 2. Pick Time
+        final t = await pickTime();
+        if (t != null) {
+          final day = selectedIndex + 1;
+          update(
+            _calculateNextDate(
+              freq: Frequency.monthly,
+              dayOfMonth: day,
+              time: t,
+            ),
+            t,
+          );
+        }
       }
       return;
     }
 
     if (_frequency == Frequency.yearly) {
+      // 1. Pick Date
       final DateTime? pickedDate = await showCustomMonthDayPicker(
         context: context,
         initialDate: _nextDueDate,
       );
       if (pickedDate != null) {
-        update(
-          _calculateNextDate(
-            freq: Frequency.yearly,
-            specificDate: pickedDate,
-            time: defaultTime,
-          ),
-          defaultTime,
-        );
+        // 2. Pick Time
+        final t = await pickTime();
+        if (t != null) {
+          update(
+            _calculateNextDate(
+              freq: Frequency.yearly,
+              specificDate: pickedDate,
+              time: t,
+            ),
+            t,
+          );
+        }
       }
+      return;
     }
   }
 

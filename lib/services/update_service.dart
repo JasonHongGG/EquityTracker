@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 /// Current app version - Update this for each release
-const String currentAppVersion = 'v0.0.0';
+const String currentAppVersion = 'v0.0.1';
 
 /// GitHub repository information
 const String githubOwner = 'JasonHongGG';
