@@ -156,7 +156,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.only(bottom: 120),
+        padding: const EdgeInsets.only(bottom: 20),
         child: Column(
           children: [
             // Section 1: Preferences
