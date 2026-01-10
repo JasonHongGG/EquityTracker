@@ -562,10 +562,6 @@ class DatabaseService {
         // Key change: We must reconstruct the date WITH the original time
         // The previous logic used 'nextDueDay' which stripped time.
 
-        DateTime calcNewDate(DateTime base) {
-          return DateTime(base.year, base.month, base.day, hour, minute);
-        }
-
         switch (recurring.frequency) {
           case Frequency.daily:
             nextDue = nextDue.add(const Duration(days: 1));

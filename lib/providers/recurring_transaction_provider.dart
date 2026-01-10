@@ -51,12 +51,21 @@ class RecurringTransactionListNotifier
 
   Future<void> checkAndProcess() async {
     final db = DatabaseService();
+    // This now returns true if ANY transaction was generated
     final generated = await db.checkAndProcessRecurringTransactions();
+
     if (generated) {
-      // If transactions were generated, we need to refresh recurring list (dates changed)
-      // AND transaction list (new entries appear)
+      // If transactions were generated, we must invalidate:
+      // 1. Recurring List (dates changed)
       ref.invalidateSelf();
+      // 2. Main Transaction List (new items added)
       ref.invalidate(transactionListProvider);
+
+      // Wait for the refresh to complete to ensure UI is ready?
+      // Not strictly necessary for "invalidate", but good practice to ensure state is clean
+      await future;
+      // Force read of transaction list to trigger immediate fetch if it was disposed?
+      // Or just let the UI watcher handle it.
     }
   }
 }

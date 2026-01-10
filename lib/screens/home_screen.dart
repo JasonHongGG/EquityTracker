@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'transaction_list_screen.dart';
@@ -7,6 +8,8 @@ import 'add_edit_transaction_screen.dart';
 import '../widgets/custom_bottom_nav.dart';
 import '../widgets/scale_button.dart';
 import '../theme/app_colors.dart';
+
+import '../models/recurring_transaction_model.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/recurring_transaction_provider.dart';
@@ -28,17 +31,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     const RecurringTransactionsScreen(),
   ];
 
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Check on startup
+    // Initial check
     Future.microtask(() => _checkRecurringTransactions());
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -50,18 +56,63 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   }
 
   Future<void> _checkRecurringTransactions() async {
-    // Check for any due recurring transactions and process them
+    // Check for due recurring transactions.
     await ref.read(recurringTransactionListProvider.notifier).checkAndProcess();
+
+    // Always schedule next trigger based on current list
+    // This handling ensures that even if no transaction was generated "now",
+    // we still look ahead to schedule the "next" one.
+    final listAsync = ref.read(recurringTransactionListProvider);
+    if (listAsync.hasValue) {
+      _scheduleNextTrigger(listAsync.value!);
+    }
+  }
+
+  /// Schedules a timer for the next upcoming recurring transaction.
+  void _scheduleNextTrigger(List<RecurringTransaction> transactions) {
+    _timer?.cancel();
+
+    final enabled = transactions.where((t) => t.isEnabled).toList();
+    if (enabled.isEmpty) return;
+
+    // Find the earliest due date
+    // Sort by date to find the soonest one
+    enabled.sort((a, b) => a.nextDueDate.compareTo(b.nextDueDate));
+    final earliest = enabled.first;
+
+    final now = DateTime.now();
+    final difference = earliest.nextDueDate.difference(now);
+
+    if (difference.isNegative) {
+      // It's already due (or overdue)
+      // Process immediately
+      _checkRecurringTransactions();
+    } else {
+      // Schedule for the future
+      // We add 1 second buffer to ensure we are safely past the second mark
+      _timer = Timer(difference + const Duration(seconds: 1), () {
+        _checkRecurringTransactions();
+      });
+      print('Scheduled next check in: ${difference.inSeconds} seconds');
+    }
   }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+    // Check on tab switch just in case
+    _checkRecurringTransactions();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Listen for changes in recurring transactions (e.g. user adds new one)
+    // to reschedule the next trigger immediately.
+    ref.listen(recurringTransactionListProvider, (previous, next) {
+      next.whenData(_scheduleNextTrigger);
+    });
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
