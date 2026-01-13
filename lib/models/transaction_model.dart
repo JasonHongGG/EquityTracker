@@ -2,6 +2,7 @@ import 'transaction_type.dart';
 
 class TransactionModel {
   final int? id; // Nullable for new records (auto-increment)
+  final String? notionId; // New field for Notion Sync
   final String? title; // New field for specific expense name
   final TransactionType type;
   final int amount; // Integer > 0
@@ -12,6 +13,7 @@ class TransactionModel {
 
   TransactionModel({
     this.id,
+    this.notionId,
     this.title,
     required this.type,
     required this.amount,
@@ -28,13 +30,12 @@ class TransactionModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'notionId': notionId,
       'title': title,
       'type': type.toJson(),
       'amount': amount,
       'categoryId': categoryId,
-      'date': date.toIso8601String().split(
-        'T',
-      )[0], // Store as YYYY-MM-DD for simpler querying
+      'date': date.toIso8601String(), // Store full ISO string with time
       'createdAt': createdAt.toIso8601String(),
       'note': note,
     };
@@ -43,6 +44,7 @@ class TransactionModel {
   factory TransactionModel.fromMap(Map<String, dynamic> map) {
     return TransactionModel(
       id: map['id'] as int?,
+      notionId: map['notionId'] as String?,
       title: map['title'] as String?,
       type: TransactionType.fromJson(map['type'] as String),
       amount: map['amount'] as int,
@@ -55,6 +57,7 @@ class TransactionModel {
 
   TransactionModel copyWith({
     int? id,
+    String? notionId,
     String? title,
     TransactionType? type,
     int? amount,
@@ -65,6 +68,7 @@ class TransactionModel {
   }) {
     return TransactionModel(
       id: id ?? this.id,
+      notionId: notionId ?? this.notionId,
       title: title ?? this.title,
       type: type ?? this.type,
       amount: amount ?? this.amount,

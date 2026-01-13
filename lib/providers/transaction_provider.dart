@@ -80,12 +80,19 @@ class TransactionList extends AsyncNotifier<List<TransactionModel>> {
   Future<void> addTransaction(TransactionModel transaction) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await DatabaseService().insertTransaction(transaction);
+      int localId = await DatabaseService().insertTransaction(transaction);
 
-      // Experimental: Sync to Notion (Fire & Forget)
-      NotionService().syncTransaction(transaction);
+      // Notion Sync
+      final notionId = await NotionService().syncTransaction(transaction);
+      if (notionId != null) {
+        // Update local record with Notion ID
+        final insertedTx = transaction.copyWith(
+          id: localId,
+          notionId: notionId,
+        );
+        await DatabaseService().updateTransaction(insertedTx);
+      }
 
-      // Wait a bit or just refetch. SQLite is fast.
       return _fetchAll();
     });
   }
@@ -94,14 +101,56 @@ class TransactionList extends AsyncNotifier<List<TransactionModel>> {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await DatabaseService().updateTransaction(transaction);
+
+      // Notion Sync Update
+      if (transaction.notionId != null) {
+        await NotionService().updateTransaction(
+          transaction.notionId!,
+          transaction,
+        );
+      }
+
       return _fetchAll();
     });
   }
 
-  Future<void> deleteTransaction(int id) async {
+  Future<void> deleteTransaction(int id, [String? notionId]) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
+      // Helper: if notionId not passed, try to find it (optional optimization)
+      // But typically UI passes ID.
+      // If we don't have the object, we need to fetch it to get notionId.
+      // Or we assume the caller (UI) might not have it.
+      // Let's fetch the transaction first to be safe and get the notionId
+
+      // We can't fetch single easily with current DatabaseService without a new method
+      // But we can just use the provider state if available?
+      // Safer: add method to get by ID in DB service or just filter current state.
+      // Let's rely on Database Service or just query all.
+      // For now, let's optimize: Fetch the Tx before deleting.
+
+      // WAIT: The deleteTransaction(int id) signature only has ID.
+      // We should look it up.
+
+      // Actually, let's just do a quick lookup.
+      // Since we don't have getTransactionById exposed in DatabaseService yet,
+      // let's just blindly delete locally, BUT we need notionId for remote delete.
+      // So checking database first is needed.
+      // However, to avoid modifying DatabaseService again for a single lookup method (though good practice),
+      // we can try to find it in the current loaded state.
+
+      String? targetNotionId = notionId;
+      if (targetNotionId == null && state.hasValue) {
+        final tx = state.value!.firstWhereOrNull((t) => t.id == id);
+        targetNotionId = tx?.notionId;
+      }
+
       await DatabaseService().deleteTransaction(id);
+
+      if (targetNotionId != null) {
+        await NotionService().deleteTransaction(targetNotionId);
+      }
+
       return _fetchAll();
     });
   }
@@ -192,7 +241,11 @@ final groupedTransactionsProvider =
 
       return filteredAsync.whenData((transactions) {
         // Group by date
-        final grouped = groupBy(transactions, (TransactionModel t) => t.date);
+        final grouped = groupBy(
+          transactions,
+          (TransactionModel t) =>
+              DateTime(t.date.year, t.date.month, t.date.day),
+        );
 
         // Sort keys (dates) descending
         final sortedKeys = grouped.keys.toList()

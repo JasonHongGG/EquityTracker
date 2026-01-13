@@ -81,17 +81,17 @@ class NotionService {
     }
   }
 
-  // Sync Transaction
-  Future<void> syncTransaction(TransactionModel transaction) async {
+  // Sync Transaction (Create)
+  Future<String?> syncTransaction(TransactionModel transaction) async {
     final apiKey = await token;
     final dbId = await databaseId;
 
     if (apiKey == null || dbId == null || apiKey.isEmpty || dbId.isEmpty) {
-      return; // Not configured
+      return null; // Not configured
     }
 
     if (!await isEnabled) {
-      return; // Disabled
+      return null; // Disabled
     }
 
     try {
@@ -142,7 +142,10 @@ class NotionService {
             "select": {"name": categoryName},
           },
           "時間": {
-            "date": {"start": transaction.date.toIso8601String()},
+            "date": {
+              "start":
+                  "${transaction.date.toUtc().toIso8601String().substring(0, 19)}Z",
+            },
           },
         },
       });
@@ -160,12 +163,117 @@ class NotionService {
 
       if (response.statusCode != 200) {
         print('Notion Sync Failed: ${response.body}');
-        // Optionally store failed sync to retry, but strictly "experimental" means simple
+        return null;
       } else {
         print('Notion Sync Success');
+        final data = jsonDecode(response.body);
+        return data['id'];
       }
     } catch (e) {
       print('Notion Sync Error: $e');
+      return null;
+    }
+  }
+
+  // Update Transaction
+  Future<void> updateTransaction(
+    String notionPageId,
+    TransactionModel transaction,
+  ) async {
+    final apiKey = await token;
+
+    if (apiKey == null || apiKey.isEmpty) return;
+    if (!await isEnabled) return;
+
+    try {
+      // 1. Get Category Name
+      String categoryName = 'Unknown';
+      final categories = await DatabaseService().getCategories();
+      final category = categories.firstWhere(
+        (c) => c.id == transaction.categoryId,
+        orElse: () => Category(
+          id: 'unknown',
+          name: 'Unknown',
+          iconCodePoint: 0,
+          iconFontFamily: '',
+          iconFontPackage: '',
+          colorValue: 0,
+          type: transaction.type,
+          isSystem: false,
+          isEnabled: true,
+        ),
+      );
+      categoryName = category.name;
+
+      final body = jsonEncode({
+        "properties": {
+          "名稱": {
+            "title": [
+              {
+                "text": {"content": transaction.title ?? 'Unified Transaction'},
+              },
+            ],
+          },
+          "金額": {"number": transaction.amount},
+          "類別": {
+            "select": {"name": categoryName},
+          },
+          "時間": {
+            "date": {
+              "start":
+                  "${transaction.date.toUtc().toIso8601String().substring(0, 19)}Z",
+            },
+          },
+        },
+      });
+
+      final response = await http.patch(
+        Uri.parse('$_kApiUrl/$notionPageId'),
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+          'Notion-Version': _kNotionVersion,
+        },
+        body: body,
+      );
+
+      if (response.statusCode != 200) {
+        print('Notion Update Failed: ${response.body}');
+      } else {
+        print('Notion Update Success');
+      }
+    } catch (e) {
+      print('Notion Update Error: $e');
+    }
+  }
+
+  // Delete Transaction (Archive)
+  Future<void> deleteTransaction(String notionPageId) async {
+    final apiKey = await token;
+
+    if (apiKey == null || apiKey.isEmpty) return;
+    if (!await isEnabled) return;
+
+    try {
+      final body = jsonEncode({"archived": true});
+
+      final response = await http.patch(
+        Uri.parse('$_kApiUrl/$notionPageId'),
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+          'Notion-Version': _kNotionVersion,
+        },
+        body: body,
+      );
+
+      if (response.statusCode != 200) {
+        print('Notion Delete Failed: ${response.body}');
+      } else {
+        print('Notion Delete Success');
+      }
+    } catch (e) {
+      print('Notion Delete Error: $e');
     }
   }
 
@@ -246,7 +354,7 @@ class NotionService {
               DateTime date = DateTime.now();
               final dateProp = props['時間']?['date']?['start'];
               if (dateProp != null) {
-                date = DateTime.parse(dateProp);
+                date = DateTime.parse(dateProp).toLocal();
               }
 
               // 4. Category (Select/RichText) -> ID
@@ -287,6 +395,7 @@ class NotionService {
 
               allTransactions.add(
                 TransactionModel(
+                  notionId: page['id'], // Capture Notion Page ID
                   title: title,
                   amount: amount,
                   type: type,

@@ -47,7 +47,27 @@ class _AddEditTransactionScreenState
     super.initState();
     final t = widget.transaction;
     _type = t?.type ?? TransactionType.expense;
-    _date = t?.date ?? widget.initialDate ?? DateTime.now();
+
+    if (t != null) {
+      _date = t.date;
+    } else {
+      final now = DateTime.now();
+      if (widget.initialDate != null) {
+        // If initialDate is provided (e.g. from header tap), it's usually midnight.
+        // We want to keep that date but use current time.
+        _date = DateTime(
+          widget.initialDate!.year,
+          widget.initialDate!.month,
+          widget.initialDate!.day,
+          now.hour,
+          now.minute,
+          now.second,
+        );
+      } else {
+        _date = now;
+      }
+    }
+
     _amount = t?.amount ?? 0;
     _amountController = TextEditingController(
       text: t != null ? t.amount.toString() : '',
@@ -676,7 +696,14 @@ class _AddEditTransactionScreenState
     );
     if (picked != null) {
       setState(() {
-        _date = picked;
+        _date = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          _date.hour,
+          _date.minute,
+          _date.second,
+        );
       });
     }
   }
@@ -702,6 +729,7 @@ class _AddEditTransactionScreenState
 
     final newTx = TransactionModel(
       id: widget.transaction?.id,
+      notionId: widget.transaction?.notionId,
       title: _titleController.text.isNotEmpty ? _titleController.text : null,
       type: _type,
       amount: finalAmount,
@@ -810,7 +838,10 @@ class _AddEditTransactionScreenState
                           if (widget.transaction?.id != null) {
                             ref
                                 .read(transactionListProvider.notifier)
-                                .deleteTransaction(widget.transaction!.id!);
+                                .deleteTransaction(
+                                  widget.transaction!.id!,
+                                  widget.transaction!.notionId,
+                                );
                           }
                           Navigator.pop(ctx);
                           Navigator.pop(context);

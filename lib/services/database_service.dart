@@ -59,6 +59,7 @@ class DatabaseService {
     await db.execute('''
       CREATE TABLE transactions(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        notionId TEXT,
         title TEXT,
         type TEXT,
         amount INTEGER,
@@ -382,8 +383,8 @@ class DatabaseService {
     final dateStr = date.toIso8601String().split('T')[0];
     final List<Map<String, dynamic>> maps = await db.query(
       'transactions',
-      where: 'date = ?',
-      whereArgs: [dateStr],
+      where: 'date LIKE ?',
+      whereArgs: ['$dateStr%'],
       orderBy: 'createdAt DESC',
     );
     return List.generate(maps.length, (i) => TransactionModel.fromMap(maps[i]));
@@ -425,9 +426,9 @@ class DatabaseService {
   ) async {
     final db = await database;
     final startStr = start.toIso8601String().split('T')[0];
-    final endStr = end.toIso8601String().split('T')[0];
+    final endStr = '${end.toIso8601String().split('T')[0]}T23:59:59';
 
-    // Simple string comparison works for YYYY-MM-DD
+    // Simple string comparison works for YYYY-MM-DD and ISO
     final List<Map<String, dynamic>> maps = await db.query(
       'transactions',
       where: 'date >= ? AND date <= ?',
