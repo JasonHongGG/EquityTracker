@@ -27,7 +27,7 @@ class CalculatorPad extends StatelessWidget {
   void _handleTap(String text) {
     if (text == 'AC') {
       onChanged('');
-    } else if (text == '⌫') {
+    } else if (text.trim() == '⌫') {
       if (value.isNotEmpty) {
         onChanged(value.substring(0, value.length - 1));
       }
@@ -212,7 +212,6 @@ class CalculatorPad extends StatelessWidget {
                       enableShadow: true,
                     ),
                     const SizedBox(height: 8),
-                    // Tall Button
                     // Tall Button
                     SizedBox(
                       height: (rowHeight * 2) + 8,
