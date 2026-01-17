@@ -82,19 +82,33 @@ class TransactionList extends AsyncNotifier<List<TransactionModel>> {
     state = await AsyncValue.guard(() async {
       int localId = await DatabaseService().insertTransaction(transaction);
 
+      // Perform background sync without blocking UI
+      _backgroundSyncAdd(transaction.copyWith(id: localId));
+
+      return _fetchAll();
+    });
+  }
+
+  Future<void> _backgroundSyncAdd(TransactionModel transaction) async {
+    try {
       // Notion Sync
       final notionId = await NotionService().syncTransaction(transaction);
       if (notionId != null) {
         // Update local record with Notion ID
         final insertedTx = transaction.copyWith(
-          id: localId,
+          id: transaction.id,
           notionId: notionId,
         );
         await DatabaseService().updateTransaction(insertedTx);
-      }
 
-      return _fetchAll();
-    });
+        // Use ref.read here effectively if we inside the class?
+        // We are in AsyncNotifier, we can update state if we want, but it might trigger rebuilds.
+        // It's better to just update DB. If user refreshes they get it.
+        // Or checking if the item still exists (wasn't deleted)
+      }
+    } catch (e) {
+      print('Background Sync Error: $e');
+    }
   }
 
   Future<void> updateTransaction(TransactionModel transaction) async {
@@ -102,57 +116,53 @@ class TransactionList extends AsyncNotifier<List<TransactionModel>> {
     state = await AsyncValue.guard(() async {
       await DatabaseService().updateTransaction(transaction);
 
-      // Notion Sync Update
+      // Background Sync
+      _backgroundSyncUpdate(transaction);
+
+      return _fetchAll();
+    });
+  }
+
+  Future<void> _backgroundSyncUpdate(TransactionModel transaction) async {
+    try {
       if (transaction.notionId != null) {
         await NotionService().updateTransaction(
           transaction.notionId!,
           transaction,
         );
       }
+    } catch (e) {
+      print('Background Update Error: $e');
+    }
+  }
+
+  Future<void> deleteTransaction(int id, [String? notionId]) async {
+    // Capture the notionId from current state if not provided, BEFORE deleting locally
+    String? targetNotionId = notionId;
+    if (targetNotionId == null && state.hasValue) {
+      final tx = state.value!.firstWhereOrNull((t) => t.id == id);
+      targetNotionId = tx?.notionId;
+    }
+
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await DatabaseService().deleteTransaction(id);
+
+      // Background Sync
+      if (targetNotionId != null) {
+        _backgroundSyncDelete(targetNotionId);
+      }
 
       return _fetchAll();
     });
   }
 
-  Future<void> deleteTransaction(int id, [String? notionId]) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
-      // Helper: if notionId not passed, try to find it (optional optimization)
-      // But typically UI passes ID.
-      // If we don't have the object, we need to fetch it to get notionId.
-      // Or we assume the caller (UI) might not have it.
-      // Let's fetch the transaction first to be safe and get the notionId
-
-      // We can't fetch single easily with current DatabaseService without a new method
-      // But we can just use the provider state if available?
-      // Safer: add method to get by ID in DB service or just filter current state.
-      // Let's rely on Database Service or just query all.
-      // For now, let's optimize: Fetch the Tx before deleting.
-
-      // WAIT: The deleteTransaction(int id) signature only has ID.
-      // We should look it up.
-
-      // Actually, let's just do a quick lookup.
-      // Since we don't have getTransactionById exposed in DatabaseService yet,
-      // let's just blindly delete locally, BUT we need notionId for remote delete.
-      // So checking database first is needed.
-      // However, to avoid modifying DatabaseService again for a single lookup method (though good practice),
-      // we can try to find it in the current loaded state.
-
-      String? targetNotionId = notionId;
-      if (targetNotionId == null && state.hasValue) {
-        final tx = state.value!.firstWhereOrNull((t) => t.id == id);
-        targetNotionId = tx?.notionId;
-      }
-
-      await DatabaseService().deleteTransaction(id);
-
-      if (targetNotionId != null) {
-        await NotionService().deleteTransaction(targetNotionId);
-      }
-
-      return _fetchAll();
-    });
+  Future<void> _backgroundSyncDelete(String notionId) async {
+    try {
+      await NotionService().deleteTransaction(notionId);
+    } catch (e) {
+      print('Background Delete Error: $e');
+    }
   }
 
   Future<void> refresh() async {
