@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/presentation/providers/settings_notifier.dart';
-import 'package:equity_tracker/theme/app_theme.dart';
-import 'package:equity_tracker/presentation/screens/app/splash_screen.dart';
+import 'package:equity_tracker/features/settings/presentation/providers/settings_notifier.dart';
+import 'package:equity_tracker/core/theme/app_theme.dart';
+import 'package:equity_tracker/core/router/app_router.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -15,13 +15,14 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsAsync = ref.watch(settingsNotifierProvider);
     final themeMode = settingsAsync.value?.themeMode ?? ThemeMode.system;
+    final goRouter = ref.watch(goRouterProvider);
 
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'EquityTracker',
       themeMode: themeMode,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      home: const SplashScreen(),
+      routerConfig: goRouter,
       debugShowCheckedModeBanner: false,
     );
   }
