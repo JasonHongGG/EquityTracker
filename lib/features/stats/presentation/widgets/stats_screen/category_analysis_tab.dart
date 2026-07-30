@@ -3,8 +3,8 @@ import 'package:equity_tracker/features/category/domain/category_entity.dart';
 import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/stats/presentation/widgets/category_pie_chart.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_item.dart'; // Reuse for modal
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_pie_chart.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_item.dart'; // Reuse for modal
 import 'package:go_router/go_router.dart';
 
 class CategoryAnalysisTab extends ConsumerWidget {

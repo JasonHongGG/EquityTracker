@@ -7,7 +7,8 @@ import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/settings/presentation/providers/settings_notifier.dart';
 import 'package:equity_tracker/core/widgets/custom_toast.dart';
-import 'package:equity_tracker/features/settings/presentation/widgets/settings_widgets.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/common/settings_section.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/common/settings_tile.dart';
 import 'package:go_router/go_router.dart';
 
 class DataManagementSection extends ConsumerStatefulWidget {

@@ -5,7 +5,8 @@ import 'package:equity_tracker/core/services/database_service.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/core/widgets/custom_toast.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';
-import 'package:equity_tracker/features/settings/presentation/widgets/settings_widgets.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/common/settings_section.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/common/settings_tile.dart';
 
 class DangerZoneSection extends ConsumerWidget {
   const DangerZoneSection({super.key});

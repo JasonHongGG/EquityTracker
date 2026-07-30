@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/settings/presentation/providers/update_notifier.dart';
 import 'package:equity_tracker/core/widgets/app/update_dialog.dart';
 
-import 'package:equity_tracker/features/settings/presentation/widgets/preferences_section.dart';
-import 'package:equity_tracker/features/settings/presentation/widgets/data_management_section.dart';
-import 'package:equity_tracker/features/settings/presentation/widgets/experimental_section.dart';
-import 'package:equity_tracker/features/settings/presentation/widgets/danger_zone_section.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/preferences_section.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/data_management_section.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/experimental_section.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/danger_zone_section.dart';
 
 const currentAppVersion = '1.0.0';
 

@@ -2,22 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingsState {
-  final ThemeMode themeMode;
-  final bool isPrivacyModeEnabled;
-
-  const SettingsState({
-    required this.themeMode,
-    required this.isPrivacyModeEnabled,
-  });
-
-  SettingsState copyWith({ThemeMode? themeMode, bool? isPrivacyModeEnabled}) {
-    return SettingsState(
-      themeMode: themeMode ?? this.themeMode,
-      isPrivacyModeEnabled: isPrivacyModeEnabled ?? this.isPrivacyModeEnabled,
-    );
-  }
-}
+import 'package:equity_tracker/features/settings/presentation/states/settings_state.dart';
 
 class SettingsNotifier extends AsyncNotifier<SettingsState> {
   @override

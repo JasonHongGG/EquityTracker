@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_item.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/date_header.dart';
-import 'package:equity_tracker/features/stats/presentation/widgets/trend_line_chart.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/day_selector.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_item.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/common/date_header.dart';
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_line_chart.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/common/day_selector.dart';
 import 'package:go_router/go_router.dart';
 
 class MonthlyTrendTab extends StatefulWidget {

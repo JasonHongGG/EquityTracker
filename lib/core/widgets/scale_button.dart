@@ -1,10 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class ScaleButton extends StatefulWidget {
   final Widget child;
   final VoidCallback? onTap;
   final VoidCallback? onPressed;
+  final VoidCallback? onLongPress;
   final Duration duration;
   final double scale;
   final bool enableFeedback;
@@ -14,6 +15,7 @@ class ScaleButton extends StatefulWidget {
     required this.child,
     this.onTap,
     this.onPressed,
+    this.onLongPress,
     this.duration = const Duration(milliseconds: 100),
     this.scale = 0.96,
     this.enableFeedback = true,
@@ -50,7 +52,7 @@ class _ScaleButtonState extends State<ScaleButton>
   }
 
   void _onTapDown(TapDownDetails details) {
-    if (widget.onTap != null || widget.onPressed != null) {
+    if (widget.onTap != null || widget.onPressed != null || widget.onLongPress != null) {
       _controller.forward();
       if (widget.enableFeedback) {
         HapticFeedback.selectionClick();
@@ -63,11 +65,13 @@ class _ScaleButtonState extends State<ScaleButton>
     if (callback != null) {
       _controller.reverse();
       callback();
+    } else {
+      _controller.reverse();
     }
   }
 
   void _onTapCancel() {
-    if (widget.onTap != null || widget.onPressed != null) {
+    if (widget.onTap != null || widget.onPressed != null || widget.onLongPress != null) {
       _controller.reverse();
     }
   }
@@ -79,6 +83,7 @@ class _ScaleButtonState extends State<ScaleButton>
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
       onTapCancel: _onTapCancel,
+      onLongPress: widget.onLongPress,
       child: ScaleTransition(scale: _scaleAnimation, child: widget.child),
     );
   }

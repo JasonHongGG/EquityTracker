@@ -6,11 +6,11 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:equity_tracker/core/widgets/search_dialog.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/settings/presentation/providers/settings_notifier.dart'; // Add this import
-import 'package:equity_tracker/features/transaction/presentation/widgets/date_header.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/dashboard_header_delegate.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/month_selector.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/common/date_header.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_list_screen/dashboard_header_delegate.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/common/month_selector.dart';
 import 'package:equity_tracker/core/widgets/custom_month_picker.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_item.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_item.dart';
 import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_transaction_screen.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {

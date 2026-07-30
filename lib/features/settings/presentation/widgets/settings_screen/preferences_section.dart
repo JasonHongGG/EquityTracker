@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/settings/presentation/providers/settings_notifier.dart';
-import 'package:equity_tracker/features/settings/presentation/widgets/settings_widgets.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/common/settings_section.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/common/settings_tile.dart';
 
 class PreferencesSection extends ConsumerWidget {
   const PreferencesSection({super.key});
