@@ -3,8 +3,8 @@ import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:uuid/uuid.dart';
-import '../../core/enums/transaction_type.dart';
-import '../models/category_model.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/data/models/category_model.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper instance = DatabaseHelper._internal();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:function_tree/function_tree.dart';
-import '../../theme/app_colors.dart';
+import 'package:equity_tracker/theme/app_colors.dart';
 
 class CalculatorPad extends StatelessWidget {
   final String value;

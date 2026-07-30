@@ -1,4 +1,4 @@
-﻿import 'package:equity_tracker/core/enums/frequency.dart';
+import 'package:equity_tracker/core/enums/frequency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -7,15 +7,15 @@ import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/presentation/providers/category_notifier.dart';
 import 'package:equity_tracker/presentation/providers/recurring_transaction_notifier.dart';
 import 'package:equity_tracker/theme/app_colors.dart';
-import 'package:equity_tracker/presentation/widgets/category_grid.dart';
-import 'package:equity_tracker/presentation/widgets/calculator_pad.dart';
-import 'package:equity_tracker/presentation/widgets/scale_button.dart';
-import 'package:equity_tracker/presentation/widgets/custom_wheel_picker.dart';
-import 'package:equity_tracker/presentation/widgets/custom_month_day_picker.dart';
-import 'package:equity_tracker/presentation/widgets/custom_time_picker.dart';
+import 'package:equity_tracker/presentation/widgets/category/category_grid.dart';
+import 'package:equity_tracker/presentation/widgets/common/calculator_pad.dart';
+import 'package:equity_tracker/presentation/widgets/common/scale_button.dart';
+import 'package:equity_tracker/presentation/widgets/common/custom_wheel_picker.dart';
+import 'package:equity_tracker/presentation/widgets/common/custom_month_day_picker.dart';
+import 'package:equity_tracker/presentation/widgets/common/custom_time_picker.dart';
 
-import 'category_management_screen.dart';
-import 'package:equity_tracker/presentation/widgets/custom_toast.dart';
+import 'package:equity_tracker/presentation/screens/category/category_management_screen.dart';
+import 'package:equity_tracker/presentation/widgets/common/custom_toast.dart';
 
 class AddEditRecurringTransactionEntityScreen extends ConsumerStatefulWidget {
   final RecurringTransactionEntity? transaction;

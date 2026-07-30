@@ -1,7 +1,7 @@
-﻿import 'dart:math';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'scale_button.dart';
+import 'package:equity_tracker/presentation/widgets/common/scale_button.dart';
 
 Future<TimeOfDay?> showCustomTimePicker({
   required BuildContext context,

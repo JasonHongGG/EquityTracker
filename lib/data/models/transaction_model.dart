@@ -1,5 +1,5 @@
-﻿import '../../domain/entities/transaction_entity.dart';
-import '../../core/enums/transaction_type.dart';
+import 'package:equity_tracker/domain/entities/transaction_entity.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
 
 class TransactionModel extends TransactionEntity {
   const TransactionModel({

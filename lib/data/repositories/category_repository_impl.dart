@@ -1,8 +1,8 @@
-import '../../domain/entities/category_entity.dart';
-import '../../domain/repositories/i_category_repository.dart';
-import '../../core/enums/transaction_type.dart';
-import '../models/category_model.dart';
-import '../datasources/database_helper.dart';
+import 'package:equity_tracker/domain/entities/category_entity.dart';
+import 'package:equity_tracker/domain/repositories/i_category_repository.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/data/models/category_model.dart';
+import 'package:equity_tracker/data/datasources/database_helper.dart';
 import 'package:sqflite/sqflite.dart';
 
 class CategoryRepositoryImpl implements ICategoryRepository {

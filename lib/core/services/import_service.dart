@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../data/models/category_model.dart';
-import '../../data/models/transaction_model.dart';
-import '../../core/enums/transaction_type.dart';
-import 'database_service.dart';
+import 'package:equity_tracker/data/models/category_model.dart';
+import 'package:equity_tracker/data/models/transaction_model.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/core/services/database_service.dart';
 
 class ImportService {
   final DatabaseService _dbService = DatabaseService();

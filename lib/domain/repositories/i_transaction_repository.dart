@@ -1,5 +1,5 @@
-import '../entities/transaction_entity.dart';
-import '../entities/recurring_transaction_entity.dart';
+import 'package:equity_tracker/domain/entities/transaction_entity.dart';
+import 'package:equity_tracker/domain/entities/recurring_transaction_entity.dart';
 
 abstract class ITransactionRepository {
   Future<List<TransactionEntity>> getAllTransactions();

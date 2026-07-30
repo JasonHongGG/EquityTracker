@@ -1,5 +1,5 @@
-﻿import '../entities/category_entity.dart';
-import '../../core/enums/transaction_type.dart';
+import 'package:equity_tracker/domain/entities/category_entity.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
 
 abstract class ICategoryRepository {
   Future<List<CategoryEntity>> getAllCategories();

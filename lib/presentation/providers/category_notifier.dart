@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../core/enums/transaction_type.dart';
-import '../../domain/entities/category_entity.dart';
-import 'repository_providers.dart';
-import 'transaction_notifier.dart'; // To invalidate transaction list
+import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/domain/entities/category_entity.dart';
+import 'package:equity_tracker/presentation/providers/repository_providers.dart';
+import 'package:equity_tracker/presentation/providers/transaction_notifier.dart'; // To invalidate transaction list
 
 class CategoryList extends AsyncNotifier<List<CategoryEntity>> {
   @override

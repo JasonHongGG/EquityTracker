@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,7 +8,7 @@ import 'package:equity_tracker/domain/entities/category_entity.dart';
 import 'package:equity_tracker/presentation/providers/category_notifier.dart';
 import 'package:equity_tracker/theme/app_colors.dart';
 
-import 'scale_button.dart';
+import 'package:equity_tracker/presentation/widgets/common/scale_button.dart';
 
 class TransactionItem extends ConsumerWidget {
   final TransactionEntity transaction;

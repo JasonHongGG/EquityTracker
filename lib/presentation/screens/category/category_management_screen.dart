@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
@@ -6,7 +6,7 @@ import 'package:equity_tracker/domain/entities/category_entity.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/presentation/providers/category_notifier.dart';
 import 'package:equity_tracker/theme/app_colors.dart';
-import 'add_category_screen.dart';
+import 'package:equity_tracker/presentation/screens/category/add_category_screen.dart';
 
 class CategoryManagementScreen extends ConsumerStatefulWidget {
   const CategoryManagementScreen({super.key});

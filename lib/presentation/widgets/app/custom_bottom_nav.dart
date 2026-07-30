@@ -1,7 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:equity_tracker/theme/app_colors.dart';
-import 'glass_container.dart';
+import 'package:equity_tracker/presentation/widgets/common/glass_container.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final int selectedIndex;

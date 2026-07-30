@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../providers/update_notifier.dart';
-import '../../core/services/update_service.dart';
+import 'package:equity_tracker/presentation/providers/update_notifier.dart';
+import 'package:equity_tracker/core/services/update_service.dart';
 
 /// --------------------------------------------------------------------------
 /// Shared Styles & Components

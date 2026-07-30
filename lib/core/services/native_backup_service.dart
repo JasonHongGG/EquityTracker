@@ -1,10 +1,10 @@
 import 'dart:convert';
-import '../../domain/entities/category_entity.dart';
-import '../../domain/entities/transaction_entity.dart';
-import '../../domain/repositories/i_category_repository.dart';
-import '../../domain/repositories/i_transaction_repository.dart';
-import '../../data/models/category_model.dart';
-import '../../data/models/transaction_model.dart';
+import 'package:equity_tracker/domain/entities/category_entity.dart';
+import 'package:equity_tracker/domain/entities/transaction_entity.dart';
+import 'package:equity_tracker/domain/repositories/i_category_repository.dart';
+import 'package:equity_tracker/domain/repositories/i_transaction_repository.dart';
+import 'package:equity_tracker/data/models/category_model.dart';
+import 'package:equity_tracker/data/models/transaction_model.dart';
 import 'package:uuid/uuid.dart';
 
 class BackupRestoreResult {

@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'transaction_list_screen.dart';
-import 'stats_screen.dart';
-import 'recurring_transactions_screen.dart';
-import 'add_edit_transaction_screen.dart';
-import 'package:equity_tracker/presentation/widgets/custom_bottom_nav.dart';
-import 'package:equity_tracker/presentation/widgets/scale_button.dart';
+import 'package:equity_tracker/presentation/screens/transaction/transaction_list_screen.dart';
+import 'package:equity_tracker/presentation/screens/stats/stats_screen.dart';
+import 'package:equity_tracker/presentation/screens/transaction/recurring_transactions_screen.dart';
+import 'package:equity_tracker/presentation/screens/transaction/add_edit_transaction_screen.dart';
+import 'package:equity_tracker/presentation/widgets/app/custom_bottom_nav.dart';
+import 'package:equity_tracker/presentation/widgets/common/scale_button.dart';
 import 'package:equity_tracker/theme/app_colors.dart';
 
 import 'package:equity_tracker/domain/entities/recurring_transaction_entity.dart';
@@ -14,7 +14,7 @@ import 'package:equity_tracker/domain/entities/recurring_transaction_entity.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/presentation/providers/recurring_transaction_notifier.dart';
 import 'package:equity_tracker/presentation/providers/update_notifier.dart';
-import 'package:equity_tracker/presentation/widgets/update_dialog.dart';
+import 'package:equity_tracker/presentation/widgets/app/update_dialog.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});

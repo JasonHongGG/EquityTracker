@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'settings_screen.dart';
+import 'package:equity_tracker/presentation/screens/settings/settings_screen.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:equity_tracker/presentation/widgets/search_dialog.dart';
+import 'package:equity_tracker/presentation/widgets/common/search_dialog.dart';
 import 'package:equity_tracker/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/presentation/providers/settings_notifier.dart'; // Add this import
-import 'package:equity_tracker/presentation/widgets/date_header.dart';
-import 'package:equity_tracker/presentation/widgets/dashboard_header_delegate.dart';
-import 'package:equity_tracker/presentation/widgets/month_selector.dart';
-import 'package:equity_tracker/presentation/widgets/custom_month_picker.dart';
-import 'package:equity_tracker/presentation/widgets/transaction_item.dart';
-import 'add_edit_transaction_screen.dart';
+import 'package:equity_tracker/presentation/widgets/transaction/date_header.dart';
+import 'package:equity_tracker/presentation/widgets/transaction/dashboard_header_delegate.dart';
+import 'package:equity_tracker/presentation/widgets/transaction/month_selector.dart';
+import 'package:equity_tracker/presentation/widgets/common/custom_month_picker.dart';
+import 'package:equity_tracker/presentation/widgets/transaction/transaction_item.dart';
+import 'package:equity_tracker/presentation/screens/transaction/add_edit_transaction_screen.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});

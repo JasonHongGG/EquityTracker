@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/services/update_service.dart';
+import 'package:equity_tracker/core/services/update_service.dart';
 
 /// Provider for UpdateService singleton
 final updateServiceProvider = Provider<UpdateService>((ref) {

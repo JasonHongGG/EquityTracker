@@ -8,8 +8,8 @@ import 'package:equity_tracker/presentation/providers/category_notifier.dart';
 import 'package:equity_tracker/domain/entities/category_entity.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/theme/app_colors.dart';
-import 'add_edit_recurring_transaction_screen.dart';
-import 'settings_screen.dart';
+import 'package:equity_tracker/presentation/screens/transaction/add_edit_recurring_transaction_screen.dart';
+import 'package:equity_tracker/presentation/screens/settings/settings_screen.dart';
 
 class RecurringTransactionEntitysScreen extends ConsumerStatefulWidget {
   const RecurringTransactionEntitysScreen({super.key});

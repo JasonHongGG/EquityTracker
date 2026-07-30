@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/presentation/providers/settings_notifier.dart';
-import 'theme/app_theme.dart';
-import 'package:equity_tracker/presentation/screens/splash_screen.dart';
+import 'package:equity_tracker/theme/app_theme.dart';
+import 'package:equity_tracker/presentation/screens/app/splash_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));

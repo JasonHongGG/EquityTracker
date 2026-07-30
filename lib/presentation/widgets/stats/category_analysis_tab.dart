@@ -1,11 +1,11 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:equity_tracker/domain/entities/category_entity.dart';
 import 'package:equity_tracker/domain/entities/transaction_entity.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'category_pie_chart.dart';
-import '../transaction_item.dart'; // Reuse for modal
-import 'package:equity_tracker/presentation/screens/add_edit_transaction_screen.dart';
+import 'package:equity_tracker/presentation/widgets/stats/category_pie_chart.dart';
+import 'package:equity_tracker/presentation/widgets/transaction/transaction_item.dart'; // Reuse for modal
+import 'package:equity_tracker/presentation/screens/transaction/add_edit_transaction_screen.dart';
 
 class CategoryAnalysisTab extends ConsumerWidget {
   final List<TransactionEntity> transactions;

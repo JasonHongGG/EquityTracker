@@ -1,15 +1,15 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/presentation/providers/category_notifier.dart';
 import 'package:equity_tracker/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/presentation/widgets/stats/monthly_trend_tab.dart';
 import 'package:equity_tracker/presentation/widgets/stats/category_analysis_tab.dart';
 import 'package:equity_tracker/theme/app_colors.dart';
-import 'package:equity_tracker/presentation/widgets/month_selector.dart';
-import 'package:equity_tracker/presentation/widgets/custom_month_picker.dart';
-import 'package:equity_tracker/presentation/widgets/custom_tab_selector.dart';
+import 'package:equity_tracker/presentation/widgets/transaction/month_selector.dart';
+import 'package:equity_tracker/presentation/widgets/common/custom_month_picker.dart';
+import 'package:equity_tracker/presentation/widgets/common/custom_tab_selector.dart';
 
-import 'settings_screen.dart';
+import 'package:equity_tracker/presentation/screens/settings/settings_screen.dart';
 
 class StatsScreen extends ConsumerStatefulWidget {
   const StatsScreen({super.key});

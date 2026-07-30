@@ -1,5 +1,5 @@
-﻿import '../../core/enums/transaction_type.dart';
-import '../../core/enums/frequency.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/core/enums/frequency.dart';
 
 class RecurringTransactionEntity {
   final int? id;

@@ -1,6 +1,6 @@
-﻿import '../../domain/entities/recurring_transaction_entity.dart';
-import '../../core/enums/transaction_type.dart';
-import '../../core/enums/frequency.dart';
+import 'package:equity_tracker/domain/entities/recurring_transaction_entity.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/core/enums/frequency.dart';
 
 class RecurringTransactionModel extends RecurringTransactionEntity {
   const RecurringTransactionModel({

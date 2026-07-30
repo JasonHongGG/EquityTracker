@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/update_notifier.dart';
-import 'home_screen.dart';
+import 'package:equity_tracker/presentation/providers/update_notifier.dart';
+import 'package:equity_tracker/presentation/screens/app/home_screen.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});

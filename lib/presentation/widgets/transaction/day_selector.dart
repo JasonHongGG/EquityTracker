@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:equity_tracker/theme/app_colors.dart';
-import 'custom_day_picker.dart';
+import 'package:equity_tracker/presentation/widgets/common/custom_day_picker.dart';
 
 class DaySelector extends StatelessWidget {
   final int selectedDay;

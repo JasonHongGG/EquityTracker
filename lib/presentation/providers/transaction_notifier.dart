@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:collection/collection.dart';
-import '../../domain/entities/transaction_entity.dart';
-import '../../core/enums/transaction_type.dart';
-import 'repository_providers.dart';
+import 'package:equity_tracker/domain/entities/transaction_entity.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/presentation/providers/repository_providers.dart';
 
 // --- Filter State ---
 class TransactionFilter {

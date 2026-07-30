@@ -1,9 +1,9 @@
-﻿import 'dart:ui';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:equity_tracker/theme/app_colors.dart';
-import 'gradient_card.dart';
+import 'package:equity_tracker/presentation/widgets/common/gradient_card.dart';
 
 class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   final int totalBalance;

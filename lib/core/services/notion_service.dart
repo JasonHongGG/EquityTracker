@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../data/models/transaction_model.dart';
-import '../../data/models/category_model.dart';
-import '../services/database_service.dart';
-import '../../core/enums/transaction_type.dart';
+import 'package:equity_tracker/data/models/transaction_model.dart';
+import 'package:equity_tracker/data/models/category_model.dart';
+import 'package:equity_tracker/core/services/database_service.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
 
 typedef Category = CategoryModel;
 

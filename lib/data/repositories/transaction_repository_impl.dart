@@ -1,10 +1,10 @@
-import '../../domain/entities/transaction_entity.dart';
-import '../../domain/entities/recurring_transaction_entity.dart';
-import '../../domain/repositories/i_transaction_repository.dart';
-import '../models/transaction_model.dart';
-import '../models/recurring_transaction_model.dart';
-import '../datasources/database_helper.dart';
-import '../../core/services/database_service.dart';
+import 'package:equity_tracker/domain/entities/transaction_entity.dart';
+import 'package:equity_tracker/domain/entities/recurring_transaction_entity.dart';
+import 'package:equity_tracker/domain/repositories/i_transaction_repository.dart';
+import 'package:equity_tracker/data/models/transaction_model.dart';
+import 'package:equity_tracker/data/models/recurring_transaction_model.dart';
+import 'package:equity_tracker/data/datasources/database_helper.dart';
+import 'package:equity_tracker/core/services/database_service.dart';
 
 class TransactionRepositoryImpl implements ITransactionRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/enums/transaction_type.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
 
 class CategoryEntity {
   final String id;

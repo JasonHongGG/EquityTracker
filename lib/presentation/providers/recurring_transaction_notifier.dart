@@ -1,7 +1,7 @@
-﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/entities/recurring_transaction_entity.dart';
-import 'repository_providers.dart';
-import 'transaction_notifier.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:equity_tracker/domain/entities/recurring_transaction_entity.dart';
+import 'package:equity_tracker/presentation/providers/repository_providers.dart';
+import 'package:equity_tracker/presentation/providers/transaction_notifier.dart';
 
 final recurringTransactionListProvider =
     AsyncNotifierProvider<
