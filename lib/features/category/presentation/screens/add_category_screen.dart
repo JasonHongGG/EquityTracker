@@ -8,6 +8,8 @@ import 'package:equity_tracker/core/widgets/custom_toast.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_type_selector.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_color_picker.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_icon_picker.dart';
+import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_preview.dart';
+import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_name_input.dart';
 
 class AddCategoryScreen extends ConsumerStatefulWidget {
   final TransactionType? initialType;
@@ -101,30 +103,11 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // 1. Preview
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: _selectedColor,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: _selectedColor.withOpacity(0.4),
-                    blurRadius: 15,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Icon(
-                IconData(
-                  _selectedIconCode,
-                  fontFamily: _selectedFontFamily,
-                  fontPackage: _selectedFontPackage,
-                ),
-                color: Colors.white,
-                size: 32,
-              ),
+            CategoryPreview(
+              color: _selectedColor,
+              iconCode: _selectedIconCode,
+              fontFamily: _selectedFontFamily,
+              fontPackage: _selectedFontPackage,
             ),
             const SizedBox(height: 16),
             
@@ -159,61 +142,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                         const SizedBox(width: 16),
                         Expanded(
                           flex: 3,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'CATEGORY NAME',
-                                style: TextStyle(
-                                  fontFamily: 'Outfit',
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.0,
-                                  color: theme.hintColor,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              TextField(
-                                controller: _nameController,
-                                style: const TextStyle(
-                                  fontFamily: 'Outfit',
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: 'e.g. Groceries',
-                                  hintStyle: TextStyle(
-                                    fontFamily: 'Outfit',
-                                    color: theme.hintColor.withOpacity(0.5),
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                  filled: true,
-                                  fillColor: isDark
-                                      ? Colors.grey[800]!.withOpacity(0.5)
-                                      : Colors.grey[100],
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                    borderSide: BorderSide(
-                                      color: theme.primaryColor,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 16,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          child: CategoryNameInput(controller: _nameController),
                         ),
                       ],
                     ),

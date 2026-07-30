@@ -4,57 +4,35 @@ import 'package:equity_tracker/features/transaction/domain/transaction_entity.da
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_pie_chart.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_item.dart'; // Reuse for modal
 import 'package:go_router/go_router.dart';
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_legend.dart';
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_progress_item.dart';
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_details_modal.dart';
+import 'package:equity_tracker/features/stats/presentation/providers/stats_provider.dart';
 
 class CategoryAnalysisTab extends ConsumerWidget {
-  final List<TransactionEntity> transactions;
-  final List<CategoryEntity> allCategories;
+  final List<TransactionEntity> transactions; // Kept for modal details
 
   const CategoryAnalysisTab({
     super.key,
     required this.transactions,
-    required this.allCategories,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 1. Calculate Totals by CategoryEntity
-    final Map<String, int> categoryTotals = {};
-    int totalExpense = 0;
+    final statsAsync = ref.watch(categoryStatsProvider);
 
-    for (var t in transactions) {
-      // Focus on Expense for analysis? Or both?
-      // Usually "Analysis" is Expense focused. Let's do Expense only for the Chart.
-      if (t.type == TransactionType.expense) {
-        categoryTotals[t.categoryId] =
-            (categoryTotals[t.categoryId] ?? 0) + t.amount;
-        totalExpense += t.amount;
-      }
-    }
+    return statsAsync.when(
+      data: (stats) {
+        if (stats.isEmpty) {
+          return const Center(child: Text('No expense categories'));
+        }
 
-    // 2. Map to Objects
-    final List<MapEntry<CategoryEntity, int>> sortedEntries = [];
-    for (var entry in categoryTotals.entries) {
-      final cat = allCategories.firstWhere(
-        (c) => c.id == entry.key,
-        orElse: () => CategoryEntity(
-          id: 'unknown',
-          name: 'Unknown',
-          iconCodePoint: 0,
-          colorValue: 0xFF9E9E9E,
-          type: TransactionType.expense,
-          isSystem: false,
-          isEnabled: true,
-        ),
-      );
-      sortedEntries.add(MapEntry(cat, entry.value));
-    }
-    sortedEntries.sort((a, b) => b.value.compareTo(a.value));
+        final totalExpense = stats.fold<int>(0, (sum, stat) => sum + stat.totalAmount);
 
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
+        return CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -62,44 +40,12 @@ class CategoryAnalysisTab extends ConsumerWidget {
                 SizedBox(
                   height: 220,
                   child: CategoryPieChart(
-                    data: sortedEntries,
+                    stats: stats,
                     totalAmount: totalExpense,
                   ),
                 ),
                 const SizedBox(height: 16),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: sortedEntries.map((entry) {
-                    final cat = entry.key;
-                    return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: cat.color,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          cat.name,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
-                                ? Colors.white70
-                                : Colors.black87,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    );
-                  }).toList(),
-                ),
+                CategoryLegend(stats: stats),
               ],
             ),
           ),
@@ -107,126 +53,24 @@ class CategoryAnalysisTab extends ConsumerWidget {
 
         SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
-            final entry = sortedEntries[index];
-            final cat = entry.key;
-            final amount = entry.value;
-            final percent = totalExpense > 0 ? (amount / totalExpense) : 0.0;
+            final stat = stats[index];
 
-            return ListTile(
-              leading: CircleAvatar(
-                backgroundColor: cat.color.withOpacity(0.2),
-                child: Icon(cat.iconData, color: cat.color, size: 20),
-              ),
-              title: Text(cat.name),
-              subtitle: LinearProgressIndicator(
-                value: percent.toDouble(),
-                backgroundColor: Colors.grey.withOpacity(0.1),
-                color: cat.color,
-                minHeight: 4,
-                borderRadius: BorderRadius.circular(2),
-              ),
-              trailing: Text(
-                '\$$amount',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
+            return CategoryProgressItem(
+              category: stat.category,
+              amount: stat.totalAmount,
+              percent: stat.percentage,
               onTap: () {
-                _showCategoryDetails(context, cat, transactions);
+                CategoryDetailsModal.show(context, stat.category, transactions);
               },
             );
-          }, childCount: sortedEntries.length),
+          }, childCount: stats.length),
         ),
         const SliverPadding(padding: EdgeInsets.only(bottom: 80)),
       ],
     );
-  }
-
-  void _showCategoryDetails(
-    BuildContext context,
-    CategoryEntity category,
-    List<TransactionEntity> allTransactions,
-  ) {
-    final categoryTransactions =
-        allTransactions.where((t) => t.categoryId == category.id).toList()
-          ..sort((a, b) => a.date.compareTo(b.date));
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          minChildSize: 0.4,
-          maxChildSize: 0.9,
-          builder: (context, scrollController) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    width: 40,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        Icon(category.iconData, color: category.color),
-                        const SizedBox(width: 10),
-                        Text(
-                          category.name,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView.separated(
-                      controller: scrollController,
-                      itemCount: categoryTransactions.length,
-                      separatorBuilder: (_, __) => Divider(
-                        height: 1,
-                        indent: 70,
-                        endIndent: 16,
-                        color: Theme.of(context).dividerColor.withOpacity(0.1),
-                      ),
-                      itemBuilder: (context, index) {
-                        final tx = categoryTransactions[index];
-                        return TransactionItem(
-                          transaction: tx,
-                          onTap: () {
-                            context.push(
-                              '/add-transaction',
-                              extra: {'transaction': tx},
-                            );
-                          },
-                          showDate: true,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
       },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('Error: $err')),
     );
   }
 }

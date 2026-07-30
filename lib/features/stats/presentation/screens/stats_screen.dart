@@ -116,7 +116,6 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
                     // Tab 2: Categories
                     CategoryAnalysisTab(
                       transactions: transactions,
-                      allCategories: categories,
                     ),
                   ],
                 );

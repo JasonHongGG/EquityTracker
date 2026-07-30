@@ -12,8 +12,9 @@ import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/custom_toast.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_header.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_date_selector.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_type_tabs.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_type_tabs.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_footer.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_delete_dialog.dart';
 
 class AddEditTransactionScreen extends ConsumerStatefulWidget {
   final TransactionEntity? transaction;
@@ -194,122 +195,19 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
     Navigator.pop(context);
   }
 
-  void _deleteTransaction() {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        final backgroundColor = isDark ? const Color(0xFF1E1E2C) : Colors.white;
-
-        return Dialog(
-          backgroundColor: backgroundColor,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Container(
-            width: double.maxFinite,
-            constraints: const BoxConstraints(maxWidth: 340),
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.delete_outline_rounded,
-                    color: Colors.red,
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Delete Transaction',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Are you sure you want to delete this transaction?',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontSize: 14,
-                    color: isDark ? Colors.white60 : Colors.black54,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextButton(
-                        onPressed: () => Navigator.pop(ctx),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(
-                            fontFamily: 'Outfit',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white60 : Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (widget.transaction?.id != null) {
-                            ref
-                                .read(transactionListProvider.notifier)
-                                .deleteTransaction(
-                                  widget.transaction!.id!,
-                                  widget.transaction!.notionId,
-                                );
-                          }
-                          Navigator.pop(ctx);
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        child: const Text(
-                          'Delete',
-                          style: TextStyle(
-                            fontFamily: 'Outfit',
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  void _deleteTransaction() async {
+    final shouldDelete = await TransactionDeleteDialog.show(context);
+    if (shouldDelete && widget.transaction?.id != null) {
+      ref
+          .read(transactionListProvider.notifier)
+          .deleteTransaction(
+            widget.transaction!.id!,
+            widget.transaction!.notionId,
+          );
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    }
   }
 
   @override

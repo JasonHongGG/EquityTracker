@@ -13,9 +13,14 @@ import 'package:equity_tracker/core/widgets/scale_button.dart';
 import 'package:equity_tracker/core/widgets/custom_wheel_picker.dart';
 import 'package:equity_tracker/core/widgets/custom_month_day_picker.dart';
 import 'package:equity_tracker/core/widgets/custom_time_picker.dart';
-
 import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/custom_toast.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_type_tabs.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/frequency_selector.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/recurring_transaction_delete_dialog.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/recurring_transaction_footer.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/recurring_transaction_header.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/trigger_date_time_selector.dart';
 
 class AddEditRecurringTransactionEntityScreen extends ConsumerStatefulWidget {
   final RecurringTransactionEntity? transaction;
@@ -380,87 +385,13 @@ class _AddEditRecurringTransactionEntityScreenState
                 ),
               ),
 
-              // --- AMOUNT & TITLE ---
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  children: [
-                    GestureDetector(
-                      onTap: _showCalculatorSheet,
-                      child: IntrinsicWidth(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color:
-                                    (_type == TransactionType.income
-                                            ? AppColors.income
-                                            : AppColors.expense)
-                                        .withOpacity(0.3),
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.baseline,
-                            textBaseline: TextBaseline.alphabetic,
-                            children: [
-                              const Text(
-                                '\$',
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                _amountController.text.isEmpty
-                                    ? '0'
-                                    : _amountController.text,
-                                style: TextStyle(
-                                  fontSize: 64,
-                                  fontWeight: FontWeight.bold,
-                                  color: _type == TransactionType.income
-                                      ? AppColors.income
-                                      : AppColors.expense,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: _titleController,
-                      focusNode: _titleFocusNode,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 24,
-                        color: txtColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      decoration: InputDecoration(
-                        isDense: true,
-                        hintText: 'What is this for?',
-                        hintStyle: TextStyle(
-                          color: Colors.grey.withOpacity(0.5),
-                        ),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                    // Snippet: Suggestion chips could go here if we want to copy the exact logic
-                    // Skipping for brevity, but could add. User focused on "Same UI".
-                  ],
-                ),
+              RecurringTransactionHeader(
+                type: _type,
+                amountController: _amountController,
+                titleController: _titleController,
+                titleFocusNode: _titleFocusNode,
+                onAmountTap: _showCalculatorSheet,
               ),
-              const SizedBox(height: 12),
 
               // --- MAIN CARD ---
               Expanded(
@@ -483,113 +414,18 @@ class _AddEditRecurringTransactionEntityScreenState
                     children: [
                       const SizedBox(height: 16),
 
-                      // --- 1. FREQUENCY SELECTOR (New Setting) ---
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Container(
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: isDark ? Colors.black26 : Colors.grey[100],
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: isDark
-                                  ? Colors.white10
-                                  : Colors.black.withOpacity(0.05),
-                            ),
-                          ),
-                          child: Row(
-                            children: Frequency.values.map((f) {
-                              final isSelected = _frequency == f;
-                              return Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _frequency = f;
-                                      // Re-calculate next date based on new frequency and existing params?
-                                      // Ideally preserving user intent.
-                                      // For now, just keep same nextDueDate time, but snap to rule.
-                                      // Or just let user re-pick trigger.
-                                    });
-                                  },
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 200),
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? (isDark
-                                                ? Colors.white24
-                                                : Colors.white)
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(20),
-                                      boxShadow: isSelected
-                                          ? [
-                                              BoxShadow(
-                                                color: Colors.black12,
-                                                blurRadius: 4,
-                                              ),
-                                            ]
-                                          : [],
-                                    ),
-                                    child: Text(
-                                      f.label,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: isSelected
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                        color: isSelected
-                                            ? txtColor
-                                            : Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
+                      FrequencySelector(
+                        selectedFrequency: _frequency,
+                        onChanged: (f) {
+                          setState(() {
+                            _frequency = f;
+                          });
+                        },
                       ),
 
-                      // --- 2. TRIGGER DATE/TIME SELECTOR ---
-                      GestureDetector(
+                      TriggerDateTimeSelector(
+                        label: _getFrequencyLabel(),
                         onTap: _pickTrigger,
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isDark ? Colors.black26 : Colors.grey[100],
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isDark
-                                  ? Colors.white10
-                                  : Colors.black.withOpacity(0.05),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.access_time_filled_rounded,
-                                size: 18,
-                                color: AppColors.primary,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                _getFrequencyLabel(),
-                                style: TextStyle(
-                                  color: txtColor,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Icon(Icons.arrow_drop_down, color: txtColor),
-                            ],
-                          ),
-                        ),
                       ),
 
                       // --- 3. TYPE TABS & SETTINGS ---
@@ -598,28 +434,14 @@ class _AddEditRecurringTransactionEntityScreenState
                         child: Row(
                           children: [
                             Expanded(
-                              child: Container(
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: isDark
-                                      ? Colors.black26
-                                      : Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  children: [
-                                    _buildTabItem(
-                                      TransactionType.expense,
-                                      'Expense',
-                                      _type == TransactionType.expense,
-                                    ),
-                                    _buildTabItem(
-                                      TransactionType.income,
-                                      'Income',
-                                      _type == TransactionType.income,
-                                    ),
-                                  ],
-                                ),
+                              child: TransactionTypeTabs(
+                                selectedType: _type,
+                                onChanged: (type) {
+                                  setState(() {
+                                    _type = type;
+                                    _selectedCategoryId = null;
+                                  });
+                                },
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -687,45 +509,8 @@ class _AddEditRecurringTransactionEntityScreenState
                         ),
                       ),
 
-                      // --- 5. FOOTER ---
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-                        decoration: BoxDecoration(
-                          color: surfaceColor,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
-                              blurRadius: 10,
-                              offset: const Offset(0, -5),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: ScaleButton(
-                                onPressed: _saveTransaction,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: AppColors.primary,
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: const Text(
-                                    'Save Rule',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                      RecurringTransactionFooter(
+                        onSave: _saveTransaction,
                       ),
                     ],
                   ),
@@ -738,42 +523,7 @@ class _AddEditRecurringTransactionEntityScreenState
     );
   }
 
-  Widget _buildTabItem(TransactionType type, String label, bool isActive) {
-    return Expanded(
-      child: ScaleButton(
-        onPressed: () {
-          if (!isActive)
-            setState(() {
-              _type = type;
-              _selectedCategoryId = null;
-            });
-        },
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: isActive ? Colors.white : Colors.transparent,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: isActive
-                ? [const BoxShadow(color: Colors.black12, blurRadius: 4)]
-                : [],
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: isActive
-                  ? (type == TransactionType.income
-                        ? AppColors.income
-                        : AppColors.expense)
-                  : Colors.grey,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+
 
   void _saveTransaction() {
     int finalAmount = _amount;
@@ -855,31 +605,16 @@ class _AddEditRecurringTransactionEntityScreenState
     );
   }
 
-  void _deleteTransaction() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Rule?'),
-        content: const Text('This will stop future auto-generations.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (widget.transaction?.id != null) {
-                ref
-                    .read(recurringTransactionListProvider.notifier)
-                    .deleteRecurringTransaction(widget.transaction!.id!);
-              }
-              Navigator.pop(context); // close dialog
-              Navigator.pop(context); // close screen
-            },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
+  void _deleteTransaction() async {
+    final shouldDelete = await RecurringTransactionDeleteDialog.show(context);
+    if (shouldDelete && widget.transaction?.id != null) {
+      ref
+          .read(recurringTransactionListProvider.notifier)
+          .deleteRecurringTransaction(widget.transaction!.id!);
+      if (mounted) {
+        Navigator.pop(context);
+        Navigator.pop(context);
+      }
+    }
   }
 }

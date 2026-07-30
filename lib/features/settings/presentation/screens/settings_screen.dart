@@ -7,6 +7,8 @@ import 'package:equity_tracker/features/settings/presentation/widgets/settings_s
 import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/data_management_section.dart';
 import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/experimental_section.dart';
 import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/danger_zone_section.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/already_latest_version_dialog.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/version_display_button.dart';
 
 const currentAppVersion = '1.0.0';
 
@@ -44,55 +46,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     } else {
       await showDialog(
         context: context,
-        builder: (ctx) => Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.check_rounded,
-                    color: Colors.green,
-                    size: 32,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  '已是最新版本',
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '目前使用版本 $currentAppVersion',
-                  style: const TextStyle(
-                    fontFamily: 'Outfit',
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(ctx),
-                    child: const Text('太棒了'),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        builder: (ctx) => const AlreadyLatestVersionDialog(
+          currentAppVersion: currentAppVersion,
         ),
       );
     }
@@ -124,23 +79,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             const DangerZoneSection(),
 
             const SizedBox(height: 20),
-            Center(
-              child: GestureDetector(
-                onTap: _checkForUpdate,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    'Version $currentAppVersion',
-                    style: TextStyle(
-                      color: isDark ? Colors.white38 : Colors.black38,
-                      fontFamily: 'Outfit',
-                    ),
-                  ),
-                ),
-              ),
+            VersionDisplayButton(
+              version: currentAppVersion,
+              onTap: _checkForUpdate,
             ),
           ],
         ),

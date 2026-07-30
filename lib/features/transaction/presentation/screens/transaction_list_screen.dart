@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/settings/presentation/screens/settings_screen.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:equity_tracker/core/widgets/search_dialog.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
-import 'package:equity_tracker/features/settings/presentation/providers/settings_notifier.dart'; // Add this import
-import 'package:equity_tracker/features/transaction/presentation/widgets/common/date_header.dart';
+import 'package:equity_tracker/features/settings/presentation/providers/settings_notifier.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_list_screen/dashboard_header_delegate.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/common/month_selector.dart';
 import 'package:equity_tracker/core/widgets/custom_month_picker.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_item.dart';
-import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_transaction_screen.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_list_screen/daily_transaction_card.dart';
+import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_list_screen/transaction_empty_state.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
@@ -40,6 +37,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final isSearching =
         currentFilter.searchQuery != null &&
         currentFilter.searchQuery!.isNotEmpty;
+        
     // 1. Total Balance & Stats (All Time)
     int totalBalance = 0;
     int totalIncome = 0;
@@ -61,12 +59,6 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     int monthlyIncome = 0;
     int monthlyExpense = 0;
 
-    // Use filtered transactions which already applies the month filter
-    // Note: filteredTransactionsProvider includes category filters if applied.
-    // Ideally "Monthly Stats" should be for the *whole* month regardless of other filters?
-    // Based on user request "Monthly Assets", it usually implies the whole month's context.
-    // However, if the user filters by category, they might want to see stats for that category in that month.
-    // For now, consistent with existing behavior, we use the filtered list.
     if (filteredTransactionsAsync.hasValue) {
       for (var t in filteredTransactionsAsync.value!) {
         if (t.type.name == 'income') {
@@ -124,12 +116,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                       );
                 },
                 onSearch: () {
-                  // Show search dialog
-                  // Show search dialog
                   showDialog(
                     context: context,
                     builder: (context) {
                       return SearchDialog(
+                        subtitle: 'Find transactions by title or note',
                         initialQuery:
                             ref.read(transactionFilterProvider).searchQuery ??
                             '',
@@ -218,9 +209,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           groupedTransactionsAsync.when(
             data: (groupedTransactions) {
               if (groupedTransactions.isEmpty) {
-                return const SliverFillRemaining(
-                  child: Center(child: Text('No transactions recently.')),
-                );
+                return const TransactionEmptyState();
               }
 
               final dates = groupedTransactions.keys.toList();
@@ -229,93 +218,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final date = dates[index];
                   final transactions = groupedTransactions[date]!;
-                  final dayTotal = transactions.fold<int>(
-                    0,
-                    (sum, t) => t.type.name == 'income'
-                        ? sum + t.amount
-                        : sum - t.amount,
-                  );
-
-                  return AnimationConfiguration.staggeredList(
-                    position: index,
-                    duration: const Duration(milliseconds: 375),
-                    child: SlideAnimation(
-                      verticalOffset: 50.0,
-                      child: FadeInAnimation(
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          AddEditTransactionScreen(
-                                            initialDate: date,
-                                          ),
-                                    ),
-                                  );
-                                },
-                                child: DateHeader(
-                                  date: date,
-                                  totalAmount: dayTotal,
-                                ),
-                              ),
-                              for (var i = 0; i < transactions.length; i++) ...[
-                                if (i > 0)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      left: 74,
-                                      right: 16,
-                                    ),
-                                    child: Divider(
-                                      height: 1,
-                                      thickness: 1,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurface
-                                          .withValues(alpha: 0.05),
-                                    ),
-                                  ),
-                                TransactionItem(
-                                  transaction: transactions[i],
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            AddEditTransactionScreen(
-                                              transaction: transactions[i],
-                                            ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                              // Add some bottom padding if needed, or rely on the last item
-                              const SizedBox(height: 8),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                  return DailyTransactionCard(
+                    date: date,
+                    transactions: transactions,
+                    index: index,
                   );
                 }, childCount: dates.length),
               );
@@ -324,7 +230,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
               child: Center(child: CircularProgressIndicator()),
             ),
             error: (e, s) =>
-                SliverFillRemaining(child: Center(child: Text('Error: $e'))),
+                SliverFillRemaining(child: Center(child: Text('Error: \$e'))),
           ),
 
           // Bottom Padding for Nav Bar

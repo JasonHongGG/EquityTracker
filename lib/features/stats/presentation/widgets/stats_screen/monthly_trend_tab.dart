@@ -4,11 +4,15 @@ import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_item.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/common/date_header.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_line_chart.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/common/day_selector.dart';
 import 'package:go_router/go_router.dart';
+import 'package:equity_tracker/features/stats/presentation/providers/stats_provider.dart';
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_legend_item.dart';
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_transaction_list.dart';
 
-class MonthlyTrendTab extends StatefulWidget {
-  final List<TransactionEntity> transactions;
+class MonthlyTrendTab extends ConsumerStatefulWidget {
+  final List<TransactionEntity> transactions; // Kept for list view
   final DateTime month;
 
   const MonthlyTrendTab({
@@ -18,10 +22,10 @@ class MonthlyTrendTab extends StatefulWidget {
   });
 
   @override
-  State<MonthlyTrendTab> createState() => _MonthlyTrendTabState();
+  ConsumerState<MonthlyTrendTab> createState() => _MonthlyTrendTabState();
 }
 
-class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
+class _MonthlyTrendTabState extends ConsumerState<MonthlyTrendTab> {
   int? _selectedDay;
 
   @override
@@ -70,23 +74,15 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Process Data for Chart
-    final daysInMonth = DateTime(
-      widget.month.year,
-      widget.month.month + 1,
-      0,
-    ).day;
-    final Map<int, double> incomeData = {};
-    final Map<int, double> expenseData = {};
+    final trendAsync = ref.watch(monthlyTrendProvider);
 
-    for (var t in widget.transactions) {
-      final day = t.date.day;
-      if (t.type == TransactionType.income) {
-        incomeData[day] = (incomeData[day] ?? 0) + t.amount;
-      } else {
-        expenseData[day] = (expenseData[day] ?? 0) + t.amount;
-      }
-    }
+    return trendAsync.when(
+      data: (trendResult) {
+        final daysInMonth = DateTime(
+          widget.month.year,
+          widget.month.month + 1,
+          0,
+        ).day;
 
     // 2. Filter List based on selection
     // 2. Filter List based on selection
@@ -108,8 +104,8 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
           child: SizedBox(
             height: 180,
             child: TrendLineChart(
-              incomeSpots: incomeData,
-              expenseSpots: expenseData,
+              incomeSpots: trendResult.incomeData,
+              expenseSpots: trendResult.expenseData,
               daysInMonth: daysInMonth,
               month: widget.month, // Pass the month
               selectedDay: _selectedDay,
@@ -129,9 +125,9 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              _TrendLegendItem(color: const Color(0xFF34C759), label: 'Income'),
+              TrendLegendItem(color: const Color(0xFF34C759), label: 'Income'),
               const SizedBox(width: 20),
-              _TrendLegendItem(
+              TrendLegendItem(
                 color: Colors.redAccent.shade200,
                 label: 'Expense',
               ),
@@ -155,118 +151,19 @@ class _MonthlyTrendTabState extends State<MonthlyTrendTab> {
 
         // LIST SECTION
         Expanded(
-          child: _selectedDay == null
-              ? Center(
-                  child: Text(
-                    'Select a day to view transactions',
-                    style: TextStyle(color: Theme.of(context).hintColor),
-                  ),
-                )
-              : selectedTransactions.isEmpty
-              ? Center(
-                  child: Text(
-                    'No transactions',
-                    style: TextStyle(color: Theme.of(context).hintColor),
-                  ),
-                )
-              : ListView(
-                  padding: const EdgeInsets.only(
-                    left: 16,
-                    right: 16,
-                    top: 10,
-                    bottom: 100, // Extra padding for bottom nav
-                  ),
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          DateHeader(
-                            date: DateTime(
-                              widget.month.year,
-                              widget.month.month,
-                              _selectedDay!,
-                            ),
-                            totalAmount: selectedTransactions.fold<int>(
-                              0,
-                              (sum, t) => t.type == TransactionType.income
-                                  ? sum + t.amount
-                                  : sum - t.amount,
-                            ),
-                          ),
-                          for (
-                            var i = 0;
-                            i < selectedTransactions.length;
-                            i++
-                          ) ...[
-                            if (i > 0)
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 74,
-                                  right: 16,
-                                ),
-                                child: Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Theme.of(
-                                    context,
-                                  ).dividerColor.withOpacity(0.1),
-                                ),
-                              ),
-                            TransactionItem(
-                              transaction: selectedTransactions[i],
-                              onTap: () {
-                                context.push(
-                                  '/add-transaction',
-                                  extra: {'transaction': selectedTransactions[i]},
-                                );
-                              },
-                            ),
-                          ],
-                          const SizedBox(height: 8),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+          child: TrendTransactionList(
+            selectedDay: _selectedDay,
+            month: widget.month,
+            transactions: selectedTransactions,
+          ),
         ),
       ],
+    );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('Error: $err')),
     );
   }
 }
 
-class _TrendLegendItem extends StatelessWidget {
-  final Color color;
-  final String label;
 
-  const _TrendLegendItem({required this.color, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-        ),
-      ],
-    );
-  }
-}

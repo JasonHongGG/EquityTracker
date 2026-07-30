@@ -1,14 +1,14 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+import 'package:equity_tracker/features/stats/domain/entities/category_stat_entity.dart';
 
 class CategoryPieChart extends StatefulWidget {
-  final List<MapEntry<CategoryEntity, int>> data; // CategoryEntity -> Amount
+  final List<CategoryStatEntity> stats;
   final int totalAmount;
 
   const CategoryPieChart({
     super.key,
-    required this.data,
+    required this.stats,
     required this.totalAmount,
   });
 
@@ -21,29 +21,29 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.data.isEmpty) {
+    if (widget.stats.isEmpty) {
       return const Center(child: Text('No data'));
     }
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Sort data: largest first
-    final sortedData = List<MapEntry<CategoryEntity, int>>.from(widget.data)
-      ..sort((a, b) => b.value.compareTo(a.value));
+    // Sort data: largest first (usually already sorted by UseCase)
+    final sortedData = List<CategoryStatEntity>.from(widget.stats)
+      ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
 
     final sections = <PieChartSectionData>[];
 
     for (int i = 0; i < sortedData.length; i++) {
-      final entry = sortedData[i];
+      final stat = sortedData[i];
       final isTouched = i == _touchedIndex;
       final fontSize = isTouched ? 16.0 : 12.0;
       final radius = isTouched ? 60.0 : 50.0;
-      final percentage = (entry.value / widget.totalAmount * 100);
+      final percentage = (stat.percentage * 100);
 
       sections.add(
         PieChartSectionData(
-          color: entry.key.color,
-          value: entry.value.toDouble(),
+          color: stat.category.color,
+          value: stat.totalAmount.toDouble(),
           title: '${percentage.toStringAsFixed(1)}%',
           radius: radius,
           titleStyle: TextStyle(

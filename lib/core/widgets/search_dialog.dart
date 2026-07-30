@@ -3,12 +3,16 @@ import 'package:flutter/services.dart';
 // import 'package:equity_tracker/core/theme/app_colors.dart'; // Assuming specific defined colors are needed or I can map them manually if import fails
 
 class SearchDialog extends StatefulWidget {
+  final String title;
+  final String subtitle;
   final String initialQuery;
   final ValueChanged<String> onChanged;
   final VoidCallback onClear;
 
   const SearchDialog({
     super.key,
+    this.title = 'Search',
+    this.subtitle = 'Find items...',
     required this.initialQuery,
     required this.onChanged,
     required this.onClear,
@@ -60,7 +64,7 @@ class _SearchDialogState extends State<SearchDialog> {
           children: [
             // Header
             Text(
-              'Search',
+              widget.title,
               style: TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 24,
@@ -70,7 +74,7 @@ class _SearchDialogState extends State<SearchDialog> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Find transactions by title or note',
+              widget.subtitle,
               style: TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 14,
