@@ -14,7 +14,7 @@ import 'package:equity_tracker/features/transaction/domain/recurring_transaction
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/recurring_transaction_notifier.dart';
 import 'package:equity_tracker/features/settings/presentation/providers/update_notifier.dart';
-import 'package:equity_tracker/core/widgets/app/update_dialog.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/update/update_dialog_helpers.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -50,11 +50,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     
     final updateState = ref.read(updateNotifierProvider);
     if (updateState.hasUpdate && updateState.releaseInfo != null) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const UpdateDialog(),
-      );
+      showUpdateDialog(context);
     }
   }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/settings/presentation/providers/update_notifier.dart';
-import 'package:equity_tracker/core/widgets/app/update_dialog.dart';
+import 'package:equity_tracker/features/settings/presentation/widgets/update/update_dialog_helpers.dart';
 
 import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/preferences_section.dart';
 import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/data_management_section.dart';
