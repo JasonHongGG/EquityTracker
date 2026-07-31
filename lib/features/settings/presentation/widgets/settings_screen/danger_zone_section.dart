@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:equity_tracker/core/services/database_service.dart';
+import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';
@@ -13,8 +13,7 @@ class DangerZoneSection extends ConsumerWidget {
 
   Future<void> _clearAllData(BuildContext context, WidgetRef ref) async {
     try {
-      final db = DatabaseService();
-      await db.clearAllTransactions();
+      await ref.read(transactionRepositoryProvider).clearAllTransactions();
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('last_import_ids');

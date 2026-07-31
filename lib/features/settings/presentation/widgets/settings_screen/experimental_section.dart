@@ -1,8 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:equity_tracker/core/services/import_service.dart';
+import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/features/settings/presentation/widgets/common/settings_section.dart';
@@ -55,8 +56,9 @@ class _ExperimentalSectionState extends ConsumerState<ExperimentalSection> {
         }
 
         final path = result.files.single.path!;
-        final importService = ImportService();
-        final importResult = await importService.importFromJsonFile(path);
+        final file = File(path);
+        final content = await file.readAsString();
+        final importResult = await ref.read(importDataUseCaseProvider).execute(content);
         final insertedIds = importResult.insertedIds;
 
         final prefs = await SharedPreferences.getInstance();
@@ -99,8 +101,9 @@ class _ExperimentalSectionState extends ConsumerState<ExperimentalSection> {
 
   Future<void> _undoImport() async {
     try {
-      final importService = ImportService();
-      await importService.revertImport(_lastImportedIds);
+      for (var id in _lastImportedIds) {
+        await ref.read(transactionRepositoryProvider).deleteTransaction(id);
+      }
 
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('last_import_ids');

@@ -3,6 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/domain/recurring_transaction_entity.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
+import 'package:equity_tracker/features/transaction/domain/process_recurring_transactions_usecase.dart';
+
+final processRecurringTransactionsUseCaseProvider = Provider<ProcessRecurringTransactionsUseCase>((ref) {
+  return ProcessRecurringTransactionsUseCase(ref.watch(transactionRepositoryProvider));
+});
 
 final recurringTransactionListProvider =
     AsyncNotifierProvider<
@@ -46,7 +51,7 @@ class RecurringTransactionListNotifier extends AsyncNotifier<List<RecurringTrans
   }
 
   Future<void> checkAndProcess() async {
-    final generated = await ref.read(transactionRepositoryProvider).checkAndProcessRecurringTransactions();
+    final generated = await ref.read(processRecurringTransactionsUseCaseProvider).execute();
     if (generated) {
       ref.invalidate(transactionListProvider);
       final list = await _fetchExistingRecurringTransactions();

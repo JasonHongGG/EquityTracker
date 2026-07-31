@@ -3,119 +3,76 @@ import 'package:equity_tracker/features/transaction/domain/recurring_transaction
 import 'package:equity_tracker/features/transaction/domain/i_transaction_repository.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
-import 'package:equity_tracker/core/database/database_helper.dart';
-import 'package:equity_tracker/core/services/database_service.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_local_data_source.dart';
 
 class TransactionRepositoryImpl implements ITransactionRepository {
-  final DatabaseHelper _dbHelper = DatabaseHelper.instance;
+  final ITransactionLocalDataSource _localDataSource;
+
+  TransactionRepositoryImpl(this._localDataSource);
 
   @override
   Future<List<TransactionEntity>> getAllTransactions() async {
-    final db = await _dbHelper.database;
-    final maps = await db.query('transactions', orderBy: 'date DESC, id DESC');
-    return maps.map<TransactionEntity>((map) => TransactionModel.fromMap(map)).toList();
+    return await _localDataSource.getAllTransactions();
   }
 
   @override
   Future<List<TransactionEntity>> getTransactionsByDateRange(DateTime start, DateTime end) async {
-    final db = await _dbHelper.database;
-    final maps = await db.query(
-      'transactions',
-      where: 'date >= ? AND date <= ?',
-      whereArgs: [start.toIso8601String(), end.toIso8601String()],
-      orderBy: 'date DESC, id DESC',
-    );
-    return maps.map<TransactionEntity>((map) => TransactionModel.fromMap(map)).toList();
+    return await _localDataSource.getTransactionsByDateRange(start, end);
   }
 
   @override
   Future<int> insertTransaction(TransactionEntity transaction) async {
-    final db = await _dbHelper.database;
-    final model = TransactionModel.fromEntity(transaction);
-    return await db.insert('transactions', model.toMap());
+    return await _localDataSource.insertTransaction(TransactionModel.fromEntity(transaction));
   }
 
   @override
   Future<int> updateTransaction(TransactionEntity transaction) async {
-    final db = await _dbHelper.database;
-    final model = TransactionModel.fromEntity(transaction);
-    return await db.update(
-      'transactions',
-      model.toMap(),
-      where: 'id = ?',
-      whereArgs: [transaction.id],
-    );
+    return await _localDataSource.updateTransaction(TransactionModel.fromEntity(transaction));
   }
 
   @override
   Future<int> deleteTransaction(int id) async {
-    final db = await _dbHelper.database;
-    return await db.delete(
-      'transactions',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await _localDataSource.deleteTransaction(id);
   }
 
   @override
   Future<void> reassignCategory(String oldCategoryId, String newCategoryId) async {
-    final db = await _dbHelper.database;
-    await db.update(
-      'transactions',
-      {'categoryId': newCategoryId},
-      where: 'categoryId = ?',
-      whereArgs: [oldCategoryId],
-    );
-    await db.update(
-      'recurring_transactions',
-      {'categoryId': newCategoryId},
-      where: 'categoryId = ?',
-      whereArgs: [oldCategoryId],
-    );
+    await _localDataSource.reassignCategory(oldCategoryId, newCategoryId);
+  }
+  
+  @override
+  Future<void> clearAllTransactions() async {
+    await _localDataSource.clearAllTransactions();
+  }
+  
+  @override
+  Future<List<String>> getRecentTitles({int limit = 1000}) async {
+    return await _localDataSource.getRecentTitles(limit: limit);
   }
 
   // Recurring Transactions
-
   @override
   Future<List<RecurringTransactionEntity>> getAllRecurringTransactions() async {
-    final db = await _dbHelper.database;
-    final maps = await db.query('recurring_transactions');
-    return maps.map<RecurringTransactionEntity>((map) => RecurringTransactionModel.fromMap(map)).toList();
+    return await _localDataSource.getAllRecurringTransactions();
+  }
+  
+  @override
+  Future<List<RecurringTransactionEntity>> getEnabledRecurringTransactions() async {
+    return await _localDataSource.getEnabledRecurringTransactions();
   }
 
   @override
   Future<int> insertRecurringTransaction(RecurringTransactionEntity transaction) async {
-    final db = await _dbHelper.database;
-    final model = RecurringTransactionModel.fromEntity(transaction);
-    return await db.insert('recurring_transactions', model.toMap());
+    return await _localDataSource.insertRecurringTransaction(RecurringTransactionModel.fromEntity(transaction));
   }
 
   @override
   Future<int> updateRecurringTransaction(RecurringTransactionEntity transaction) async {
-    final db = await _dbHelper.database;
-    final model = RecurringTransactionModel.fromEntity(transaction);
-    return await db.update(
-      'recurring_transactions',
-      model.toMap(),
-      where: 'id = ?',
-      whereArgs: [transaction.id],
-    );
+    return await _localDataSource.updateRecurringTransaction(RecurringTransactionModel.fromEntity(transaction));
   }
 
   @override
   Future<int> deleteRecurringTransaction(int id) async {
-    final db = await _dbHelper.database;
-    return await db.delete(
-      'recurring_transactions',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
-
-  @override
-  Future<bool> checkAndProcessRecurringTransactions() async {
-    // We defer to the proven legacy logic in DatabaseService for now.
-    // In a fully pure clean architecture, we would move that logic here.
-    return await DatabaseService().checkAndProcessRecurringTransactions();
+    return await _localDataSource.deleteRecurringTransaction(id);
   }
 }

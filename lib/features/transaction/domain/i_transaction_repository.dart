@@ -11,8 +11,10 @@ abstract class ITransactionRepository {
   
   // Recurring Transactions
   Future<List<RecurringTransactionEntity>> getAllRecurringTransactions();
+  Future<List<RecurringTransactionEntity>> getEnabledRecurringTransactions();
+  Future<void> clearAllTransactions();
+  Future<List<String>> getRecentTitles({int limit = 1000});
   Future<int> insertRecurringTransaction(RecurringTransactionEntity transaction);
   Future<int> updateRecurringTransaction(RecurringTransactionEntity transaction);
   Future<int> deleteRecurringTransaction(int id);
-  Future<bool> checkAndProcessRecurringTransactions();
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:equity_tracker/core/services/database_service.dart';
-import 'package:equity_tracker/core/services/notion_service.dart';
+import 'package:equity_tracker/core/providers/repository_providers.dart';
+import 'package:equity_tracker/features/category/domain/category_entity.dart';
+import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
@@ -15,7 +16,6 @@ class NotionConfigDialog extends ConsumerStatefulWidget {
 }
 
 class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
-  final _notionService = NotionService();
   late TextEditingController _tokenController;
   late TextEditingController _dbIdController;
   bool _isEnabled = false;
@@ -31,9 +31,10 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
   }
 
   Future<void> _loadConfig() async {
-    final token = await _notionService.token ?? '';
-    final dbId = await _notionService.databaseId ?? '';
-    final isEnabled = await _notionService.isEnabled;
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('notion_token') ?? '';
+    final dbId = prefs.getString('notion_database_id') ?? '';
+    final isEnabled = prefs.getBool('notion_enabled') ?? false;
     if (mounted) {
       setState(() {
         _tokenController.text = token;
@@ -62,7 +63,13 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
       final lastSyncStr = prefs.getString('notion_last_sync_time');
       final DateTime? lastSync = lastSyncStr != null ? DateTime.parse(lastSyncStr) : null;
 
-      final transactions = await _notionService.fetchTransactions(since: lastSync);
+      final categories = List<CategoryEntity>.from(await ref.read(categoryRepositoryProvider).getCategories());
+      final transactions = await ref.read(notionApiClientProvider).fetchTransactions(
+        _tokenController.text.trim(),
+        _dbIdController.text.trim(),
+        categories,
+        since: lastSync,
+      );
 
       if (transactions.isEmpty) {
         if (mounted) {
@@ -73,7 +80,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
       }
 
       final currentTx = ref.read(transactionNotifierProvider).value ?? [];
-      final List<TransactionModel> toInsert = [];
+      final List<TransactionEntity> toInsert = [];
 
       for (final tx in transactions) {
         final exists = currentTx.any(
@@ -101,7 +108,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
 
       final List<int> insertedIds = [];
       for (final tx in toInsert) {
-        final id = await DatabaseService().insertTransaction(tx);
+        final id = await ref.read(transactionRepositoryProvider).insertTransaction(tx);
         insertedIds.add(id);
       }
 
@@ -149,7 +156,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
       final ids = idsStr.map((e) => int.parse(e)).toList();
 
       for (final id in ids) {
-        await DatabaseService().deleteTransaction(id);
+        await ref.read(transactionRepositoryProvider).deleteTransaction(id);
       }
 
       final prevTime = prefs.getString('notion_prev_sync_time');
@@ -449,14 +456,13 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
                           ? null
                           : () async {
                               setState(() => _isVerifying = true);
-                              await _notionService.setCredentials(
-                                _tokenController.text.trim(),
-                                _dbIdController.text.trim(),
-                                _isEnabled,
-                              );
+                              final prefs = await SharedPreferences.getInstance();
+                              await prefs.setString('notion_token', _tokenController.text.trim());
+                              await prefs.setString('notion_database_id', _dbIdController.text.trim());
+                              await prefs.setBool('notion_enabled', _isEnabled);
 
                               if (_isEnabled) {
-                                final success = await _notionService.testConnection();
+                                final success = await ref.read(notionApiClientProvider).testConnection(_tokenController.text.trim(), _dbIdController.text.trim());
                                 if (success) {
                                   if (mounted) {
                                     Navigator.pop(context);

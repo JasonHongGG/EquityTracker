@@ -1,31 +1,37 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:equity_tracker/features/category/data/category_model.dart';
-import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/category/domain/category_entity.dart';
+import 'package:equity_tracker/features/category/domain/i_category_repository.dart';
+import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+import 'package:equity_tracker/features/transaction/domain/i_transaction_repository.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/core/services/database_service.dart';
 
-class ImportService {
-  final DatabaseService _dbService = DatabaseService();
+class ImportResult {
+  final List<int> insertedIds;
+  final int failureCount;
+  final String? lastError;
+
+  ImportResult({
+    required this.insertedIds,
+    required this.failureCount,
+    this.lastError,
+  });
+}
+
+class ImportDataUseCase {
+  final ITransactionRepository _transactionRepository;
+  final ICategoryRepository _categoryRepository;
   final Uuid _uuid = const Uuid();
 
-  Future<ImportResult> importFromJsonFile(String path) async {
-    final file = File(path);
-    if (!await file.exists()) {
-      throw Exception('File not found');
-    }
+  ImportDataUseCase(this._transactionRepository, this._categoryRepository);
 
-    final content = await file.readAsString();
-    final json = jsonDecode(content);
+  Future<ImportResult> execute(String jsonContent) async {
+    final json = jsonDecode(jsonContent);
 
-    if (json is! Map ||
-        !json.containsKey('results') ||
-        json['results'] is! List) {
+    if (json is! Map || !json.containsKey('results') || json['results'] is! List) {
       throw Exception('Invalid JSON format: Missing "results" array');
     }
 
@@ -34,8 +40,8 @@ class ImportService {
     int failureCount = 0;
     String? lastError;
 
-    // Pre-fetch categories
-    final allCategories = await _dbService.getCategories();
+    final allCategoriesList = await _categoryRepository.getCategories();
+    final allCategories = List<CategoryEntity>.from(allCategoriesList);
 
     for (var item in results) {
       if (item is Map) {
@@ -61,18 +67,13 @@ class ImportService {
     );
   }
 
-  Future<int?> _processAndInsertItem(
-    Map item,
-    List<Category> allCategories,
-  ) async {
-    // 1. Extract Fields
+  Future<int?> _processAndInsertItem(Map item, List<CategoryEntity> allCategories) async {
     final amountDynamic = item['金額'];
-    if (amountDynamic == null) return null; // Mandatory field
+    if (amountDynamic == null) return null;
     final amount = (amountDynamic as num).toInt().abs();
 
     final title = item['名稱']?.toString() ?? 'Untitled';
 
-    // Date Parsing
     DateTime date;
     if (item['時間'] != null && item['時間'] is Map) {
       final start = item['時間']['start'];
@@ -90,20 +91,16 @@ class ImportService {
       }
     }
 
-    // Category Logic
     final rawCategory = item['類別']?.toString() ?? '其他';
     final categoryName = rawCategory.trim();
-    Category matchedCategory;
+    CategoryEntity matchedCategory;
 
-    // 1. Try exact match
     try {
       matchedCategory = allCategories.firstWhere((c) => c.name == categoryName);
     } catch (e) {
-      // 2. No match, resolve "其他"
       matchedCategory = await _resolveOtherCategory(allCategories);
     }
 
-    // Type Logic
     TransactionType type;
     final balanceAmount = item['收支金額'];
     if (balanceAmount != null && (balanceAmount as num) < 0) {
@@ -114,7 +111,7 @@ class ImportService {
       type = matchedCategory.type;
     }
 
-    final transaction = TransactionModel(
+    final transaction = TransactionEntity(
       title: title,
       type: type,
       amount: amount,
@@ -124,16 +121,14 @@ class ImportService {
       note: '(匯入資料)',
     );
 
-    return await _dbService.insertTransaction(transaction);
+    return await _transactionRepository.insertTransaction(transaction);
   }
 
-  // Helper for "Other" category resolution
-  Future<Category> _resolveOtherCategory(List<Category> allCategories) async {
+  Future<CategoryEntity> _resolveOtherCategory(List<CategoryEntity> allCategories) async {
     try {
       return allCategories.firstWhere((c) => c.name == '其他');
     } catch (e) {
-      // Create it
-      final newOther = Category(
+      final newOther = CategoryEntity(
         id: _uuid.v4(),
         name: '其他',
         iconCodePoint: FontAwesomeIcons.question.codePoint,
@@ -143,28 +138,11 @@ class ImportService {
         type: TransactionType.expense,
         isSystem: false,
         isEnabled: true,
+        order: allCategories.length,
       );
-      await _dbService.insertCategory(newOther);
+      await _categoryRepository.addCategory(newOther);
       allCategories.add(newOther);
       return newOther;
     }
   }
-
-  Future<void> revertImport(List<int> ids) async {
-    for (var id in ids) {
-      await _dbService.deleteTransaction(id);
-    }
-  }
-}
-
-class ImportResult {
-  final List<int> insertedIds;
-  final int failureCount;
-  final String? lastError;
-
-  ImportResult({
-    required this.insertedIds,
-    required this.failureCount,
-    this.lastError,
-  });
 }
