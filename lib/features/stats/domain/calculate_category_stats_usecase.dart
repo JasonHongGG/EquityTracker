@@ -1,7 +1,7 @@
 import 'package:equity_tracker/features/category/domain/category_entity.dart';
 import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/stats/domain/entities/category_stat_entity.dart';
+import 'package:equity_tracker/features/stats/domain/category_stat_entity.dart';
 
 class CalculateCategoryStatsUseCase {
   List<CategoryStatEntity> execute({

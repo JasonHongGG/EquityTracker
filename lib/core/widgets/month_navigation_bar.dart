@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class MonthSelector extends StatelessWidget {
+class MonthNavigationBar extends StatelessWidget {
   final DateTime selectedDate;
   final VoidCallback onPrevious;
   final VoidCallback onNext;
@@ -13,7 +13,7 @@ class MonthSelector extends StatelessWidget {
   final bool enableSearch;
   final VoidCallback? onSettings;
 
-  const MonthSelector({
+  const MonthNavigationBar({
     super.key,
     required this.selectedDate,
     required this.onPrevious,

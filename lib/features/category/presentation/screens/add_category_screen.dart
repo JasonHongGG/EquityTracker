@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 import 'package:equity_tracker/features/category/domain/category_entity.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
-import 'package:equity_tracker/core/widgets/custom_toast.dart';
+import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_type_selector.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_color_picker.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_icon_picker.dart';

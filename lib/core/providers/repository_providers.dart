@@ -3,8 +3,8 @@ import 'package:equity_tracker/features/category/domain/i_category_repository.da
 import 'package:equity_tracker/features/transaction/domain/i_transaction_repository.dart';
 import 'package:equity_tracker/features/category/data/category_repository_impl.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_repository_impl.dart';
-import 'package:equity_tracker/features/settings/domain/repositories/i_settings_repository.dart';
-import 'package:equity_tracker/features/settings/data/repositories/settings_repository_impl.dart';
+import 'package:equity_tracker/features/settings/domain/i_settings_repository.dart';
+import 'package:equity_tracker/features/settings/data/settings_repository_impl.dart';
 
 final categoryRepositoryProvider = Provider<ICategoryRepository>((ref) {
   return CategoryRepositoryImpl();

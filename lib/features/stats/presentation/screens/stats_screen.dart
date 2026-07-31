@@ -5,9 +5,9 @@ import 'package:equity_tracker/features/transaction/presentation/providers/trans
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/monthly_trend_tab.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_analysis_tab.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/common/month_selector.dart';
-import 'package:equity_tracker/core/widgets/custom_month_picker.dart';
-import 'package:equity_tracker/core/widgets/custom_tab_selector.dart';
+import 'package:equity_tracker/core/widgets/month_navigation_bar.dart';
+import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
+import 'package:equity_tracker/core/widgets/segment_tab_selector.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:equity_tracker/features/settings/presentation/screens/settings_screen.dart';
@@ -53,7 +53,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         titleSpacing: 0,
-        title: MonthSelector(
+        title: MonthNavigationBar(
           onSettings: () {
             context.push('/settings');
           },
@@ -72,9 +72,11 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           onClearSearch: () {},
           enableSearch: false,
           onTitleTap: () async {
-            final newDate = await showCustomMonthPicker(
+            final newDate = await showCustomDateTimePicker(
               context: context,
               initialDate: selectedMonth,
+              showYear: true,
+              showMonth: true,
             );
             if (newDate != null) {
               ref.read(selectedMonthProvider.notifier).update(newDate);

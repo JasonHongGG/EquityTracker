@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/settings/presentation/states/settings_state.dart';
+
 import 'package:equity_tracker/core/providers/repository_providers.dart';
-import 'package:equity_tracker/features/settings/domain/usecases/settings_usecases.dart';
+import 'package:equity_tracker/features/settings/domain/settings_usecases.dart';
 
 final getThemeUseCaseProvider = Provider<GetThemeUseCase>((ref) {
   return GetThemeUseCase(ref.read(settingsRepositoryProvider));
@@ -44,6 +44,23 @@ class SettingsNotifier extends AsyncNotifier<SettingsState> {
     await ref.read(setPrivacyModeUseCaseProvider).execute(enabled);
     state = AsyncValue.data(
       state.value!.copyWith(isPrivacyModeEnabled: enabled),
+    );
+  }
+}
+
+class SettingsState {
+  final ThemeMode themeMode;
+  final bool isPrivacyModeEnabled;
+
+  const SettingsState({
+    required this.themeMode,
+    required this.isPrivacyModeEnabled,
+  });
+
+  SettingsState copyWith({ThemeMode? themeMode, bool? isPrivacyModeEnabled}) {
+    return SettingsState(
+      themeMode: themeMode ?? this.themeMode,
+      isPrivacyModeEnabled: isPrivacyModeEnabled ?? this.isPrivacyModeEnabled,
     );
   }
 }

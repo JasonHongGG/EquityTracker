@@ -4,7 +4,7 @@ import 'package:equity_tracker/features/transaction/domain/transaction_entity.da
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_pie_chart.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_legend.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_progress_item.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_details_modal.dart';

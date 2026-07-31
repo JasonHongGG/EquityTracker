@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
 import 'package:equity_tracker/features/settings/domain/update_entities.dart';
-import 'package:equity_tracker/features/settings/domain/repositories/i_update_repository.dart';
+import 'package:equity_tracker/features/settings/domain/i_update_repository.dart';
 
 class UpdateRepositoryImpl implements IUpdateRepository {
   final Dio _dio = Dio();

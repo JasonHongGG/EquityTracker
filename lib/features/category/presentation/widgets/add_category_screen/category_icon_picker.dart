@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_constants.dart';
+import 'package:equity_tracker/features/category/presentation/constants/category_constants.dart';
 
 class CategoryIconPicker extends StatelessWidget {
   final int selectedIconCode;

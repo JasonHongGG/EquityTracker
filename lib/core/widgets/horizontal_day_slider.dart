@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
-import 'package:equity_tracker/core/widgets/custom_day_picker.dart';
+import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
 
-class DaySelector extends StatelessWidget {
+class HorizontalDaySlider extends StatelessWidget {
   final int selectedDay;
   final int daysInMonth;
   final ValueChanged<int> onDayChanged;
 
-  const DaySelector({
+  const HorizontalDaySlider({
     super.key,
     required this.selectedDay,
     required this.daysInMonth,
@@ -40,13 +40,13 @@ class DaySelector extends StatelessWidget {
           // Day Text
           GestureDetector(
             onTap: () async {
-              final newDay = await showCustomDayPicker(
+              final DateTime? newDate = await showCustomDateTimePicker(
                 context: context,
-                initialDay: selectedDay,
-                daysInMonth: daysInMonth,
+                initialDate: DateTime(DateTime.now().year, DateTime.now().month, selectedDay),
+                showDay: true,
               );
-              if (newDay != null) {
-                _updateDay(newDay);
+              if (newDate != null) {
+                _updateDay(newDate.day);
               }
             },
             child: Container(

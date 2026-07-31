@@ -1,5 +1,5 @@
 import 'package:equity_tracker/features/settings/domain/update_entities.dart';
-import 'package:equity_tracker/features/settings/domain/repositories/i_update_repository.dart';
+import 'package:equity_tracker/features/settings/domain/i_update_repository.dart';
 
 class CheckUpdateUseCase {
   final IUpdateRepository repository;

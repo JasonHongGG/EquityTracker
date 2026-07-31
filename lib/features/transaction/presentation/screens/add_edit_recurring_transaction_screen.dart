@@ -10,11 +10,10 @@ import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/common/category_grid.dart';
 import 'package:equity_tracker/core/widgets/calculator_pad.dart';
 
-import 'package:equity_tracker/core/widgets/custom_wheel_picker.dart';
-import 'package:equity_tracker/core/widgets/custom_month_day_picker.dart';
-import 'package:equity_tracker/core/widgets/custom_time_picker.dart';
+import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
+import 'package:equity_tracker/core/widgets/pickers/string_wheel_picker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:equity_tracker/core/widgets/custom_toast.dart';
+import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/frequency_selector.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/recurring_transaction_delete_dialog.dart';
@@ -214,14 +213,21 @@ class _AddEditRecurringTransactionEntityScreenState
     }
 
     if (_frequency == Frequency.daily) {
-      final TimeOfDay? pickedTime = await showCustomTimePicker(
+      final DateTime? pickedTime = await showCustomDateTimePicker(
         context: context,
-        initialTime: _time,
+        initialDate: DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          _time.hour,
+          _time.minute,
+        ),
+        showTime: true,
       );
       if (pickedTime != null) {
         update(
-          _calculateNextDate(freq: Frequency.daily, time: pickedTime),
-          pickedTime,
+          _calculateNextDate(freq: Frequency.daily, time: TimeOfDay.fromDateTime(pickedTime)),
+          TimeOfDay.fromDateTime(pickedTime),
         );
       }
       return;
@@ -229,7 +235,17 @@ class _AddEditRecurringTransactionEntityScreenState
 
     // Helper to pick time
     Future<TimeOfDay?> pickTime() async {
-      return showCustomTimePicker(context: context, initialTime: _time);
+      return showCustomDateTimePicker(
+        context: context,
+        initialDate: DateTime(
+          DateTime.now().year,
+          DateTime.now().month,
+          DateTime.now().day,
+          _time.hour,
+          _time.minute,
+        ),
+        showTime: true,
+      ).then((dt) => dt != null ? TimeOfDay(hour: dt.hour, minute: dt.minute) : null);
     }
 
     if (_frequency == Frequency.weekly) {
@@ -302,9 +318,11 @@ class _AddEditRecurringTransactionEntityScreenState
 
     if (_frequency == Frequency.yearly) {
       // 1. Pick Date
-      final DateTime? pickedDate = await showCustomMonthDayPicker(
+      final DateTime? pickedDate = await showCustomDateTimePicker(
         context: context,
         initialDate: _nextDueDate,
+        showMonth: true,
+        showDay: true,
       );
       if (pickedDate != null) {
         // 2. Pick Time

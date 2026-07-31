@@ -1,6 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/stats/domain/entities/category_stat_entity.dart';
+import 'package:equity_tracker/features/stats/domain/category_stat_entity.dart';
 
 class CategoryPieChart extends StatefulWidget {
   final List<CategoryStatEntity> stats;

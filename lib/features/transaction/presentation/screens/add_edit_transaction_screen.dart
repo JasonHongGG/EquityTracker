@@ -7,9 +7,9 @@ import 'package:equity_tracker/features/category/presentation/providers/category
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/common/category_grid.dart';
 import 'package:equity_tracker/core/widgets/calculator_pad.dart';
-import 'package:equity_tracker/core/widgets/custom_date_picker_dialog.dart';
+import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:equity_tracker/core/widgets/custom_toast.dart';
+import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_header.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_date_selector.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
@@ -99,20 +99,19 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
   }
 
   Future<void> _pickDate() async {
-    final picked = await showDialog<DateTime>(
+    final DateTime? pickedDate = await showCustomDateTimePicker(
       context: context,
-      builder: (context) => CustomDatePickerDialog(
-        initialDate: _date,
-        firstDate: DateTime(2000),
-        lastDate: DateTime(2100),
-      ),
+      initialDate: _date,
+      showYear: true,
+      showMonth: true,
+      showDay: true,
     );
-    if (picked != null) {
+    if (pickedDate != null) {
       setState(() {
         _date = DateTime(
-          picked.year,
-          picked.month,
-          picked.day,
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
           _date.hour,
           _date.minute,
           _date.second,

@@ -5,8 +5,8 @@ import 'package:equity_tracker/core/widgets/search_dialog.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/settings/presentation/providers/settings_notifier.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_list_screen/dashboard_header_delegate.dart';
-import 'package:equity_tracker/core/widgets/month_selector.dart';
-import 'package:equity_tracker/core/widgets/custom_month_picker.dart';
+import 'package:equity_tracker/core/widgets/month_navigation_bar.dart';
+import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_list_screen/daily_transaction_card.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_list_screen/transaction_empty_state.dart';
 
@@ -81,7 +81,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                 top: MediaQuery.of(context).padding.top,
                 bottom: 0,
               ),
-              child: MonthSelector(
+              child: MonthNavigationBar(
                 selectedDate: selectedMonth,
                 isSearching: isSearching,
                 onSettings: () {
@@ -148,9 +148,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   );
                 },
                 onTitleTap: () async {
-                  final newDate = await showCustomMonthPicker(
+                  final newDate = await showCustomDateTimePicker(
                     context: context,
-                    initialDate: selectedMonth,
+                    initialDate: ref.read(selectedMonthProvider),
+                    showYear: true,
+                    showMonth: true,
                   );
                   if (newDate != null) {
                     ref.read(selectedMonthProvider.notifier).update(newDate);
@@ -193,9 +195,11 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                     );
               },
               onDateTap: () async {
-                final newDate = await showCustomMonthPicker(
+                final newDate = await showCustomDateTimePicker(
                   context: context,
-                  initialDate: selectedMonth,
+                  initialDate: ref.read(selectedMonthProvider),
+                  showYear: true,
+                  showMonth: true,
                 );
                 if (newDate != null) {
                   ref.read(selectedMonthProvider.notifier).update(newDate);

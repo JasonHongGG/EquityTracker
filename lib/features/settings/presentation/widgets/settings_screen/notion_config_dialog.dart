@@ -5,7 +5,7 @@ import 'package:equity_tracker/core/services/database_service.dart';
 import 'package:equity_tracker/core/services/notion_service.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
-import 'package:equity_tracker/core/widgets/custom_toast.dart';
+import 'package:equity_tracker/core/widgets/toast_notification.dart';
 
 class NotionConfigDialog extends ConsumerStatefulWidget {
   const NotionConfigDialog({super.key});

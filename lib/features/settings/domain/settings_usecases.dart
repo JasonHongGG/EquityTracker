@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/settings/domain/repositories/i_settings_repository.dart';
+import 'package:equity_tracker/features/settings/domain/i_settings_repository.dart';
 
 class GetThemeUseCase {
   final ISettingsRepository repository;

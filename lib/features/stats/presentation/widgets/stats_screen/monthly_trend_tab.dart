@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
-import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_item.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/common/date_header.dart';
+
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_line_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/core/widgets/day_selector.dart';
+import 'package:equity_tracker/core/widgets/horizontal_day_slider.dart';
 import 'package:equity_tracker/features/stats/presentation/providers/stats_provider.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_legend_item.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_transaction_list.dart';
@@ -132,7 +130,7 @@ class _MonthlyTrendTabState extends ConsumerState<MonthlyTrendTab> {
               ),
               const Spacer(),
               if (_selectedDay != null)
-                DaySelector(
+                HorizontalDaySlider(
                   selectedDay: _selectedDay!,
                   daysInMonth: daysInMonth,
                   onDayChanged: (day) {

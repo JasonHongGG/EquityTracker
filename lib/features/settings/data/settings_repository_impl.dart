@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:equity_tracker/features/settings/domain/repositories/i_settings_repository.dart';
+import 'package:equity_tracker/features/settings/domain/i_settings_repository.dart';
 
 class SettingsRepositoryImpl implements ISettingsRepository {
   static const String _keyThemeMode = 'themeMode';

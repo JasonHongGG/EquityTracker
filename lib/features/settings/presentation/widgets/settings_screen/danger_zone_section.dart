@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:equity_tracker/core/services/database_service.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
-import 'package:equity_tracker/core/widgets/custom_toast.dart';
+import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 import 'package:equity_tracker/features/settings/presentation/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/presentation/widgets/common/settings_tile.dart';

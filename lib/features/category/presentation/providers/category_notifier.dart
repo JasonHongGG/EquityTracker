@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/category/domain/category_entity.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
-import 'package:equity_tracker/features/category/domain/usecases/category_usecases.dart';
+import 'package:equity_tracker/features/category/domain/category_usecases.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 
 // --- UseCase Providers ---
