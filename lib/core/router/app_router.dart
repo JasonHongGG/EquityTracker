@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/core/screens/splash_screen.dart';
-import 'package:equity_tracker/core/screens/home_screen.dart';
+import 'package:equity_tracker/features/app/presentation/screens/splash_screen.dart';
+import 'package:equity_tracker/features/app/presentation/screens/home_screen.dart';
 import 'package:equity_tracker/features/settings/presentation/screens/settings_screen.dart';
 import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_transaction_screen.dart';
 import 'package:equity_tracker/features/transaction/presentation/screens/recurring_transactions_screen.dart';

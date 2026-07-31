@@ -15,7 +15,7 @@ import 'package:equity_tracker/core/widgets/custom_month_day_picker.dart';
 import 'package:equity_tracker/core/widgets/custom_time_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/custom_toast.dart';
-import 'package:equity_tracker/core/widgets/app/segmented_type_tab.dart';
+import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/frequency_selector.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/recurring_transaction_delete_dialog.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/recurring_transaction_footer.dart';

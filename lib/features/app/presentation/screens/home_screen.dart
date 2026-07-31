@@ -5,7 +5,7 @@ import 'package:equity_tracker/features/transaction/presentation/screens/transac
 import 'package:equity_tracker/features/stats/presentation/screens/stats_screen.dart';
 import 'package:equity_tracker/features/transaction/presentation/screens/recurring_transactions_screen.dart';
 import 'package:go_router/go_router.dart';
-import 'package:equity_tracker/core/widgets/app/custom_bottom_nav.dart';
+import 'package:equity_tracker/features/app/presentation/widgets/custom_bottom_nav.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 
