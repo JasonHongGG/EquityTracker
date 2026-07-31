@@ -1,8 +1,37 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:collection/collection.dart';
 import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
+import 'package:equity_tracker/features/transaction/domain/usecases/transaction_usecases.dart';
+
+// --- UseCase Providers ---
+final getTransactionsUseCaseProvider = Provider<GetTransactionsUseCase>((ref) {
+  return GetTransactionsUseCase(ref.read(transactionRepositoryProvider));
+});
+
+final addTransactionUseCaseProvider = Provider<AddTransactionUseCase>((ref) {
+  return AddTransactionUseCase(ref.read(transactionRepositoryProvider));
+});
+
+final updateTransactionUseCaseProvider = Provider<UpdateTransactionUseCase>((ref) {
+  return UpdateTransactionUseCase(ref.read(transactionRepositoryProvider));
+});
+
+final deleteTransactionUseCaseProvider = Provider<DeleteTransactionUseCase>((ref) {
+  return DeleteTransactionUseCase(ref.read(transactionRepositoryProvider));
+});
+
+final filterTransactionsUseCaseProvider = Provider<FilterTransactionsUseCase>((ref) {
+  return FilterTransactionsUseCase();
+});
+
+final groupTransactionsByDateUseCaseProvider = Provider<GroupTransactionsByDateUseCase>((ref) {
+  return GroupTransactionsByDateUseCase();
+});
+
+final calculateMonthlyTotalsUseCaseProvider = Provider<CalculateMonthlyTotalsUseCase>((ref) {
+  return CalculateMonthlyTotalsUseCase();
+});
 
 // --- Filter State ---
 class TransactionFilter {
@@ -37,7 +66,6 @@ class TransactionFilter {
   }
 }
 
-// --- Filter State Notifier ---
 class TransactionFilterNotifier extends Notifier<TransactionFilter> {
   @override
   TransactionFilter build() => TransactionFilter();
@@ -47,10 +75,9 @@ class TransactionFilterNotifier extends Notifier<TransactionFilter> {
   }
 }
 
-final transactionFilterProvider =
-    NotifierProvider<TransactionFilterNotifier, TransactionFilter>(
-      TransactionFilterNotifier.new,
-    );
+final transactionFilterProvider = NotifierProvider<TransactionFilterNotifier, TransactionFilter>(
+  TransactionFilterNotifier.new,
+);
 
 class SelectedMonthNotifier extends Notifier<DateTime> {
   @override
@@ -65,7 +92,7 @@ final selectedMonthProvider = NotifierProvider<SelectedMonthNotifier, DateTime>(
   SelectedMonthNotifier.new,
 );
 
-// --- Transaction List Notifier ---
+// --- UI Notifier ---
 class TransactionList extends AsyncNotifier<List<TransactionEntity>> {
   @override
   Future<List<TransactionEntity>> build() async {
@@ -73,14 +100,13 @@ class TransactionList extends AsyncNotifier<List<TransactionEntity>> {
   }
 
   Future<List<TransactionEntity>> _fetchAll() async {
-    return await ref.read(transactionRepositoryProvider).getAllTransactions();
+    return await ref.read(getTransactionsUseCaseProvider).execute();
   }
 
   Future<void> addTransaction(TransactionEntity transaction) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(transactionRepositoryProvider).insertTransaction(transaction);
-      // NOTE: Cloud sync logic can be re-added here if needed
+      await ref.read(addTransactionUseCaseProvider).execute(transaction);
       return _fetchAll();
     });
   }
@@ -88,7 +114,7 @@ class TransactionList extends AsyncNotifier<List<TransactionEntity>> {
   Future<void> updateTransaction(TransactionEntity transaction) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(transactionRepositoryProvider).updateTransaction(transaction);
+      await ref.read(updateTransactionUseCaseProvider).execute(transaction);
       return _fetchAll();
     });
   }
@@ -96,7 +122,7 @@ class TransactionList extends AsyncNotifier<List<TransactionEntity>> {
   Future<void> deleteTransaction(int id, [String? notionId]) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(transactionRepositoryProvider).deleteTransaction(id);
+      await ref.read(deleteTransactionUseCaseProvider).execute(id);
       return _fetchAll();
     });
   }
@@ -107,100 +133,48 @@ class TransactionList extends AsyncNotifier<List<TransactionEntity>> {
   }
 }
 
-final transactionListProvider =
-    AsyncNotifierProvider<TransactionList, List<TransactionEntity>>(
-      TransactionList.new,
-    );
+final transactionListProvider = AsyncNotifierProvider<TransactionList, List<TransactionEntity>>(
+  TransactionList.new,
+);
     
-final transactionNotifierProvider = transactionListProvider; // Alias for backward compatibility if needed
+final transactionNotifierProvider = transactionListProvider; 
 
 // --- Derived Providers ---
 
-final filteredTransactionsProvider =
-    Provider<AsyncValue<List<TransactionEntity>>>((ref) {
-      final transactionsAsync = ref.watch(transactionListProvider);
-      final filter = ref.watch(transactionFilterProvider);
-      final selectedMonth = ref.watch(selectedMonthProvider);
+final filteredTransactionsProvider = Provider<AsyncValue<List<TransactionEntity>>>((ref) {
+  final transactionsAsync = ref.watch(transactionListProvider);
+  final filter = ref.watch(transactionFilterProvider);
+  final selectedMonth = ref.watch(selectedMonthProvider);
+  final useCase = ref.watch(filterTransactionsUseCaseProvider);
 
-      return transactionsAsync.whenData((transactions) {
-        return transactions.where((t) {
-          // 1. Type Filter
-          if (filter.type != null && t.type != filter.type) {
-            return false;
-          }
-
-          // 2. Category Filter
-          if (filter.categoryIds.isNotEmpty &&
-              !filter.categoryIds.contains(t.categoryId)) {
-            return false;
-          }
-
-          // 3. Date Range Filter
-          if (filter.startDate != null &&
-              t.date.isBefore(filter.startDate!)) {
-            return false;
-          }
-          if (filter.endDate != null &&
-              t.date.isAfter(filter.endDate!.add(const Duration(days: 1)))) {
-            return false;
-          }
-
-          // 4. Monthly Filter
-          if (filter.startDate == null && filter.endDate == null) {
-            if (t.date.year != selectedMonth.year ||
-                t.date.month != selectedMonth.month) {
-              return false;
-            }
-          }
-
-          // 5. Search Query Filter
-          if (filter.searchQuery != null && filter.searchQuery!.isNotEmpty) {
-            final query = filter.searchQuery!.toLowerCase();
-            final titleMatch = t.title?.toLowerCase().contains(query) ?? false;
-            final noteMatch = t.note?.toLowerCase().contains(query) ?? false;
-            if (!titleMatch && !noteMatch) {
-              return false;
-            }
-          }
-
-          return true;
-        }).toList();
-      });
-    });
-
-final monthlyTotalsProvider = Provider<AsyncValue<Map<TransactionType, int>>>((ref) {
-  final filteredAsync = ref.watch(filteredTransactionsProvider);
-
-  return filteredAsync.whenData((transactions) {
-    int totalIncome = 0;
-    int totalExpense = 0;
-
-    for (var t in transactions) {
-      if (t.type == TransactionType.income) {
-        totalIncome += t.amount;
-      } else {
-        totalExpense += t.amount;
-      }
-    }
-
-    return {
-      TransactionType.income: totalIncome,
-      TransactionType.expense: totalExpense,
-    };
+  return transactionsAsync.whenData((transactions) {
+    return useCase.execute(
+      transactions: transactions,
+      type: filter.type,
+      categoryIds: filter.categoryIds,
+      startDate: filter.startDate,
+      endDate: filter.endDate,
+      selectedMonth: selectedMonth,
+      searchQuery: filter.searchQuery,
+    );
   });
 });
 
-// Helper providers for UI grouping
+final monthlyTotalsProvider = Provider<AsyncValue<Map<TransactionType, int>>>((ref) {
+  final filteredAsync = ref.watch(filteredTransactionsProvider);
+  final useCase = ref.watch(calculateMonthlyTotalsUseCaseProvider);
+
+  return filteredAsync.whenData((transactions) {
+    return useCase.execute(transactions);
+  });
+});
+
 final groupedTransactionsProvider = Provider<AsyncValue<Map<DateTime, List<TransactionEntity>>>>((ref) {
   final filteredAsync = ref.watch(filteredTransactionsProvider);
+  final useCase = ref.watch(groupTransactionsByDateUseCaseProvider);
   
   return filteredAsync.whenData((transactions) {
-    final Map<DateTime, List<TransactionEntity>> grouped = {};
-    for (var tx in transactions) {
-      final date = DateTime(tx.date.year, tx.date.month, tx.date.day);
-      grouped.putIfAbsent(date, () => []).add(tx);
-    }
-    return grouped;
+    return useCase.execute(transactions);
   });
 });
 
@@ -210,7 +184,7 @@ final dailyTotalProvider = Provider.family<AsyncValue<int>, DateTime>((ref, date
     final transactions = grouped[date] ?? [];
     int total = 0;
     for (var tx in transactions) {
-      if (tx.type.name == 'income') {
+      if (tx.type == TransactionType.income) {
         total += tx.amount;
       } else {
         total -= tx.amount;

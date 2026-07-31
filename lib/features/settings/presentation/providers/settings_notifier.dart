@@ -1,22 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:equity_tracker/features/settings/presentation/states/settings_state.dart';
+import 'package:equity_tracker/core/providers/repository_providers.dart';
+import 'package:equity_tracker/features/settings/domain/usecases/settings_usecases.dart';
+
+final getThemeUseCaseProvider = Provider<GetThemeUseCase>((ref) {
+  return GetThemeUseCase(ref.read(settingsRepositoryProvider));
+});
+
+final setThemeUseCaseProvider = Provider<SetThemeUseCase>((ref) {
+  return SetThemeUseCase(ref.read(settingsRepositoryProvider));
+});
+
+final getPrivacyModeUseCaseProvider = Provider<GetPrivacyModeUseCase>((ref) {
+  return GetPrivacyModeUseCase(ref.read(settingsRepositoryProvider));
+});
+
+final setPrivacyModeUseCaseProvider = Provider<SetPrivacyModeUseCase>((ref) {
+  return SetPrivacyModeUseCase(ref.read(settingsRepositoryProvider));
+});
 
 class SettingsNotifier extends AsyncNotifier<SettingsState> {
   @override
   Future<SettingsState> build() async {
-    final prefs = await SharedPreferences.getInstance();
+    final getTheme = ref.read(getThemeUseCaseProvider);
+    final getPrivacy = ref.read(getPrivacyModeUseCaseProvider);
 
-    // Load Theme
-    final themeIndex = prefs.getInt('themeMode');
-    final themeMode = themeIndex == null
-        ? ThemeMode.system
-        : ThemeMode.values[themeIndex];
-
-    // Load Privacy Mode
-    final isPrivacyModeEnabled = prefs.getBool('isPrivacyModeEnabled') ?? false;
+    final themeMode = await getTheme.execute();
+    final isPrivacyModeEnabled = await getPrivacy.execute();
 
     return SettingsState(
       themeMode: themeMode,
@@ -25,16 +36,12 @@ class SettingsNotifier extends AsyncNotifier<SettingsState> {
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('themeMode', mode.index);
-    // Update state
+    await ref.read(setThemeUseCaseProvider).execute(mode);
     state = AsyncValue.data(state.value!.copyWith(themeMode: mode));
   }
 
   Future<void> setPrivacyMode(bool enabled) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isPrivacyModeEnabled', enabled);
-    // Update state
+    await ref.read(setPrivacyModeUseCaseProvider).execute(enabled);
     state = AsyncValue.data(
       state.value!.copyWith(isPrivacyModeEnabled: enabled),
     );

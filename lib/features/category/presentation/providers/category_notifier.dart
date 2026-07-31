@@ -1,12 +1,35 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/category/domain/category_entity.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
-import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart'; // To invalidate transaction list
+import 'package:equity_tracker/features/category/domain/usecases/category_usecases.dart';
+import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 
+// --- UseCase Providers ---
+final getCategoriesUseCaseProvider = Provider<GetCategoriesUseCase>((ref) {
+  return GetCategoriesUseCase(ref.read(categoryRepositoryProvider));
+});
+
+final addCategoryUseCaseProvider = Provider<AddCategoryUseCase>((ref) {
+  return AddCategoryUseCase(ref.read(categoryRepositoryProvider));
+});
+
+final updateCategoryUseCaseProvider = Provider<UpdateCategoryUseCase>((ref) {
+  return UpdateCategoryUseCase(ref.read(categoryRepositoryProvider));
+});
+
+final reorderCategoriesUseCaseProvider = Provider<ReorderCategoriesUseCase>((ref) {
+  return ReorderCategoriesUseCase(ref.read(categoryRepositoryProvider));
+});
+
+final deleteCategoryUseCaseProvider = Provider<DeleteCategoryUseCase>((ref) {
+  return DeleteCategoryUseCase(
+    ref.read(categoryRepositoryProvider),
+    ref.read(transactionRepositoryProvider),
+  );
+});
+
+// --- UI Notifier ---
 class CategoryList extends AsyncNotifier<List<CategoryEntity>> {
   @override
   Future<List<CategoryEntity>> build() async {
@@ -14,13 +37,13 @@ class CategoryList extends AsyncNotifier<List<CategoryEntity>> {
   }
 
   Future<List<CategoryEntity>> _fetchCategories() async {
-    return await ref.read(categoryRepositoryProvider).getAllCategories();
+    return await ref.read(getCategoriesUseCaseProvider).execute();
   }
 
   Future<void> addCategory(CategoryEntity category) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(categoryRepositoryProvider).insertCategory(category);
+      await ref.read(addCategoryUseCaseProvider).execute(category);
       return _fetchCategories();
     });
   }
@@ -28,7 +51,7 @@ class CategoryList extends AsyncNotifier<List<CategoryEntity>> {
   Future<void> updateCategory(CategoryEntity category) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(categoryRepositoryProvider).updateCategory(category);
+      await ref.read(updateCategoryUseCaseProvider).execute(category);
       return _fetchCategories();
     });
   }
@@ -36,50 +59,19 @@ class CategoryList extends AsyncNotifier<List<CategoryEntity>> {
   Future<void> deleteCategory(String id, TransactionType type) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      final repo = ref.read(categoryRepositoryProvider);
-
-      // 1. Find or Create "Other" category
-      final categories = await repo.getAllCategories();
-      CategoryEntity? otherCategory;
-      try {
-        otherCategory = categories.firstWhere(
-          (c) => c.name == '?嗡?' && c.type == type,
-        );
-      } catch (_) {
-        // Not found, create it
-        otherCategory = CategoryEntity(
-          id: const Uuid().v4(),
-          name: '?嗡?',
-          iconCodePoint: FontAwesomeIcons.circleQuestion.codePoint,
-          iconFontFamily: FontAwesomeIcons.circleQuestion.fontFamily,
-          iconFontPackage: FontAwesomeIcons.circleQuestion.fontPackage,
-          colorValue: Colors.grey.value,
-          type: type,
-          isSystem: true,
-          isEnabled: true,
-        );
-        await repo.insertCategory(otherCategory);
-      }
-
-      // 2. Reassign to Other
-      if (id != otherCategory.id) {
-        // Wait, we need reassign logic in TransactionRepository
-        await ref.read(transactionRepositoryProvider).reassignCategory(id, otherCategory.id);
-      }
-
-      // 3. Delete
-      await repo.deleteCategory(id);
-
-      // 4. Invalidate TransactionList to force refresh
+      // Execute cross-domain business logic purely in UseCase layer
+      await ref.read(deleteCategoryUseCaseProvider).execute(id, type);
+      
+      // Invalidate transaction provider so UI refreshes with new assignments
       ref.invalidate(transactionListProvider);
-
+      
       return _fetchCategories();
     });
   }
 
   Future<void> updateOrder(List<CategoryEntity> categories) async {
     state = AsyncValue.data(categories);
-    await ref.read(categoryRepositoryProvider).reorderCategories(categories);
+    await ref.read(reorderCategoriesUseCaseProvider).execute(categories);
   }
 }
 
