@@ -28,6 +28,34 @@ class RecurringTransactionModel {
     this.note = '',
   });
 
+  RecurringTransactionModel copyWith({
+    int? id,
+    String? title,
+    TransactionType? type,
+    int? amount,
+    String? categoryId,
+    Frequency? frequency,
+    DateTime? nextDueDate,
+    DateTime? lastGeneratedDate,
+    bool? isEnabled,
+    DateTime? createdAt,
+    String? note,
+  }) {
+    return RecurringTransactionModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      type: type ?? this.type,
+      amount: amount ?? this.amount,
+      categoryId: categoryId ?? this.categoryId,
+      frequency: frequency ?? this.frequency,
+      nextDueDate: nextDueDate ?? this.nextDueDate,
+      lastGeneratedDate: lastGeneratedDate ?? this.lastGeneratedDate,
+      isEnabled: isEnabled ?? this.isEnabled,
+      createdAt: createdAt ?? this.createdAt,
+      note: note ?? this.note,
+    );
+  }
+
   factory RecurringTransactionModel.fromMap(Map<String, dynamic> map) {
     return RecurringTransactionModel(
       id: map['id'],

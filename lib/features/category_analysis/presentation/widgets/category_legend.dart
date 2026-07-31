@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/stats/domain/category_stat.dart';
+import 'package:equity_tracker/features/category_analysis/domain/category_stat.dart';
 
 class CategoryLegend extends StatelessWidget {
   final List<CategoryStat> stats;

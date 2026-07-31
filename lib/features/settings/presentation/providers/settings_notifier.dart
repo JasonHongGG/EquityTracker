@@ -15,11 +15,10 @@ import 'package:equity_tracker/core/providers/repository_providers.dart';
 class SettingsNotifier extends AsyncNotifier<SettingsState> {
   @override
   Future<SettingsState> build() async {
-    final getTheme = ref.read(getThemeUseCaseProvider);
-    final getPrivacy = ref.read(getPrivacyModeUseCaseProvider);
+    final repo = ref.read(settingsRepositoryProvider);
 
-    final themeMode = await getTheme.execute();
-    final isPrivacyModeEnabled = await getPrivacy.execute();
+    final themeMode = await repo.getThemeMode();
+    final isPrivacyModeEnabled = await repo.isPrivacyModeEnabled();
 
     return SettingsState(
       themeMode: themeMode,
@@ -28,7 +27,7 @@ class SettingsNotifier extends AsyncNotifier<SettingsState> {
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
-    await ref.read(setThemeUseCaseProvider).execute(mode);
+    await ref.read(settingsRepositoryProvider).setThemeMode(mode);
     state = AsyncValue.data(state.value!.copyWith(themeMode: mode));
   }
 

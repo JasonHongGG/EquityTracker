@@ -20,14 +20,14 @@ class NativeBackupService {
   NativeBackupService(this._categoryRepo, this._transactionRepo);
 
   Future<String> createBackupJson() async {
-    final categories = await _categoryRepo.getAllCategories();
-    final transactions = await _transactionRepo.getAllTransactions();
+    final categories = await _categoryRepo.getCategories();
+    final transactions = await _transactionRepo.getTransactions();
 
     final backupData = {
       'version': 1,
       'timestamp': DateTime.now().toIso8601String(),
-      'categories': categories.map((c) => CategoryModel.fromEntity(c).toMap()).toList(),
-      'transactions': transactions.map((t) => TransactionModel.fromEntity(t).toMap()).toList(),
+      'categories': categories.map((c) => c.toMap()).toList(),
+      'transactions': transactions.map((t) => t.toMap()).toList(),
     };
 
     const encoder = JsonEncoder.withIndent('  ');
@@ -44,7 +44,7 @@ class NativeBackupService {
     int categoriesImported = 0;
     int transactionsImported = 0;
 
-    final existingCategories = await _categoryRepo.getAllCategories();
+    final existingCategories = await _categoryRepo.getCategories();
     final Map<String, String> idMapping = {};
 
     for (var catMap in catList) {
@@ -55,7 +55,7 @@ class NativeBackupService {
         if (finalId != null) {
           idMapping[importedCat.id] = finalId;
         } else {
-          await _categoryRepo.insertCategoryModel(importedCat);
+          await _categoryRepo.addCategoryModel(importedCat);
           idMapping[importedCat.id] = importedCat.id;
           categoriesImported++;
         }

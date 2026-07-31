@@ -11,14 +11,14 @@ class GetCategoriesUseCase {
   final CategoryRepository categoryRepository;
   GetCategoriesUseCase(this.categoryRepository);
 
-  Future<List<CategoryModel>> execute() => categoryRepository.getAllCategories();
+  Future<List<CategoryModel>> execute() => categoryRepository.getCategories();
 }
 
 class AddCategoryUseCase {
   final CategoryRepository categoryRepository;
   AddCategoryUseCase(this.categoryRepository);
 
-  Future<void> execute(CategoryModel category) => categoryRepository.insertCategoryModel(category);
+  Future<void> execute(CategoryModel category) => categoryRepository.addCategoryModel(category);
 }
 
 class UpdateCategoryUseCase {
@@ -32,7 +32,7 @@ class ReorderCategoriesUseCase {
   final CategoryRepository categoryRepository;
   ReorderCategoriesUseCase(this.categoryRepository);
 
-  Future<void> execute(List<CategoryModel> categories) => categoryRepository.reorderCategories(categories);
+  Future<void> execute(List<CategoryModel> categories) => categoryRepository.updateCategoryOrder(categories);
 }
 
 class DeleteCategoryUseCase {
@@ -43,7 +43,7 @@ class DeleteCategoryUseCase {
 
   Future<void> execute(String id, TransactionType type) async {
     // 1. Find or Create "Other" category
-    final categories = await categoryRepository.getAllCategories();
+    final categories = await categoryRepository.getCategories();
     CategoryModel? otherCategory;
     
     try {
@@ -63,11 +63,11 @@ class DeleteCategoryUseCase {
         isSystem: true,
         isEnabled: true,
       );
-      await categoryRepository.insertCategoryModel(otherCategory);
+      await categoryRepository.addCategoryModel(otherCategory);
     }
 
     // 2. Reassign to Other
-    if (id != otherCategory.id) {
+    if (id != otherCategory!.id) {
       await transactionRepository.reassignCategoryModel(id, otherCategory.id);
     }
 
