@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/settings/presentation/constants/update_ui_constants.dart';
+import 'package:equity_tracker/features/app_update/presentation/constants/update_ui_constants.dart';
 
 class UpdateStatusDialog extends StatelessWidget {
   final String message;

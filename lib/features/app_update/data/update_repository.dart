@@ -6,7 +6,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart' as permission_handler;
 import 'package:http/http.dart' as http;
-import 'package:equity_tracker/features/settings/domain/update_info.dart';
+import 'package:equity_tracker/features/app_update/domain/update_info.dart';
 
 class UpdateRepository {
   final Dio _dio = Dio();

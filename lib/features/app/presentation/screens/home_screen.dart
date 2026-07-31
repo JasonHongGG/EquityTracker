@@ -13,8 +13,8 @@ import 'package:equity_tracker/core/theme/app_colors.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/recurring_transaction_notifier.dart';
-import 'package:equity_tracker/features/settings/presentation/providers/update_notifier.dart';
-import 'package:equity_tracker/features/settings/presentation/widgets/update/update_dialog_helpers.dart';
+import 'package:equity_tracker/features/app_update/presentation/providers/update_notifier.dart';
+import 'package:equity_tracker/features/app_update/presentation/widgets/update_dialog_helpers.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 

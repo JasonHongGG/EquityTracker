@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/settings/domain/update_info.dart';
-import 'package:equity_tracker/features/settings/data/update_repository.dart';
+import 'package:equity_tracker/features/app_update/domain/update_info.dart';
+import 'package:equity_tracker/features/app_update/data/update_repository.dart';
 
 // --- Repo Provider ---
 final updateRepositoryProvider = Provider<UpdateRepository>((ref) {

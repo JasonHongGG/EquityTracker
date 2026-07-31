@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/settings/presentation/widgets/update/update_status_dialog.dart';
-import 'package:equity_tracker/features/settings/presentation/widgets/update/update_prompt_dialog.dart';
+import 'package:equity_tracker/features/app_update/presentation/widgets/update_status_dialog.dart';
+import 'package:equity_tracker/features/app_update/presentation/widgets/update_prompt_dialog.dart';
 
 /// Helper function to show update dialog
 Future<void> showUpdateDialog(BuildContext context) async {

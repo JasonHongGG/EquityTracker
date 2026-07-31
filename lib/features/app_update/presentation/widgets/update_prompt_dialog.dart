@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:equity_tracker/features/settings/presentation/providers/update_notifier.dart';
+import 'package:equity_tracker/features/app_update/presentation/providers/update_notifier.dart';
 import 'package:equity_tracker/features/settings/data/update_repository_impl.dart';
-import 'package:equity_tracker/features/settings/presentation/constants/update_ui_constants.dart';
-import 'package:equity_tracker/features/settings/presentation/widgets/update/permission_request_dialog.dart';
+import 'package:equity_tracker/features/app_update/presentation/constants/update_ui_constants.dart';
+import 'package:equity_tracker/features/app_update/presentation/widgets/permission_request_dialog.dart';
 
 class UpdatePromptDialog extends ConsumerStatefulWidget {
   const UpdatePromptDialog({super.key});

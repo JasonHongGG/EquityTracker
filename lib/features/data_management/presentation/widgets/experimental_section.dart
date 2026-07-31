@@ -8,7 +8,7 @@ import 'package:equity_tracker/features/transaction/presentation/providers/trans
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/features/settings/presentation/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/presentation/widgets/common/settings_tile.dart';
-import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/notion_config_dialog.dart';
+import 'package:equity_tracker/features/notion_sync/presentation/widgets/notion_config_dialog.dart';
 
 class ExperimentalSection extends ConsumerStatefulWidget {
   const ExperimentalSection({super.key});
