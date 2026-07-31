@@ -1,26 +1,43 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/core/services/update_service.dart';
+import 'package:equity_tracker/features/settings/domain/update_entities.dart';
+import 'package:equity_tracker/features/settings/domain/repositories/i_update_repository.dart';
+import 'package:equity_tracker/features/settings/data/repositories/update_repository_impl.dart';
+import 'package:equity_tracker/features/settings/domain/usecases/update_usecases.dart';
 import 'package:equity_tracker/features/settings/presentation/states/update_state.dart';
 
-/// Provider for UpdateService singleton
-final updateServiceProvider = Provider<UpdateService>((ref) {
-  return UpdateService();
+// --- Repo Provider ---
+final updateRepositoryProvider = Provider<IUpdateRepository>((ref) {
+  return UpdateRepositoryImpl();
 });
 
-/// Notifier class for managing update state using Riverpod 3.x Notifier
+// --- UseCase Providers ---
+final checkUpdateUseCaseProvider = Provider<CheckUpdateUseCase>((ref) {
+  return CheckUpdateUseCase(ref.read(updateRepositoryProvider));
+});
+
+final checkPermissionsUseCaseProvider = Provider<CheckPermissionsUseCase>((ref) {
+  return CheckPermissionsUseCase(ref.read(updateRepositoryProvider));
+});
+
+final downloadUpdateUseCaseProvider = Provider<DownloadUpdateUseCase>((ref) {
+  return DownloadUpdateUseCase(ref.read(updateRepositoryProvider));
+});
+
+final installUpdateUseCaseProvider = Provider<InstallUpdateUseCase>((ref) {
+  return InstallUpdateUseCase(ref.read(updateRepositoryProvider));
+});
+
+// --- Notifier ---
 class UpdateNotifier extends Notifier<UpdateState> {
   @override
   UpdateState build() {
     return const UpdateState();
   }
 
-  UpdateService get _updateService => ref.read(updateServiceProvider);
-
-  /// Check for available updates
   Future<void> checkForUpdate() async {
     state = state.copyWith(isChecking: true, error: null);
 
-    final result = await _updateService.checkForUpdate();
+    final result = await ref.read(checkUpdateUseCaseProvider).execute();
 
     state = state.copyWith(
       isChecking: false,
@@ -30,16 +47,14 @@ class UpdateNotifier extends Notifier<UpdateState> {
     );
   }
 
-  /// Check and request permissions
   Future<PermissionCheckResult> checkPermissions() async {
-    return await _updateService.checkAndRequestPermissions();
+    return await ref.read(checkPermissionsUseCaseProvider).execute();
   }
 
-  /// Download the update
   Future<void> downloadUpdate() async {
     final downloadUrl = state.releaseInfo?.downloadUrl;
     if (downloadUrl == null) {
-      state = state.copyWith(error: '?曆??唬?頛??');
+      state = state.copyWith(error: '找不到下載網址');
       return;
     }
 
@@ -49,7 +64,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
       error: null,
     );
 
-    final result = await _updateService.downloadUpdate(
+    final result = await ref.read(downloadUpdateUseCaseProvider).execute(
       downloadUrl,
       onProgress: (progress) {
         state = state.copyWith(downloadProgress: progress);
@@ -64,34 +79,30 @@ class UpdateNotifier extends Notifier<UpdateState> {
     } else {
       state = state.copyWith(
         isDownloading: false,
-        error: result.error ?? '銝?憭望?',
+        error: result.error ?? '下載失敗',
       );
     }
   }
 
-  /// Install the downloaded update
   Future<bool> installUpdate() async {
     final filePath = state.downloadedFilePath;
     if (filePath == null) {
-      state = state.copyWith(error: '?曆??唬?頛?瑼?');
+      state = state.copyWith(error: '找不到下載的檔案');
       return false;
     }
 
-    return await _updateService.installUpdate(filePath);
+    return await ref.read(installUpdateUseCaseProvider).execute(filePath);
   }
 
-  /// Reset update state
   void reset() {
     state = const UpdateState();
   }
 
-  /// Skip current update check (user chose "Later")
   void skipUpdate() {
     state = state.copyWith(hasUpdate: false);
   }
 }
 
-/// Provider for update state management
 final updateNotifierProvider = NotifierProvider<UpdateNotifier, UpdateState>(
   UpdateNotifier.new,
 );

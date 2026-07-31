@@ -9,13 +9,13 @@ import 'package:equity_tracker/features/transaction/presentation/providers/recur
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/common/category_grid.dart';
 import 'package:equity_tracker/core/widgets/calculator_pad.dart';
-import 'package:equity_tracker/core/widgets/scale_button.dart';
+
 import 'package:equity_tracker/core/widgets/custom_wheel_picker.dart';
 import 'package:equity_tracker/core/widgets/custom_month_day_picker.dart';
 import 'package:equity_tracker/core/widgets/custom_time_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/custom_toast.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_type_tabs.dart';
+import 'package:equity_tracker/core/widgets/app/segmented_type_tab.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/frequency_selector.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/recurring_transaction_delete_dialog.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/recurring_transaction_footer.dart';
@@ -434,7 +434,7 @@ class _AddEditRecurringTransactionEntityScreenState
                         child: Row(
                           children: [
                             Expanded(
-                              child: TransactionTypeTabs(
+                              child: SegmentedTypeTab(
                                 selectedType: _type,
                                 onChanged: (type) {
                                   setState(() {

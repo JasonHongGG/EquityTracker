@@ -33,15 +33,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     const RecurringTransactionEntitysScreen(),
   ];
 
-  Timer? _timer;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    // Initial check
     Future.microtask(() {
-      _checkRecurringTransactionEntitys();
+      ref.read(recurringTransactionListProvider.notifier).checkAndProcess();
       _checkUpdate();
     });
   }
@@ -64,56 +61,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _timer?.cancel();
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _checkRecurringTransactionEntitys();
-    }
-  }
-
-  Future<void> _checkRecurringTransactionEntitys() async {
-    // Check for due recurring transactions.
-    await ref.read(recurringTransactionListProvider.notifier).checkAndProcess();
-
-    // Always schedule next trigger based on current list
-    // This handling ensures that even if no transaction was generated "now",
-    // we still look ahead to schedule the "next" one.
-    final listAsync = ref.read(recurringTransactionListProvider);
-    if (listAsync.hasValue) {
-      _scheduleNextTrigger(listAsync.value!);
-    }
-  }
-
-  /// Schedules a timer for the next upcoming recurring transaction.
-  void _scheduleNextTrigger(List<RecurringTransactionEntity> transactions) {
-    _timer?.cancel();
-
-    final enabled = transactions.where((t) => t.isEnabled).toList();
-    if (enabled.isEmpty) return;
-
-    // Find the earliest due date
-    // Sort by date to find the soonest one
-    enabled.sort((a, b) => a.nextDueDate.compareTo(b.nextDueDate));
-    final earliest = enabled.first;
-
-    final now = DateTime.now();
-    final difference = earliest.nextDueDate.difference(now);
-
-    if (difference.isNegative) {
-      // It's already due (or overdue)
-      // Process immediately
-      _checkRecurringTransactionEntitys();
-    } else {
-      // Schedule for the future
-      // We add 1 second buffer to ensure we are safely past the second mark
-      _timer = Timer(difference + const Duration(seconds: 1), () {
-        _checkRecurringTransactionEntitys();
-      });
-      print('Scheduled next check in: ${difference.inSeconds} seconds');
+      ref.read(recurringTransactionListProvider.notifier).checkAndProcess();
     }
   }
 
@@ -121,18 +75,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     setState(() {
       _selectedIndex = index;
     });
-    // Check on tab switch just in case
-    _checkRecurringTransactionEntitys();
+    ref.read(recurringTransactionListProvider.notifier).checkAndProcess();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Listen for changes in recurring transactions (e.g. user adds new one)
-    // to reschedule the next trigger immediately.
-    ref.listen(recurringTransactionListProvider, (previous, next) {
-      next.whenData(_scheduleNextTrigger);
-    });
-
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(

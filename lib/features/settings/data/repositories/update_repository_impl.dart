@@ -1,76 +1,25 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:equity_tracker/features/settings/domain/update_entities.dart';
+import 'package:equity_tracker/features/settings/domain/repositories/i_update_repository.dart';
 
-/// Current app version - Update this for each release
-const String currentAppVersion = 'v0.0.1';
-
-/// GitHub repository information
-const String githubOwner = 'JasonHongGG';
-const String githubRepo = 'EquityTracker';
-
-/// Model class for GitHub release information
-class ReleaseInfo {
-  final String version;
-  final String? downloadUrl;
-  final String? releaseNotes;
-  final DateTime? publishedAt;
-
-  ReleaseInfo({
-    required this.version,
-    this.downloadUrl,
-    this.releaseNotes,
-    this.publishedAt,
-  });
-
-  factory ReleaseInfo.fromJson(Map<String, dynamic> json) {
-    // Find APK asset in release assets
-    String? apkUrl;
-    final assets = json['assets'] as List<dynamic>?;
-    if (assets != null) {
-      for (final asset in assets) {
-        final name = asset['name'] as String?;
-        if (name != null && name.toLowerCase().endsWith('.apk')) {
-          apkUrl = asset['browser_download_url'] as String?;
-          break;
-        }
-      }
-    }
-
-    return ReleaseInfo(
-      version: json['tag_name'] as String? ?? 'unknown',
-      downloadUrl: apkUrl,
-      releaseNotes: json['body'] as String?,
-      publishedAt: json['published_at'] != null
-          ? DateTime.tryParse(json['published_at'] as String)
-          : null,
-    );
-  }
-}
-
-/// Result class for update check
-class UpdateCheckResult {
-  final bool hasUpdate;
-  final ReleaseInfo? releaseInfo;
-  final String? error;
-
-  UpdateCheckResult({required this.hasUpdate, this.releaseInfo, this.error});
-}
-
-/// Service for handling GitHub-based app updates
-class UpdateService {
+class UpdateRepositoryImpl implements IUpdateRepository {
   final Dio _dio = Dio();
+  
+  static const String currentAppVersion = 'v0.0.1';
+  static const String githubOwner = 'JasonHongGG';
+  static const String githubRepo = 'EquityTracker';
 
-  /// Check for updates from GitHub releases
+  @override
   Future<UpdateCheckResult> checkForUpdate() async {
     try {
-      final url =
-          'https://api.github.com/repos/$githubOwner/$githubRepo/releases/latest';
+      final url = 'https://api.github.com/repos/$githubOwner/$githubRepo/releases/latest';
 
       final response = await http.get(
         Uri.parse(url),
@@ -79,19 +28,33 @@ class UpdateService {
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body) as Map<String, dynamic>;
-        final releaseInfo = ReleaseInfo.fromJson(json);
+        
+        String? apkUrl;
+        final assets = json['assets'] as List<dynamic>?;
+        if (assets != null) {
+          for (final asset in assets) {
+            final name = asset['name'] as String?;
+            if (name != null && name.toLowerCase().endsWith('.apk')) {
+              apkUrl = asset['browser_download_url'] as String?;
+              break;
+            }
+          }
+        }
 
-        final hasUpdate = _isNewerVersion(
-          releaseInfo.version,
-          currentAppVersion,
+        final releaseInfo = ReleaseInfo(
+          version: json['tag_name'] as String? ?? 'unknown',
+          downloadUrl: apkUrl,
+          releaseNotes: json['body'] as String?,
+          publishedAt: json['published_at'] != null ? DateTime.tryParse(json['published_at'] as String) : null,
         );
+
+        final hasUpdate = _isNewerVersion(releaseInfo.version, currentAppVersion);
 
         return UpdateCheckResult(
           hasUpdate: hasUpdate,
           releaseInfo: releaseInfo,
         );
       } else if (response.statusCode == 404) {
-        // No releases found
         return UpdateCheckResult(hasUpdate: false, error: '找不到任何發布版本');
       } else {
         return UpdateCheckResult(
@@ -105,23 +68,14 @@ class UpdateService {
     }
   }
 
-  /// Compare version strings (v1.2.3 format)
   bool _isNewerVersion(String latestVersion, String currentVersion) {
     try {
-      // Remove 'v' prefix if present
       final latest = latestVersion.replaceFirst(RegExp(r'^v'), '');
       final current = currentVersion.replaceFirst(RegExp(r'^v'), '');
 
-      final latestParts = latest
-          .split('.')
-          .map((e) => int.tryParse(e) ?? 0)
-          .toList();
-      final currentParts = current
-          .split('.')
-          .map((e) => int.tryParse(e) ?? 0)
-          .toList();
+      final latestParts = latest.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+      final currentParts = current.split('.').map((e) => int.tryParse(e) ?? 0).toList();
 
-      // Pad with zeros to ensure same length
       while (latestParts.length < 3) latestParts.add(0);
       while (currentParts.length < 3) currentParts.add(0);
 
@@ -129,22 +83,19 @@ class UpdateService {
         if (latestParts[i] > currentParts[i]) return true;
         if (latestParts[i] < currentParts[i]) return false;
       }
-      return false; // Same version
+      return false;
     } catch (e) {
       debugPrint('Version comparison error: $e');
       return false;
     }
   }
 
-  /// Check required permissions (does NOT auto-request, just checks status)
+  @override
   Future<PermissionCheckResult> checkAndRequestPermissions() async {
-    // For Android 8.0+, we need install packages permission
     if (Platform.isAndroid) {
-      // Check install unknown apps permission - only check status, don't request
       final installStatus = await Permission.requestInstallPackages.status;
 
       if (!installStatus.isGranted) {
-        // Return immediately with permission info - let UI show dialog first
         return PermissionCheckResult(
           granted: false,
           permissionType: PermissionType.installPackages,
@@ -152,8 +103,7 @@ class UpdateService {
         );
       }
 
-      // For older Android versions, check storage permission
-      final sdkInt = await _getAndroidSdkVersion();
+      final sdkInt = 30; // Mocked for simplicity
       if (sdkInt < 29) {
         final storageStatus = await Permission.storage.status;
         if (!storageStatus.isGranted) {
@@ -165,27 +115,12 @@ class UpdateService {
         }
       }
     }
-
     return PermissionCheckResult(granted: true);
   }
 
-  /// Get Android SDK version
-  Future<int> _getAndroidSdkVersion() async {
+  @override
+  Future<DownloadResult> downloadUpdate(String downloadUrl, {void Function(double)? onProgress}) async {
     try {
-      // Default to a high version for newer Android
-      return 30;
-    } catch (e) {
-      return 30;
-    }
-  }
-
-  /// Download APK file with progress callback
-  Future<DownloadResult> downloadUpdate(
-    String downloadUrl, {
-    void Function(double progress)? onProgress,
-  }) async {
-    try {
-      // Get download directory
       final directory = await getExternalStorageDirectory();
       if (directory == null) {
         return DownloadResult(success: false, error: '無法取得下載目錄');
@@ -193,13 +128,11 @@ class UpdateService {
 
       final filePath = '${directory.path}/EquityTracker_update.apk';
 
-      // Delete old APK if exists
       final oldFile = File(filePath);
       if (await oldFile.exists()) {
         await oldFile.delete();
       }
 
-      // Download with progress
       await _dio.download(
         downloadUrl,
         filePath,
@@ -217,7 +150,7 @@ class UpdateService {
     }
   }
 
-  /// Install the downloaded APK
+  @override
   Future<bool> installUpdate(String filePath) async {
     try {
       final result = await OpenFilex.open(filePath);
@@ -228,33 +161,8 @@ class UpdateService {
     }
   }
 
-  /// Open app settings for permission configuration
+  @override
   Future<bool> openAppSettings() async {
     return await openAppSettings();
   }
-}
-
-/// Result class for permission check
-class PermissionCheckResult {
-  final bool granted;
-  final PermissionType? permissionType;
-  final String? message;
-
-  PermissionCheckResult({
-    required this.granted,
-    this.permissionType,
-    this.message,
-  });
-}
-
-/// Types of permissions that may be needed
-enum PermissionType { storage, installPackages }
-
-/// Result class for download operation
-class DownloadResult {
-  final bool success;
-  final String? filePath;
-  final String? error;
-
-  DownloadResult({required this.success, this.filePath, this.error});
 }

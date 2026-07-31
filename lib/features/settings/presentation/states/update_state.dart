@@ -1,4 +1,4 @@
-import 'package:equity_tracker/core/services/update_service.dart';
+import 'package:equity_tracker/features/settings/domain/update_entities.dart';
 
 /// State class for update checking process
 class UpdateState {

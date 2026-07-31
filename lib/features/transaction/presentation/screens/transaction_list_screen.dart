@@ -5,7 +5,7 @@ import 'package:equity_tracker/core/widgets/search_dialog.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/settings/presentation/providers/settings_notifier.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_list_screen/dashboard_header_delegate.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/common/month_selector.dart';
+import 'package:equity_tracker/core/widgets/app/month_selector.dart';
 import 'package:equity_tracker/core/widgets/custom_month_picker.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_list_screen/daily_transaction_card.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/transaction_list_screen/transaction_empty_state.dart';

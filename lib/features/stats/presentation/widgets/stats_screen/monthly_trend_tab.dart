@@ -5,8 +5,7 @@ import 'package:equity_tracker/features/transaction/presentation/widgets/common/
 import 'package:equity_tracker/features/transaction/presentation/widgets/common/date_header.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_line_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/common/day_selector.dart';
-import 'package:go_router/go_router.dart';
+import 'package:equity_tracker/core/widgets/app/day_selector.dart';
 import 'package:equity_tracker/features/stats/presentation/providers/stats_provider.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_legend_item.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_transaction_list.dart';

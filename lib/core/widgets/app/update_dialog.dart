@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:equity_tracker/features/settings/presentation/providers/update_notifier.dart';
-import 'package:equity_tracker/core/services/update_service.dart';
+import 'package:equity_tracker/features/settings/domain/update_entities.dart';
 
 /// --------------------------------------------------------------------------
 /// Shared Styles & Components

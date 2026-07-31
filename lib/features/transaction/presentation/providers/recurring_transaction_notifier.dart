@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/domain/recurring_transaction_entity.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
@@ -10,9 +11,16 @@ final recurringTransactionListProvider =
     >(RecurringTransactionListNotifier.new);
 
 class RecurringTransactionListNotifier extends AsyncNotifier<List<RecurringTransactionEntity>> {
+  Timer? _timer;
+
   @override
   Future<List<RecurringTransactionEntity>> build() async {
-    return _fetchExistingRecurringTransactions();
+    ref.onDispose(() {
+      _timer?.cancel();
+    });
+    final list = await _fetchExistingRecurringTransactions();
+    _scheduleNextTrigger(list);
+    return list;
   }
 
   Future<List<RecurringTransactionEntity>> _fetchExistingRecurringTransactions() async {
@@ -38,12 +46,33 @@ class RecurringTransactionListNotifier extends AsyncNotifier<List<RecurringTrans
   }
 
   Future<void> checkAndProcess() async {
-    // This is business logic that evaluates if nextDueDate has passed and generates regular transactions.
     final generated = await ref.read(transactionRepositoryProvider).checkAndProcessRecurringTransactions();
     if (generated) {
-      ref.invalidateSelf();
       ref.invalidate(transactionListProvider);
-      await future;
+      final list = await _fetchExistingRecurringTransactions();
+      state = AsyncValue.data(list);
+      _scheduleNextTrigger(list);
+    }
+  }
+
+  void _scheduleNextTrigger(List<RecurringTransactionEntity> transactions) {
+    _timer?.cancel();
+
+    final enabled = transactions.where((t) => t.isEnabled).toList();
+    if (enabled.isEmpty) return;
+
+    enabled.sort((a, b) => a.nextDueDate.compareTo(b.nextDueDate));
+    final earliest = enabled.first;
+
+    final now = DateTime.now();
+    final difference = earliest.nextDueDate.difference(now);
+
+    if (difference.isNegative) {
+      checkAndProcess();
+    } else {
+      _timer = Timer(difference + const Duration(seconds: 1), () {
+        checkAndProcess();
+      });
     }
   }
 }

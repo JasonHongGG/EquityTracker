@@ -12,7 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/custom_toast.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_header.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_date_selector.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_type_tabs.dart';
+import 'package:equity_tracker/core/widgets/app/segmented_type_tab.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_footer.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_delete_dialog.dart';
 
@@ -293,7 +293,7 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
                         child: Row(
                           children: [
                             Expanded(
-                              child: TransactionTypeTabs(
+                              child: SegmentedTypeTab(
                                 selectedType: _type,
                                 onChanged: (type) {
                                   setState(() {

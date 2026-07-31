@@ -3,11 +3,11 @@ import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 
-class TransactionTypeTabs extends StatelessWidget {
+class SegmentedTypeTab extends StatelessWidget {
   final TransactionType selectedType;
   final ValueChanged<TransactionType> onChanged;
 
-  const TransactionTypeTabs({
+  const SegmentedTypeTab({
     super.key,
     required this.selectedType,
     required this.onChanged,
