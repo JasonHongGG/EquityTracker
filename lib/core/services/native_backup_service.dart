@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
-import 'package:equity_tracker/features/category/domain/i_category_repository.dart';
-import 'package:equity_tracker/features/transaction/domain/i_transaction_repository.dart';
+
+
+import 'package:equity_tracker/features/category/data/category_repository.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_repository.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:uuid/uuid.dart';
@@ -14,8 +14,8 @@ class BackupRestoreResult {
 }
 
 class NativeBackupService {
-  final ICategoryRepository _categoryRepo;
-  final ITransactionRepository _transactionRepo;
+  final CategoryRepository _categoryRepo;
+  final TransactionRepository _transactionRepo;
 
   NativeBackupService(this._categoryRepo, this._transactionRepo);
 
@@ -55,7 +55,7 @@ class NativeBackupService {
         if (finalId != null) {
           idMapping[importedCat.id] = finalId;
         } else {
-          await _categoryRepo.insertCategory(importedCat);
+          await _categoryRepo.insertCategoryModel(importedCat);
           idMapping[importedCat.id] = importedCat.id;
           categoriesImported++;
         }
@@ -90,7 +90,7 @@ class NativeBackupService {
     return BackupRestoreResult(categoriesImported, transactionsImported);
   }
 
-  String? _findMatchingCategoryId(CategoryEntity imported, List<CategoryEntity> existing) {
+  String? _findMatchingCategoryId(CategoryModel imported, List<CategoryModel> existing) {
     for (var e in existing) {
       if (e.id == imported.id) return e.id;
     }

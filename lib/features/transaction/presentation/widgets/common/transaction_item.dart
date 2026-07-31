@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 
 import 'package:equity_tracker/core/widgets/scale_button.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class TransactionItem extends ConsumerWidget {
-  final TransactionEntity transaction;
+  final TransactionModel transaction;
   final VoidCallback? onTap;
   final bool showDate;
 
@@ -28,7 +30,7 @@ class TransactionItem extends ConsumerWidget {
 
     final category = categoriesAsync.asData?.value.firstWhere(
       (c) => c.id == transaction.categoryId,
-      orElse: () => CategoryEntity(
+      orElse: () => CategoryModel(
         id: 'unknown',
         name: 'Unknown',
         iconCodePoint: FontAwesomeIcons.question.codePoint,

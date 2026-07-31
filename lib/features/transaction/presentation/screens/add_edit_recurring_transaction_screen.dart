@@ -2,7 +2,7 @@ import 'package:equity_tracker/core/enums/frequency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:equity_tracker/features/transaction/domain/recurring_transaction_entity.dart';
+
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/recurring_transaction_notifier.dart';
@@ -20,19 +20,21 @@ import 'package:equity_tracker/features/transaction/presentation/widgets/add_edi
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/recurring_transaction_footer.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/recurring_transaction_header.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_recurring_transaction_screen/trigger_date_time_selector.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 
-class AddEditRecurringTransactionEntityScreen extends ConsumerStatefulWidget {
-  final RecurringTransactionEntity? transaction;
+class AddEditRecurringTransactionModelScreen extends ConsumerStatefulWidget {
+  final RecurringTransactionModel? transaction;
 
-  const AddEditRecurringTransactionEntityScreen({super.key, this.transaction});
+  const AddEditRecurringTransactionModelScreen({super.key, this.transaction});
 
   @override
-  ConsumerState<AddEditRecurringTransactionEntityScreen> createState() =>
-      _AddEditRecurringTransactionEntityScreenState();
+  ConsumerState<AddEditRecurringTransactionModelScreen> createState() =>
+      _AddEditRecurringTransactionModelScreenState();
 }
 
-class _AddEditRecurringTransactionEntityScreenState
-    extends ConsumerState<AddEditRecurringTransactionEntityScreen> {
+class _AddEditRecurringTransactionModelScreenState
+    extends ConsumerState<AddEditRecurringTransactionModelScreen> {
   late TransactionType _type;
   late Frequency _frequency;
   late DateTime _nextDueDate; // Stores the next trigger
@@ -566,7 +568,7 @@ class _AddEditRecurringTransactionEntityScreenState
     // Default title if empty
     final finalTitle = title.isEmpty ? _frequency.label : title;
 
-    final newTx = RecurringTransactionEntity(
+    final newTx = RecurringTransactionModel(
       id: widget.transaction?.id,
       title: finalTitle,
       amount: finalAmount,

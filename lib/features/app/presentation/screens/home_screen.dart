@@ -9,12 +9,14 @@ import 'package:equity_tracker/features/app/presentation/widgets/main_bottom_nav
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 
-import 'package:equity_tracker/features/transaction/domain/recurring_transaction_entity.dart';
+
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/recurring_transaction_notifier.dart';
 import 'package:equity_tracker/features/settings/presentation/providers/update_notifier.dart';
 import 'package:equity_tracker/features/settings/presentation/widgets/update/update_dialog_helpers.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -30,7 +32,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   static final List<Widget> _pages = <Widget>[
     const TransactionListScreen(),
     const StatsScreen(),
-    const RecurringTransactionEntitysScreen(),
+    const RecurringTransactionModelsScreen(),
   ];
 
   @override

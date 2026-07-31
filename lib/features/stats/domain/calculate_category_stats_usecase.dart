@@ -1,12 +1,14 @@
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+
+
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/stats/domain/category_stat_entity.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class CalculateCategoryStatsUseCase {
   List<CategoryStatEntity> execute({
-    required List<TransactionEntity> transactions,
-    required List<CategoryEntity> allCategories,
+    required List<TransactionModel> transactions,
+    required List<CategoryModel> allCategories,
   }) {
     final Map<String, int> categoryTotals = {};
     int totalExpense = 0;
@@ -23,7 +25,7 @@ class CalculateCategoryStatsUseCase {
     for (var entry in categoryTotals.entries) {
       final cat = allCategories.firstWhere(
         (c) => c.id == entry.key,
-        orElse: () => CategoryEntity(
+        orElse: () => CategoryModel(
           id: 'unknown',
           name: 'Unknown',
           iconCodePoint: 0,

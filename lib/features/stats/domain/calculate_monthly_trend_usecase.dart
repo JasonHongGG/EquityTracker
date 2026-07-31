@@ -1,6 +1,7 @@
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/stats/domain/daily_trend_entity.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class MonthlyTrendResult {
   final List<DailyTrendEntity> dailyTrends;
@@ -16,7 +17,7 @@ class MonthlyTrendResult {
 
 class CalculateMonthlyTrendUseCase {
   MonthlyTrendResult execute({
-    required List<TransactionEntity> transactions,
+    required List<TransactionModel> transactions,
     required DateTime month,
   }) {
     final Map<int, double> incomeData = {};

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
@@ -10,10 +10,11 @@ import 'package:equity_tracker/features/category/presentation/widgets/add_catego
 import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_icon_picker.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_preview.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_name_input.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class AddCategoryScreen extends ConsumerStatefulWidget {
   final TransactionType? initialType;
-  final CategoryEntity? categoryToEdit;
+  final CategoryModel? categoryToEdit;
 
   const AddCategoryScreen({super.key, this.initialType, this.categoryToEdit});
 
@@ -55,7 +56,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
 
     final id = widget.categoryToEdit?.id ?? const Uuid().v4();
 
-    final category = CategoryEntity(
+    final category = CategoryModel(
       id: id,
       name: name,
       iconCodePoint: _selectedIconCode,
@@ -68,9 +69,9 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
     );
 
     if (widget.categoryToEdit != null) {
-      ref.read(categoryListProvider.notifier).updateCategory(category);
+      ref.read(categoryListProvider.notifier).updateCategoryModel(category);
     } else {
-      ref.read(categoryListProvider.notifier).addCategory(category);
+      ref.read(categoryListProvider.notifier).addCategoryModel(category);
     }
 
     Navigator.pop(context);

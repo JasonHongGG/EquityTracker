@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+
+
 import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_item.dart';
 import 'package:go_router/go_router.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class CategoryDetailsModal {
   static void show(
     BuildContext context,
-    CategoryEntity category,
-    List<TransactionEntity> allTransactions,
+    CategoryModel category,
+    List<TransactionModel> allTransactions,
   ) {
     final categoryTransactions =
         allTransactions.where((t) => t.categoryId == category.id).toList()

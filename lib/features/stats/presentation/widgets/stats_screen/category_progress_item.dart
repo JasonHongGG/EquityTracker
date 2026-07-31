@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
+
 
 class CategoryProgressItem extends StatelessWidget {
-  final CategoryEntity category;
+  final CategoryModel category;
   final int amount;
   final double percent;
   final VoidCallback onTap;

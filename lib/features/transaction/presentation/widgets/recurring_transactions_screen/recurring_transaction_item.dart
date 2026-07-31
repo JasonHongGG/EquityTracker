@@ -5,14 +5,17 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:equity_tracker/core/enums/frequency.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
-import 'package:equity_tracker/features/transaction/domain/recurring_transaction_entity.dart';
+
 import 'package:equity_tracker/features/transaction/presentation/providers/recurring_transaction_notifier.dart';
 import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_recurring_transaction_screen.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
+import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 
 class RecurringTransactionItem extends ConsumerWidget {
-  final RecurringTransactionEntity transaction;
+  final RecurringTransactionModel transaction;
 
   const RecurringTransactionItem({
     super.key,
@@ -29,7 +32,7 @@ class RecurringTransactionItem extends ConsumerWidget {
     final categoriesAsync = ref.watch(categoryListProvider);
     final category = categoriesAsync.asData?.value.firstWhere(
       (c) => c.id == transaction.categoryId,
-      orElse: () => CategoryEntity(
+      orElse: () => CategoryModel(
         id: 'unknown',
         name: 'Unknown',
         iconCodePoint: FontAwesomeIcons.question.codePoint,
@@ -91,7 +94,7 @@ class RecurringTransactionItem extends ConsumerWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AddEditRecurringTransactionEntityScreen(
+              builder: (context) => AddEditRecurringTransactionModelScreen(
                 transaction: transaction,
               ),
             ),
@@ -157,7 +160,7 @@ class RecurringTransactionItem extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            transaction.frequency.label,
+                            transaction.frequency.toString().split('.').last.toUpperCase(),
                             style: TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,

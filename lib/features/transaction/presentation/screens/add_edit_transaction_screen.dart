@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
@@ -15,9 +15,10 @@ import 'package:equity_tracker/features/transaction/presentation/widgets/add_edi
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_footer.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_delete_dialog.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class AddEditTransactionScreen extends ConsumerStatefulWidget {
-  final TransactionEntity? transaction;
+  final TransactionModel? transaction;
   final DateTime? initialDate;
 
   const AddEditTransactionScreen({
@@ -173,7 +174,7 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
       return;
     }
 
-    final newTx = TransactionEntity(
+    final newTx = TransactionModel(
       id: widget.transaction?.id,
       notionId: widget.transaction?.notionId,
       title: _titleController.text.isNotEmpty ? _titleController.text : null,

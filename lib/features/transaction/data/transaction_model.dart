@@ -1,32 +1,31 @@
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
-import 'package:equity_tracker/core/enums/transaction_type.dart';
 
-class TransactionModel extends TransactionEntity {
+import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+
+class TransactionModel {
+  final int? id;
+  final String? notionId;
+  final String? title;
+  final TransactionType type;
+  final int amount;
+  final String categoryId;
+  final DateTime date;
+  final DateTime createdAt;
+  final String? note;
+
   const TransactionModel({
-    super.id,
-    super.notionId,
-    super.title,
-    required super.type,
-    required super.amount,
-    required super.categoryId,
-    required super.date,
-    required super.createdAt,
-    super.note,
+    this.id,
+    this.notionId,
+    this.title,
+    required this.type,
+    required this.amount,
+    required this.categoryId,
+    required this.date,
+    required this.createdAt,
+    this.note,
   });
 
-  factory TransactionModel.fromEntity(TransactionEntity entity) {
-    return TransactionModel(
-      id: entity.id,
-      notionId: entity.notionId,
-      title: entity.title,
-      type: entity.type,
-      amount: entity.amount,
-      categoryId: entity.categoryId,
-      date: entity.date,
-      createdAt: entity.createdAt,
-      note: entity.note,
-    );
-  }
+  
 
   factory TransactionModel.fromMap(Map<String, dynamic> map) {
     return TransactionModel(

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
+
 
 class CategoryGrid extends StatelessWidget {
-  final List<CategoryEntity> categories;
+  final List<CategoryModel> categories;
   final String? selectedCategoryId;
   final ValueChanged<String> onSelected;
 

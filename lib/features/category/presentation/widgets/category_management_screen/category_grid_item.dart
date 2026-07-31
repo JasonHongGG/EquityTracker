@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+
 import 'package:equity_tracker/features/category/presentation/widgets/category_management_screen/category_delete_dialog.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class CategoryGridItem extends StatelessWidget {
-  final CategoryEntity category;
+  final CategoryModel category;
   final bool isEditMode;
 
   const CategoryGridItem({

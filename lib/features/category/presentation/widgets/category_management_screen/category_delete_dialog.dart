@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class CategoryDeleteDialog extends ConsumerWidget {
-  final CategoryEntity category;
+  final CategoryModel category;
 
   const CategoryDeleteDialog({
     super.key,
@@ -92,7 +93,7 @@ class CategoryDeleteDialog extends ConsumerWidget {
                     onPressed: () {
                       ref
                           .read(categoryListProvider.notifier)
-                          .deleteCategory(category.id, category.type);
+                          .deleteCategoryModel(category.id, category.type);
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
@@ -122,7 +123,7 @@ class CategoryDeleteDialog extends ConsumerWidget {
     );
   }
 
-  static Future<void> show(BuildContext context, CategoryEntity category) {
+  static Future<void> show(BuildContext context, CategoryModel category) {
     return showDialog(
       context: context,
       builder: (ctx) => CategoryDeleteDialog(category: category),

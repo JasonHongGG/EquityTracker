@@ -1,7 +1,8 @@
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
+
 
 class CategoryStatEntity {
-  final CategoryEntity category;
+  final CategoryModel category;
   final int totalAmount;
   final double percentage;
 

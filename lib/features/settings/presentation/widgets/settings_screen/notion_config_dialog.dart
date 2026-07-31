@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+
+
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class NotionConfigDialog extends ConsumerStatefulWidget {
   const NotionConfigDialog({super.key});
@@ -63,7 +64,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
       final lastSyncStr = prefs.getString('notion_last_sync_time');
       final DateTime? lastSync = lastSyncStr != null ? DateTime.parse(lastSyncStr) : null;
 
-      final categories = List<CategoryEntity>.from(await ref.read(categoryRepositoryProvider).getCategories());
+      final categories = List<CategoryModel>.from(await ref.read(categoryRepositoryProvider).getCategories());
       final transactions = await ref.read(notionApiClientProvider).fetchTransactions(
         _tokenController.text.trim(),
         _dbIdController.text.trim(),
@@ -80,7 +81,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
       }
 
       final currentTx = ref.read(transactionNotifierProvider).value ?? [];
-      final List<TransactionEntity> toInsert = [];
+      final List<TransactionModel> toInsert = [];
 
       for (final tx in transactions) {
         final exists = currentTx.any(

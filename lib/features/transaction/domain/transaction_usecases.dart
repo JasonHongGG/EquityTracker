@@ -1,38 +1,11 @@
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
-import 'package:equity_tracker/features/transaction/domain/i_transaction_repository.dart';
+
+import 'package:equity_tracker/features/transaction/data/transaction_repository.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-
-class GetTransactionsUseCase {
-  final ITransactionRepository repository;
-  GetTransactionsUseCase(this.repository);
-
-  Future<List<TransactionEntity>> execute() => repository.getAllTransactions();
-}
-
-class AddTransactionUseCase {
-  final ITransactionRepository repository;
-  AddTransactionUseCase(this.repository);
-
-  Future<void> execute(TransactionEntity transaction) => repository.insertTransaction(transaction);
-}
-
-class UpdateTransactionUseCase {
-  final ITransactionRepository repository;
-  UpdateTransactionUseCase(this.repository);
-
-  Future<void> execute(TransactionEntity transaction) => repository.updateTransaction(transaction);
-}
-
-class DeleteTransactionUseCase {
-  final ITransactionRepository repository;
-  DeleteTransactionUseCase(this.repository);
-
-  Future<void> execute(int id) => repository.deleteTransaction(id);
-}
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class FilterTransactionsUseCase {
-  List<TransactionEntity> execute({
-    required List<TransactionEntity> transactions,
+  List<TransactionModel> execute({
+    required List<TransactionModel> transactions,
     TransactionType? type,
     List<String> categoryIds = const [],
     DateTime? startDate,
@@ -82,8 +55,8 @@ class FilterTransactionsUseCase {
 }
 
 class GroupTransactionsByDateUseCase {
-  Map<DateTime, List<TransactionEntity>> execute(List<TransactionEntity> transactions) {
-    final Map<DateTime, List<TransactionEntity>> grouped = {};
+  Map<DateTime, List<TransactionModel>> execute(List<TransactionModel> transactions) {
+    final Map<DateTime, List<TransactionModel>> grouped = {};
     for (var tx in transactions) {
       final date = DateTime(tx.date.year, tx.date.month, tx.date.day);
       grouped.putIfAbsent(date, () => []).add(tx);
@@ -93,7 +66,7 @@ class GroupTransactionsByDateUseCase {
 }
 
 class CalculateMonthlyTotalsUseCase {
-  Map<TransactionType, int> execute(List<TransactionEntity> transactions) {
+  Map<TransactionType, int> execute(List<TransactionModel> transactions) {
     int totalIncome = 0;
     int totalExpense = 0;
 

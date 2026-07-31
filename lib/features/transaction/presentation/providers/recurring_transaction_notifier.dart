@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/transaction/domain/recurring_transaction_entity.dart';
+
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/transaction/domain/process_recurring_transactions_usecase.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 
 final processRecurringTransactionsUseCaseProvider = Provider<ProcessRecurringTransactionsUseCase>((ref) {
   return ProcessRecurringTransactionsUseCase(ref.watch(transactionRepositoryProvider));
@@ -12,14 +14,14 @@ final processRecurringTransactionsUseCaseProvider = Provider<ProcessRecurringTra
 final recurringTransactionListProvider =
     AsyncNotifierProvider<
       RecurringTransactionListNotifier,
-      List<RecurringTransactionEntity>
+      List<RecurringTransactionModel>
     >(RecurringTransactionListNotifier.new);
 
-class RecurringTransactionListNotifier extends AsyncNotifier<List<RecurringTransactionEntity>> {
+class RecurringTransactionListNotifier extends AsyncNotifier<List<RecurringTransactionModel>> {
   Timer? _timer;
 
   @override
-  Future<List<RecurringTransactionEntity>> build() async {
+  Future<List<RecurringTransactionModel>> build() async {
     ref.onDispose(() {
       _timer?.cancel();
     });
@@ -28,17 +30,17 @@ class RecurringTransactionListNotifier extends AsyncNotifier<List<RecurringTrans
     return list;
   }
 
-  Future<List<RecurringTransactionEntity>> _fetchExistingRecurringTransactions() async {
+  Future<List<RecurringTransactionModel>> _fetchExistingRecurringTransactions() async {
     return await ref.read(transactionRepositoryProvider).getAllRecurringTransactions();
   }
 
-  Future<void> addRecurringTransaction(RecurringTransactionEntity transaction) async {
+  Future<void> addRecurringTransaction(RecurringTransactionModel transaction) async {
     await ref.read(transactionRepositoryProvider).insertRecurringTransaction(transaction);
     ref.invalidateSelf();
     await future;
   }
 
-  Future<void> updateRecurringTransaction(RecurringTransactionEntity transaction) async {
+  Future<void> updateRecurringTransaction(RecurringTransactionModel transaction) async {
     await ref.read(transactionRepositoryProvider).updateRecurringTransaction(transaction);
     ref.invalidateSelf();
     await future;
@@ -60,7 +62,7 @@ class RecurringTransactionListNotifier extends AsyncNotifier<List<RecurringTrans
     }
   }
 
-  void _scheduleNextTrigger(List<RecurringTransactionEntity> transactions) {
+  void _scheduleNextTrigger(List<RecurringTransactionModel> transactions) {
     _timer?.cancel();
 
     final enabled = transactions.where((t) => t.isEnabled).toList();

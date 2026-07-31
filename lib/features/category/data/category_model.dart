@@ -1,34 +1,35 @@
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
-import 'package:equity_tracker/core/enums/transaction_type.dart';
 
-class CategoryModel extends CategoryEntity {
+import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
+
+import 'package:flutter/material.dart';
+
+class CategoryModel {
+  final String id;
+  final String name;
+  final int iconCodePoint;
+  final String? iconFontFamily;
+  final String? iconFontPackage;
+  final int colorValue;
+  final TransactionType type;
+  final bool isSystem;
+  final bool isEnabled;
+  final int order;
+
   const CategoryModel({
-    required super.id,
-    required super.name,
-    required super.iconCodePoint,
-    super.iconFontFamily,
-    super.iconFontPackage,
-    required super.colorValue,
-    required super.type,
-    super.isSystem = false,
-    super.isEnabled = true,
-    super.order = 0,
+    required this.id,
+    required this.name,
+    required this.iconCodePoint,
+    this.iconFontFamily,
+    this.iconFontPackage,
+    required this.colorValue,
+    required this.type,
+    this.isSystem = false,
+    this.isEnabled = true,
+    this.order = 0,
   });
 
-  factory CategoryModel.fromEntity(CategoryEntity entity) {
-    return CategoryModel(
-      id: entity.id,
-      name: entity.name,
-      iconCodePoint: entity.iconCodePoint,
-      iconFontFamily: entity.iconFontFamily,
-      iconFontPackage: entity.iconFontPackage,
-      colorValue: entity.colorValue,
-      type: entity.type,
-      isSystem: entity.isSystem,
-      isEnabled: entity.isEnabled,
-      order: entity.order,
-    );
-  }
+  
 
   factory CategoryModel.fromMap(Map<String, dynamic> map) {
     return CategoryModel(
@@ -59,4 +60,11 @@ class CategoryModel extends CategoryEntity {
       'sortOrder': order,
     };
   }
+  Color get color => Color(colorValue);
+  
+  IconData get iconData => IconData(
+        iconCodePoint,
+        fontFamily: iconFontFamily,
+        fontPackage: iconFontPackage,
+      );
 }

@@ -9,10 +9,13 @@ import 'package:equity_tracker/features/transaction/presentation/screens/recurri
 import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_recurring_transaction_screen.dart';
 import 'package:equity_tracker/features/category/presentation/screens/category_management_screen.dart';
 import 'package:equity_tracker/features/category/presentation/screens/add_category_screen.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+
+
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/transaction/domain/recurring_transaction_entity.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
+import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
+
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -34,7 +37,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/add-transaction',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          final transaction = extra?['transaction'] as TransactionEntity?;
+          final transaction = extra?['transaction'] as TransactionModel?;
           final initialDate = extra?['initialDate'] as DateTime?;
           return AddEditTransactionScreen(
             transaction: transaction,
@@ -44,14 +47,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/recurring-transactions',
-        builder: (context, state) => const RecurringTransactionEntitysScreen(),
+        builder: (context, state) => const RecurringTransactionModelsScreen(),
       ),
       GoRoute(
         path: '/add-recurring-transaction',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          final transaction = extra?['transaction'] as RecurringTransactionEntity?;
-          return AddEditRecurringTransactionEntityScreen(
+          final transaction = extra?['transaction'] as RecurringTransactionModel?;
+          return AddEditRecurringTransactionModelScreen(
             transaction: transaction,
           );
         },
@@ -64,7 +67,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/add-category',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          final categoryToEdit = extra?['categoryToEdit'] as CategoryEntity?;
+          final categoryToEdit = extra?['categoryToEdit'] as CategoryModel?;
           final initialType = extra?['initialType'] as TransactionType?;
           return AddCategoryScreen(
             categoryToEdit: categoryToEdit,

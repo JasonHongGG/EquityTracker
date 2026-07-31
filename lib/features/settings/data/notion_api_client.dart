@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+
+
 import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class NotionApiClient {
   static const String _kApiUrl = 'https://api.notion.com/v1/pages';
@@ -25,17 +27,17 @@ class NotionApiClient {
     }
   }
 
-  Future<List<TransactionEntity>> fetchTransactions(
+  Future<List<TransactionModel>> fetchTransactions(
     String token, 
     String dbId, 
-    List<CategoryEntity> categories, 
+    List<CategoryModel> categories, 
     {DateTime? since}
   ) async {
     if (token.isEmpty || dbId.isEmpty) return [];
 
     try {
       final url = Uri.parse('https://api.notion.com/v1/databases/$dbId/query');
-      final List<TransactionEntity> allTransactions = [];
+      final List<TransactionModel> allTransactions = [];
 
       bool hasMore = true;
       String? nextCursor;
@@ -118,7 +120,7 @@ class NotionApiClient {
               }
 
               allTransactions.add(
-                TransactionEntity(
+                TransactionModel(
                   notionId: page['id'],
                   title: title,
                   amount: amount,

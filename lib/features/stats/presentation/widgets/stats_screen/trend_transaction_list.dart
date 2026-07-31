@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_item.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/common/date_header.dart';
 import 'package:go_router/go_router.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class TrendTransactionList extends StatelessWidget {
   final int? selectedDay;
   final DateTime month;
-  final List<TransactionEntity> transactions;
+  final List<TransactionModel> transactions;
 
   const TrendTransactionList({
     super.key,

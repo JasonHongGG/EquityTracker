@@ -7,17 +7,19 @@ import 'package:equity_tracker/features/transaction/presentation/screens/add_edi
 import 'package:equity_tracker/features/settings/presentation/screens/settings_screen.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/recurring_transactions_screen/recurring_transaction_empty_state.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/recurring_transactions_screen/recurring_transaction_item.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 
-class RecurringTransactionEntitysScreen extends ConsumerStatefulWidget {
-  const RecurringTransactionEntitysScreen({super.key});
+class RecurringTransactionModelsScreen extends ConsumerStatefulWidget {
+  const RecurringTransactionModelsScreen({super.key});
 
   @override
-  ConsumerState<RecurringTransactionEntitysScreen> createState() =>
-      _RecurringTransactionEntitysScreenState();
+  ConsumerState<RecurringTransactionModelsScreen> createState() =>
+      _RecurringTransactionModelsScreenState();
 }
 
-class _RecurringTransactionEntitysScreenState
-    extends ConsumerState<RecurringTransactionEntitysScreen> {
+class _RecurringTransactionModelsScreenState
+    extends ConsumerState<RecurringTransactionModelsScreen> {
   @override
   void initState() {
     super.initState();
@@ -81,7 +83,7 @@ class _RecurringTransactionEntitysScreenState
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          const AddEditRecurringTransactionEntityScreen(),
+                          const AddEditRecurringTransactionModelScreen(),
                     ),
                   );
                 },

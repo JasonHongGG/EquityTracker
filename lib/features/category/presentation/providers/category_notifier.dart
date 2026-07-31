@@ -1,9 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/category/domain/category_usecases.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 // --- UseCase Providers ---
 final getCategoriesUseCaseProvider = Provider<GetCategoriesUseCase>((ref) {
@@ -30,17 +31,17 @@ final deleteCategoryUseCaseProvider = Provider<DeleteCategoryUseCase>((ref) {
 });
 
 // --- UI Notifier ---
-class CategoryList extends AsyncNotifier<List<CategoryEntity>> {
+class CategoryList extends AsyncNotifier<List<CategoryModel>> {
   @override
-  Future<List<CategoryEntity>> build() async {
+  Future<List<CategoryModel>> build() async {
     return _fetchCategories();
   }
 
-  Future<List<CategoryEntity>> _fetchCategories() async {
+  Future<List<CategoryModel>> _fetchCategories() async {
     return await ref.read(getCategoriesUseCaseProvider).execute();
   }
 
-  Future<void> addCategory(CategoryEntity category) async {
+  Future<void> addCategoryModel(CategoryModel category) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await ref.read(addCategoryUseCaseProvider).execute(category);
@@ -48,7 +49,7 @@ class CategoryList extends AsyncNotifier<List<CategoryEntity>> {
     });
   }
 
-  Future<void> updateCategory(CategoryEntity category) async {
+  Future<void> updateCategoryModel(CategoryModel category) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await ref.read(updateCategoryUseCaseProvider).execute(category);
@@ -56,7 +57,7 @@ class CategoryList extends AsyncNotifier<List<CategoryEntity>> {
     });
   }
 
-  Future<void> deleteCategory(String id, TransactionType type) async {
+  Future<void> deleteCategoryModel(String id, TransactionType type) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       // Execute cross-domain business logic purely in UseCase layer
@@ -69,11 +70,11 @@ class CategoryList extends AsyncNotifier<List<CategoryEntity>> {
     });
   }
 
-  Future<void> updateOrder(List<CategoryEntity> categories) async {
+  Future<void> updateOrder(List<CategoryModel> categories) async {
     state = AsyncValue.data(categories);
     await ref.read(reorderCategoriesUseCaseProvider).execute(categories);
   }
 }
 
 final categoryListProvider =
-    AsyncNotifierProvider<CategoryList, List<CategoryEntity>>(CategoryList.new);
+    AsyncNotifierProvider<CategoryList, List<CategoryModel>>(CategoryList.new);

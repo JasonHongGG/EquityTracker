@@ -1,25 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/domain/transaction_usecases.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 // --- UseCase Providers ---
-final getTransactionsUseCaseProvider = Provider<GetTransactionsUseCase>((ref) {
-  return GetTransactionsUseCase(ref.read(transactionRepositoryProvider));
-});
-
-final addTransactionUseCaseProvider = Provider<AddTransactionUseCase>((ref) {
-  return AddTransactionUseCase(ref.read(transactionRepositoryProvider));
-});
-
-final updateTransactionUseCaseProvider = Provider<UpdateTransactionUseCase>((ref) {
-  return UpdateTransactionUseCase(ref.read(transactionRepositoryProvider));
-});
-
-final deleteTransactionUseCaseProvider = Provider<DeleteTransactionUseCase>((ref) {
-  return DeleteTransactionUseCase(ref.read(transactionRepositoryProvider));
-});
 
 final filterTransactionsUseCaseProvider = Provider<FilterTransactionsUseCase>((ref) {
   return FilterTransactionsUseCase();
@@ -93,28 +79,28 @@ final selectedMonthProvider = NotifierProvider<SelectedMonthNotifier, DateTime>(
 );
 
 // --- UI Notifier ---
-class TransactionList extends AsyncNotifier<List<TransactionEntity>> {
+class TransactionList extends AsyncNotifier<List<TransactionModel>> {
   @override
-  Future<List<TransactionEntity>> build() async {
+  Future<List<TransactionModel>> build() async {
     return _fetchAll();
   }
 
-  Future<List<TransactionEntity>> _fetchAll() async {
-    return await ref.read(getTransactionsUseCaseProvider).execute();
+  Future<List<TransactionModel>> _fetchAll() async {
+    return await ref.read(transactionRepositoryProvider).getAllTransactions();
   }
 
-  Future<void> addTransaction(TransactionEntity transaction) async {
+  Future<void> addTransaction(TransactionModel transaction) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(addTransactionUseCaseProvider).execute(transaction);
+      await ref.read(transactionRepositoryProvider).insertTransaction(transaction);
       return _fetchAll();
     });
   }
 
-  Future<void> updateTransaction(TransactionEntity transaction) async {
+  Future<void> updateTransaction(TransactionModel transaction) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(updateTransactionUseCaseProvider).execute(transaction);
+      await ref.read(transactionRepositoryProvider).updateTransaction(transaction);
       return _fetchAll();
     });
   }
@@ -122,7 +108,7 @@ class TransactionList extends AsyncNotifier<List<TransactionEntity>> {
   Future<void> deleteTransaction(int id, [String? notionId]) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(deleteTransactionUseCaseProvider).execute(id);
+      await ref.read(transactionRepositoryProvider).deleteTransaction(id);
       return _fetchAll();
     });
   }
@@ -133,7 +119,7 @@ class TransactionList extends AsyncNotifier<List<TransactionEntity>> {
   }
 }
 
-final transactionListProvider = AsyncNotifierProvider<TransactionList, List<TransactionEntity>>(
+final transactionListProvider = AsyncNotifierProvider<TransactionList, List<TransactionModel>>(
   TransactionList.new,
 );
     
@@ -141,7 +127,7 @@ final transactionNotifierProvider = transactionListProvider;
 
 // --- Derived Providers ---
 
-final filteredTransactionsProvider = Provider<AsyncValue<List<TransactionEntity>>>((ref) {
+final filteredTransactionsProvider = Provider<AsyncValue<List<TransactionModel>>>((ref) {
   final transactionsAsync = ref.watch(transactionListProvider);
   final filter = ref.watch(transactionFilterProvider);
   final selectedMonth = ref.watch(selectedMonthProvider);
@@ -169,7 +155,7 @@ final monthlyTotalsProvider = Provider<AsyncValue<Map<TransactionType, int>>>((r
   });
 });
 
-final groupedTransactionsProvider = Provider<AsyncValue<Map<DateTime, List<TransactionEntity>>>>((ref) {
+final groupedTransactionsProvider = Provider<AsyncValue<Map<DateTime, List<TransactionModel>>>>((ref) {
   final filteredAsync = ref.watch(filteredTransactionsProvider);
   final useCase = ref.watch(groupTransactionsByDateUseCaseProvider);
   

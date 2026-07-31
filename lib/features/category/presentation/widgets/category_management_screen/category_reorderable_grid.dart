@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
+
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/category_management_screen/category_add_button.dart';
 import 'package:equity_tracker/features/category/presentation/widgets/category_management_screen/category_grid_item.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class CategoryReorderableGrid extends ConsumerWidget {
-  final List<CategoryEntity> categories;
+  final List<CategoryModel> categories;
   final TransactionType type;
   final bool isEditMode;
 
@@ -48,7 +49,7 @@ class CategoryReorderableGrid extends ConsumerWidget {
         if (catNewIndex < 0 || catNewIndex >= categories.length) return;
 
         // Copy list to allow modification (categories might be unmodifiable)
-        final List<CategoryEntity> mutableCategories = List.from(categories);
+        final List<CategoryModel> mutableCategories = List.from(categories);
         final item = mutableCategories.removeAt(catOldIndex);
         mutableCategories.insert(catNewIndex, item);
 

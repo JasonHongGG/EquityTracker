@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+
 
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_line_chart.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,9 +7,10 @@ import 'package:equity_tracker/core/widgets/horizontal_day_slider.dart';
 import 'package:equity_tracker/features/stats/presentation/providers/stats_provider.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_legend_item.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_transaction_list.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class MonthlyTrendTab extends ConsumerStatefulWidget {
-  final List<TransactionEntity> transactions; // Kept for list view
+  final List<TransactionModel> transactions; // Kept for list view
   final DateTime month;
 
   const MonthlyTrendTab({
@@ -83,9 +84,9 @@ class _MonthlyTrendTabState extends ConsumerState<MonthlyTrendTab> {
 
     // 2. Filter List based on selection
     // 2. Filter List based on selection
-    final List<TransactionEntity> selectedTransactions =
+    final List<TransactionModel> selectedTransactions =
         _selectedDay == null
-              ? <TransactionEntity>[]
+              ? <TransactionModel>[]
               : widget.transactions
                     .where((t) => t.date.day == _selectedDay)
                     .toList()

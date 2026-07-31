@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
-import 'package:equity_tracker/features/category/domain/i_category_repository.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
-import 'package:equity_tracker/features/transaction/domain/i_transaction_repository.dart';
+
+import 'package:equity_tracker/features/category/data/category_repository.dart';
+
+import 'package:equity_tracker/features/transaction/data/transaction_repository.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class ImportResult {
   final List<int> insertedIds;
@@ -22,8 +24,8 @@ class ImportResult {
 }
 
 class ImportDataUseCase {
-  final ITransactionRepository _transactionRepository;
-  final ICategoryRepository _categoryRepository;
+  final TransactionRepository _transactionRepository;
+  final CategoryRepository _categoryRepository;
   final Uuid _uuid = const Uuid();
 
   ImportDataUseCase(this._transactionRepository, this._categoryRepository);
@@ -41,7 +43,7 @@ class ImportDataUseCase {
     String? lastError;
 
     final allCategoriesList = await _categoryRepository.getCategories();
-    final allCategories = List<CategoryEntity>.from(allCategoriesList);
+    final allCategories = List<CategoryModel>.from(allCategoriesList);
 
     for (var item in results) {
       if (item is Map) {
@@ -67,7 +69,7 @@ class ImportDataUseCase {
     );
   }
 
-  Future<int?> _processAndInsertItem(Map item, List<CategoryEntity> allCategories) async {
+  Future<int?> _processAndInsertItem(Map item, List<CategoryModel> allCategories) async {
     final amountDynamic = item['金額'];
     if (amountDynamic == null) return null;
     final amount = (amountDynamic as num).toInt().abs();
@@ -93,12 +95,12 @@ class ImportDataUseCase {
 
     final rawCategory = item['類別']?.toString() ?? '其他';
     final categoryName = rawCategory.trim();
-    CategoryEntity matchedCategory;
+    CategoryModel matchedCategory;
 
     try {
       matchedCategory = allCategories.firstWhere((c) => c.name == categoryName);
     } catch (e) {
-      matchedCategory = await _resolveOtherCategory(allCategories);
+      matchedCategory = await _resolveOtherCategoryModel(allCategories);
     }
 
     TransactionType type;
@@ -111,7 +113,7 @@ class ImportDataUseCase {
       type = matchedCategory.type;
     }
 
-    final transaction = TransactionEntity(
+    final transaction = TransactionModel(
       title: title,
       type: type,
       amount: amount,
@@ -124,11 +126,11 @@ class ImportDataUseCase {
     return await _transactionRepository.insertTransaction(transaction);
   }
 
-  Future<CategoryEntity> _resolveOtherCategory(List<CategoryEntity> allCategories) async {
+  Future<CategoryModel> _resolveOtherCategoryModel(List<CategoryModel> allCategories) async {
     try {
       return allCategories.firstWhere((c) => c.name == '其他');
     } catch (e) {
-      final newOther = CategoryEntity(
+      final newOther = CategoryModel(
         id: _uuid.v4(),
         name: '其他',
         iconCodePoint: FontAwesomeIcons.question.codePoint,
@@ -140,7 +142,7 @@ class ImportDataUseCase {
         isEnabled: true,
         order: allCategories.length,
       );
-      await _categoryRepository.addCategory(newOther);
+      await _categoryRepository.addCategoryModel(newOther);
       allCategories.add(newOther);
       return newOther;
     }

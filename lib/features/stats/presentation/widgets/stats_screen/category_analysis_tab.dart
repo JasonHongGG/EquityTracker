@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/category/domain/category_entity.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+
+
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_pie_chart.dart';
@@ -9,9 +9,10 @@ import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_progress_item.dart';
 import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_details_modal.dart';
 import 'package:equity_tracker/features/stats/presentation/providers/stats_provider.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class CategoryAnalysisTab extends ConsumerWidget {
-  final List<TransactionEntity> transactions; // Kept for modal details
+  final List<TransactionModel> transactions; // Kept for modal details
 
   const CategoryAnalysisTab({
     super.key,

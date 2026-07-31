@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+
 import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_transaction_screen.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/common/date_header.dart';
 import 'package:equity_tracker/features/transaction/presentation/widgets/common/transaction_item.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class DailyTransactionCard extends StatelessWidget {
   final DateTime date;
-  final List<TransactionEntity> transactions;
+  final List<TransactionModel> transactions;
   final int index;
 
   const DailyTransactionCard({

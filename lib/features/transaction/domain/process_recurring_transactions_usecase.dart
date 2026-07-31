@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/transaction/domain/i_transaction_repository.dart';
-import 'package:equity_tracker/features/transaction/domain/transaction_entity.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_repository.dart';
+
 import 'package:equity_tracker/core/enums/frequency.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class ProcessRecurringTransactionsUseCase {
-  final ITransactionRepository _repository;
+  final TransactionRepository _repository;
 
   ProcessRecurringTransactionsUseCase(this._repository);
 
@@ -23,7 +24,7 @@ class ProcessRecurringTransactionsUseCase {
         generatedAny = true;
         iterations++;
 
-        final newTransaction = TransactionEntity(
+        final newTransaction = TransactionModel(
           title: recurring.title,
           type: recurring.type,
           amount: recurring.amount,
