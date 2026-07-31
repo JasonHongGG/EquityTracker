@@ -1,12 +1,12 @@
 
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/stats/domain/category_stat_entity.dart';
+import 'package:equity_tracker/features/stats/domain/category_stat.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class CalculateCategoryStatsUseCase {
-  List<CategoryStatEntity> execute({
+  List<CategoryStat> execute({
     required List<TransactionModel> transactions,
     required List<CategoryModel> allCategories,
   }) {
@@ -21,7 +21,7 @@ class CalculateCategoryStatsUseCase {
       }
     }
 
-    final List<CategoryStatEntity> stats = [];
+    final List<CategoryStat> stats = [];
     for (var entry in categoryTotals.entries) {
       final cat = allCategories.firstWhere(
         (c) => c.id == entry.key,
@@ -39,7 +39,7 @@ class CalculateCategoryStatsUseCase {
       final percent = totalExpense > 0 ? (entry.value / totalExpense) : 0.0;
       
       stats.add(
-        CategoryStatEntity(
+        CategoryStat(
           category: cat,
           totalAmount: entry.value,
           percentage: percent,

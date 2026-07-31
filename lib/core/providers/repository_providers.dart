@@ -5,11 +5,10 @@ import 'package:equity_tracker/features/category/data/category_repository_impl.d
 import 'package:equity_tracker/features/category/data/category_local_data_source.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_local_data_source.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_repository_impl.dart';
-import 'package:equity_tracker/features/settings/domain/i_settings_repository.dart';
+import 'package:equity_tracker/features/settings/data/settings_repository.dart';
 import 'package:equity_tracker/features/settings/data/settings_repository_impl.dart';
 import 'package:equity_tracker/features/settings/data/notion_api_client.dart';
 import 'package:equity_tracker/features/settings/domain/import_data_usecase.dart';
-
 
 
 final notionApiClientProvider = Provider<NotionApiClient>((ref) {
@@ -24,8 +23,8 @@ final transactionRepositoryProvider = Provider<TransactionRepository>((ref) {
   return TransactionRepository();
 });
 
-final settingsRepositoryProvider = Provider<ISettingsRepository>((ref) {
-  return SettingsRepositoryImpl();
+final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
+  return SettingsRepository();
 });
 
 final importDataUseCaseProvider = Provider<ImportDataUseCase>((ref) {

@@ -2,23 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:equity_tracker/core/providers/repository_providers.dart';
-import 'package:equity_tracker/features/settings/domain/settings_usecases.dart';
 
-final getThemeUseCaseProvider = Provider<GetThemeUseCase>((ref) {
-  return GetThemeUseCase(ref.read(settingsRepositoryProvider));
-});
 
-final setThemeUseCaseProvider = Provider<SetThemeUseCase>((ref) {
-  return SetThemeUseCase(ref.read(settingsRepositoryProvider));
-});
 
-final getPrivacyModeUseCaseProvider = Provider<GetPrivacyModeUseCase>((ref) {
-  return GetPrivacyModeUseCase(ref.read(settingsRepositoryProvider));
-});
 
-final setPrivacyModeUseCaseProvider = Provider<SetPrivacyModeUseCase>((ref) {
-  return SetPrivacyModeUseCase(ref.read(settingsRepositoryProvider));
-});
+
+
+
+
+
 
 class SettingsNotifier extends AsyncNotifier<SettingsState> {
   @override
@@ -41,7 +33,7 @@ class SettingsNotifier extends AsyncNotifier<SettingsState> {
   }
 
   Future<void> setPrivacyMode(bool enabled) async {
-    await ref.read(setPrivacyModeUseCaseProvider).execute(enabled);
+    await ref.read(settingsRepositoryProvider).setPrivacyMode(enabled);
     state = AsyncValue.data(
       state.value!.copyWith(isPrivacyModeEnabled: enabled),
     );

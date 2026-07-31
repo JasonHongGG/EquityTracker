@@ -1,9 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/stats/domain/category_stat_entity.dart';
+import 'package:equity_tracker/features/stats/domain/category_stat.dart';
 
 class CategoryPieChart extends StatefulWidget {
-  final List<CategoryStatEntity> stats;
+  final List<CategoryStat> stats;
   final int totalAmount;
 
   const CategoryPieChart({
@@ -28,7 +28,7 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     // Sort data: largest first (usually already sorted by UseCase)
-    final sortedData = List<CategoryStatEntity>.from(widget.stats)
+    final sortedData = List<CategoryStat>.from(widget.stats)
       ..sort((a, b) => b.totalAmount.compareTo(a.totalAmount));
 
     final sections = <PieChartSectionData>[];

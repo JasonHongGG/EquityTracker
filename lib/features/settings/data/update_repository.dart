@@ -4,19 +4,17 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart' as permission_handler;
 import 'package:http/http.dart' as http;
-import 'package:equity_tracker/features/settings/domain/update_entities.dart';
-import 'package:equity_tracker/features/settings/domain/i_update_repository.dart';
+import 'package:equity_tracker/features/settings/domain/update_info.dart';
 
-class UpdateRepositoryImpl implements IUpdateRepository {
+class UpdateRepository {
   final Dio _dio = Dio();
   
   static const String currentAppVersion = 'v0.0.1';
   static const String githubOwner = 'JasonHongGG';
   static const String githubRepo = 'EquityTracker';
 
-  @override
   Future<UpdateCheckResult> checkForUpdate() async {
     try {
       final url = 'https://api.github.com/repos/$githubOwner/$githubRepo/releases/latest';
@@ -90,10 +88,9 @@ class UpdateRepositoryImpl implements IUpdateRepository {
     }
   }
 
-  @override
   Future<PermissionCheckResult> checkAndRequestPermissions() async {
     if (Platform.isAndroid) {
-      final installStatus = await Permission.requestInstallPackages.status;
+      final installStatus = await permission_handler.Permission.requestInstallPackages.status;
 
       if (!installStatus.isGranted) {
         return PermissionCheckResult(
@@ -105,7 +102,7 @@ class UpdateRepositoryImpl implements IUpdateRepository {
 
       final sdkInt = 30; // Mocked for simplicity
       if (sdkInt < 29) {
-        final storageStatus = await Permission.storage.status;
+        final storageStatus = await permission_handler.Permission.storage.status;
         if (!storageStatus.isGranted) {
           return PermissionCheckResult(
             granted: false,
@@ -118,7 +115,6 @@ class UpdateRepositoryImpl implements IUpdateRepository {
     return PermissionCheckResult(granted: true);
   }
 
-  @override
   Future<DownloadResult> downloadUpdate(String downloadUrl, {void Function(double)? onProgress}) async {
     try {
       final directory = await getExternalStorageDirectory();
@@ -150,7 +146,6 @@ class UpdateRepositoryImpl implements IUpdateRepository {
     }
   }
 
-  @override
   Future<bool> installUpdate(String filePath) async {
     try {
       final result = await OpenFilex.open(filePath);
@@ -161,8 +156,7 @@ class UpdateRepositoryImpl implements IUpdateRepository {
     }
   }
 
-  @override
   Future<bool> openAppSettings() async {
-    return await openAppSettings();
+    return await permission_handler.openAppSettings();
   }
 }

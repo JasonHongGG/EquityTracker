@@ -1,30 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/settings/domain/update_entities.dart';
-import 'package:equity_tracker/features/settings/domain/i_update_repository.dart';
-import 'package:equity_tracker/features/settings/data/update_repository_impl.dart';
-import 'package:equity_tracker/features/settings/domain/update_usecases.dart';
-
+import 'package:equity_tracker/features/settings/domain/update_info.dart';
+import 'package:equity_tracker/features/settings/data/update_repository.dart';
 
 // --- Repo Provider ---
-final updateRepositoryProvider = Provider<IUpdateRepository>((ref) {
-  return UpdateRepositoryImpl();
-});
-
-// --- UseCase Providers ---
-final checkUpdateUseCaseProvider = Provider<CheckUpdateUseCase>((ref) {
-  return CheckUpdateUseCase(ref.read(updateRepositoryProvider));
-});
-
-final checkPermissionsUseCaseProvider = Provider<CheckPermissionsUseCase>((ref) {
-  return CheckPermissionsUseCase(ref.read(updateRepositoryProvider));
-});
-
-final downloadUpdateUseCaseProvider = Provider<DownloadUpdateUseCase>((ref) {
-  return DownloadUpdateUseCase(ref.read(updateRepositoryProvider));
-});
-
-final installUpdateUseCaseProvider = Provider<InstallUpdateUseCase>((ref) {
-  return InstallUpdateUseCase(ref.read(updateRepositoryProvider));
+final updateRepositoryProvider = Provider<UpdateRepository>((ref) {
+  return UpdateRepository();
 });
 
 // --- Notifier ---
@@ -37,7 +17,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
   Future<void> checkForUpdate() async {
     state = state.copyWith(isChecking: true, error: null);
 
-    final result = await ref.read(checkUpdateUseCaseProvider).execute();
+    final result = await ref.read(updateRepositoryProvider).checkForUpdate();
 
     state = state.copyWith(
       isChecking: false,
@@ -48,7 +28,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
   }
 
   Future<PermissionCheckResult> checkPermissions() async {
-    return await ref.read(checkPermissionsUseCaseProvider).execute();
+    return await ref.read(updateRepositoryProvider).checkAndRequestPermissions();
   }
 
   Future<void> downloadUpdate() async {
@@ -64,7 +44,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
       error: null,
     );
 
-    final result = await ref.read(downloadUpdateUseCaseProvider).execute(
+    final result = await ref.read(updateRepositoryProvider).downloadUpdate(
       downloadUrl,
       onProgress: (progress) {
         state = state.copyWith(downloadProgress: progress);
@@ -91,7 +71,7 @@ class UpdateNotifier extends Notifier<UpdateState> {
       return false;
     }
 
-    return await ref.read(installUpdateUseCaseProvider).execute(filePath);
+    return await ref.read(updateRepositoryProvider).installUpdate(filePath);
   }
 
   void reset() {

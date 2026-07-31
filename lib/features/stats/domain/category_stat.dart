@@ -1,12 +1,12 @@
 import 'package:equity_tracker/features/category/data/category_model.dart';
 
 
-class CategoryStatEntity {
+class CategoryStat {
   final CategoryModel category;
   final int totalAmount;
   final double percentage;
 
-  const CategoryStatEntity({
+  const CategoryStat({
     required this.category,
     required this.totalAmount,
     required this.percentage,

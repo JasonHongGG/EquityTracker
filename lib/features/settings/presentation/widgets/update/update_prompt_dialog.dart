@@ -79,7 +79,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      UpdateRepositoryImpl.currentAppVersion,
+                      UpdateRepository.currentAppVersion,
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         color: theme.textTheme.bodyMedium?.color?.withOpacity(

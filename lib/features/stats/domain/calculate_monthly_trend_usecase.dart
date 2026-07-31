@@ -1,10 +1,10 @@
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/stats/domain/daily_trend_entity.dart';
+import 'package:equity_tracker/features/stats/domain/daily_trend.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class MonthlyTrendResult {
-  final List<DailyTrendEntity> dailyTrends;
+  final List<DailyTrend> dailyTrends;
   final Map<int, double> incomeData;
   final Map<int, double> expenseData;
 
@@ -35,12 +35,12 @@ class CalculateMonthlyTrendUseCase {
       }
     }
 
-    final List<DailyTrendEntity> dailyTrends = [];
+    final List<DailyTrend> dailyTrends = [];
     final sortedDays = daysWithActivity.toList()..sort();
     
     for (var day in sortedDays) {
       dailyTrends.add(
-        DailyTrendEntity(
+        DailyTrend(
           day: day,
           income: incomeData[day] ?? 0.0,
           expense: expenseData[day] ?? 0.0,

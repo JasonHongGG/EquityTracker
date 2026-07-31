@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
-import 'package:equity_tracker/features/stats/domain/category_stat_entity.dart';
+import 'package:equity_tracker/features/stats/domain/category_stat.dart';
 import 'package:equity_tracker/features/stats/domain/calculate_category_stats_usecase.dart';
 import 'package:equity_tracker/features/stats/domain/calculate_monthly_trend_usecase.dart';
 
@@ -13,7 +13,7 @@ final calculateMonthlyTrendUseCaseProvider = Provider<CalculateMonthlyTrendUseCa
   return CalculateMonthlyTrendUseCase();
 });
 
-final categoryStatsProvider = FutureProvider<List<CategoryStatEntity>>((ref) async {
+final categoryStatsProvider = FutureProvider<List<CategoryStat>>((ref) async {
   final transactionsAsync = ref.watch(filteredTransactionsProvider);
   final categoriesAsync = ref.watch(categoryListProvider);
   final useCase = ref.watch(calculateCategoryStatsUseCaseProvider);
