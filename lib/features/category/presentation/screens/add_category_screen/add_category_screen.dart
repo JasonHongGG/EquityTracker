@@ -5,11 +5,11 @@ import 'package:uuid/uuid.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
-import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_type_selector.dart';
-import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_color_picker.dart';
-import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_icon_picker.dart';
-import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_preview.dart';
-import 'package:equity_tracker/features/category/presentation/widgets/add_category_screen/category_name_input.dart';
+import 'package:equity_tracker/features/category/presentation/screens/add_category_screen/category_type_selector.dart';
+import 'package:equity_tracker/features/category/presentation/screens/add_category_screen/category_color_picker.dart';
+import 'package:equity_tracker/features/category/presentation/screens/add_category_screen/category_icon_picker.dart';
+import 'package:equity_tracker/features/category/presentation/screens/add_category_screen/category_preview.dart';
+import 'package:equity_tracker/features/category/presentation/screens/add_category_screen/category_name_input.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class AddCategoryScreen extends ConsumerStatefulWidget {

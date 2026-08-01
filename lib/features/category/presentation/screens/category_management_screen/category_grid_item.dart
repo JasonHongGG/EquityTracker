@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 
-import 'package:equity_tracker/features/category/presentation/widgets/category_management_screen/category_delete_dialog.dart';
+import 'package:equity_tracker/features/category/presentation/screens/category_management_screen/category_delete_dialog.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class CategoryGridItem extends StatelessWidget {

@@ -9,7 +9,7 @@ import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
 
 import 'package:equity_tracker/features/transaction/presentation/providers/recurring_transaction_notifier.dart';
-import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_recurring_transaction_screen.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_recurring_transaction_screen/add_edit_recurring_transaction_screen.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';

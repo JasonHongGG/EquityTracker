@@ -8,8 +8,8 @@ import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart'
 import 'package:equity_tracker/core/widgets/search_dialog.dart';
 
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
-import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/monthly_trend_tab.dart';
-import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_analysis_tab.dart';
+import 'package:equity_tracker/features/stats/presentation/screens/stats_screen/monthly_trend_tab.dart';
+import 'package:equity_tracker/features/stats/presentation/screens/stats_screen/category_analysis_tab.dart';
 
 class StatsScreen extends ConsumerStatefulWidget {
   const StatsScreen({super.key});

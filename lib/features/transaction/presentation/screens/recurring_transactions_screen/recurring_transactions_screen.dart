@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/recurring_transaction_notifier.dart';
-import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_recurring_transaction_screen.dart';
-import 'package:equity_tracker/features/settings/presentation/screens/settings_screen.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/recurring_transactions_screen/recurring_transaction_empty_state.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/recurring_transactions_screen/recurring_transaction_item.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_recurring_transaction_screen/add_edit_recurring_transaction_screen.dart';
+import 'package:equity_tracker/features/settings/presentation/screens/settings_screen/settings_screen.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/recurring_transactions_screen/recurring_transaction_empty_state.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/recurring_transactions_screen/recurring_transaction_item.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 

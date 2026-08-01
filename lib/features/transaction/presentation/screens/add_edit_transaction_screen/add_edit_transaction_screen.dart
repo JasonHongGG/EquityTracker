@@ -10,11 +10,11 @@ import 'package:equity_tracker/core/widgets/calculator_pad.dart';
 import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_header.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_date_selector.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_transaction_screen/transaction_header.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_transaction_screen/transaction_date_selector.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_footer.dart';
-import 'package:equity_tracker/features/transaction/presentation/widgets/add_edit_transaction_screen/transaction_delete_dialog.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_transaction_screen/transaction_footer.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_transaction_screen/transaction_delete_dialog.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class AddEditTransactionScreen extends ConsumerStatefulWidget {

@@ -4,8 +4,8 @@ import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
-import 'package:equity_tracker/features/category/presentation/widgets/category_management_screen/category_add_button.dart';
-import 'package:equity_tracker/features/category/presentation/widgets/category_management_screen/category_grid_item.dart';
+import 'package:equity_tracker/features/category/presentation/screens/category_management_screen/category_add_button.dart';
+import 'package:equity_tracker/features/category/presentation/screens/category_management_screen/category_grid_item.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class CategoryReorderableGrid extends ConsumerWidget {

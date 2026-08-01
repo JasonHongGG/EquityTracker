@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:equity_tracker/features/transaction/presentation/screens/transaction_list_screen.dart';
-import 'package:equity_tracker/features/stats/presentation/screens/stats_screen.dart';
-import 'package:equity_tracker/features/transaction/presentation/screens/recurring_transactions_screen.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/transaction_list_screen/transaction_list_screen.dart';
+import 'package:equity_tracker/features/stats/presentation/screens/stats_screen/stats_screen.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/recurring_transactions_screen/recurring_transactions_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/features/app/presentation/widgets/main_bottom_nav.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/app/presentation/screens/splash_screen.dart';
-import 'package:equity_tracker/features/app/presentation/screens/home_screen.dart';
-import 'package:equity_tracker/features/settings/presentation/screens/settings_screen.dart';
-import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_transaction_screen.dart';
-import 'package:equity_tracker/features/transaction/presentation/screens/recurring_transactions_screen.dart';
-import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_recurring_transaction_screen.dart';
-import 'package:equity_tracker/features/category/presentation/screens/category_management_screen.dart';
-import 'package:equity_tracker/features/category/presentation/screens/add_category_screen.dart';
+import 'package:equity_tracker/features/app/presentation/screens/splash_screen/splash_screen.dart';
+import 'package:equity_tracker/features/app/presentation/screens/home_screen/home_screen.dart';
+import 'package:equity_tracker/features/settings/presentation/screens/settings_screen/settings_screen.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_transaction_screen/add_edit_transaction_screen.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/recurring_transactions_screen/recurring_transactions_screen.dart';
+import 'package:equity_tracker/features/transaction/presentation/screens/add_edit_recurring_transaction_screen/add_edit_recurring_transaction_screen.dart';
+import 'package:equity_tracker/features/category/presentation/screens/category_management_screen/category_management_screen.dart';
+import 'package:equity_tracker/features/category/presentation/screens/add_category_screen/add_category_screen.dart';
 
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
