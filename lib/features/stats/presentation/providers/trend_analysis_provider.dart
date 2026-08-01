@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
-import 'package:equity_tracker/features/trend_analysis/domain/calculate_monthly_trend_usecase.dart';
+import 'package:equity_tracker/features/stats/domain/calculate_monthly_trend_usecase.dart';
 
 final calculateMonthlyTrendUseCaseProvider = Provider<CalculateMonthlyTrendUseCase>((ref) {
   return CalculateMonthlyTrendUseCase();

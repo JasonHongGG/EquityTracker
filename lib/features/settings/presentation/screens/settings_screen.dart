@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/core/providers/app_registry_providers.dart';
+
+import 'package:equity_tracker/features/settings/presentation/widgets/settings_screen/preferences_section.dart';
+import 'package:equity_tracker/features/data_management/presentation/widgets/data_management_section.dart';
+import 'package:equity_tracker/features/data_management/presentation/widgets/experimental_section.dart';
+import 'package:equity_tracker/features/data_management/presentation/widgets/danger_zone_section.dart';
+import 'package:equity_tracker/features/app_update/presentation/widgets/app_update_section.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -9,9 +14,6 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
-    // Get all registered settings extensions
-    final extensions = ref.watch(settingsRegistryProvider);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0F111A) : const Color(0xFFF5F7FA),
@@ -24,12 +26,15 @@ class SettingsScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         centerTitle: true,
       ),
-      body: ListView.builder(
+      body: ListView(
         padding: const EdgeInsets.only(bottom: 20),
-        itemCount: extensions.length,
-        itemBuilder: (context, index) {
-          return extensions[index].buildSection(context, ref);
-        },
+        children: const [
+          PreferencesSection(),
+          DataManagementSection(),
+          ExperimentalSection(), // Contains Notion Sync & Import
+          DangerZoneSection(),
+          AppUpdateSection(),
+        ],
       ),
     );
   }

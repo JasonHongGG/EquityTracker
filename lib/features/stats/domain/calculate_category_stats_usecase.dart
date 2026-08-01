@@ -1,7 +1,7 @@
 
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/category_analysis/domain/category_stat.dart';
+import 'package:equity_tracker/features/stats/domain/category_stat.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 

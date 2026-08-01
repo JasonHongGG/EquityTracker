@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/trend_analysis/presentation/widgets/trend_line_chart.dart';
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_line_chart.dart';
 import 'package:equity_tracker/core/widgets/horizontal_day_slider.dart';
-import 'package:equity_tracker/features/trend_analysis/presentation/providers/trend_analysis_provider.dart';
+import 'package:equity_tracker/features/stats/presentation/providers/trend_analysis_provider.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
-import 'package:equity_tracker/features/trend_analysis/presentation/widgets/trend_legend_item.dart';
-import 'package:equity_tracker/features/trend_analysis/presentation/widgets/trend_transaction_list.dart';
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_legend_item.dart';
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/trend_transaction_list.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class MonthlyTrendTab extends ConsumerStatefulWidget {

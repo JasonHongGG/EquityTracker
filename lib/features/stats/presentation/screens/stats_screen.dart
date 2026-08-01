@@ -1,38 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:equity_tracker/core/widgets/search_dialog.dart';
 
 import 'package:equity_tracker/core/widgets/month_navigation_bar.dart';
 import 'package:equity_tracker/core/widgets/segment_tab_selector.dart';
 import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
-import 'package:equity_tracker/core/providers/analytics_registry_providers.dart';
-import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
+import 'package:equity_tracker/core/widgets/search_dialog.dart';
 
-class AnalyticsDashboardScreen extends ConsumerStatefulWidget {
-  const AnalyticsDashboardScreen({super.key});
+import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/monthly_trend_tab.dart';
+import 'package:equity_tracker/features/stats/presentation/widgets/stats_screen/category_analysis_tab.dart';
+
+class StatsScreen extends ConsumerStatefulWidget {
+  const StatsScreen({super.key});
 
   @override
-  ConsumerState<AnalyticsDashboardScreen> createState() => _AnalyticsDashboardScreenState();
+  ConsumerState<StatsScreen> createState() => _StatsScreenState();
 }
 
-class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScreen>
+class _StatsScreenState extends ConsumerState<StatsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    // Getting the initial length is tricky because it depends on providers.
-    // However, analyticsRegistryProvider is typically static (length = 2).
-    // We will initialize it in didChangeDependencies or just read it once.
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final extensions = ref.read(analyticsRegistryProvider);
-    _tabController = TabController(length: extensions.length, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -45,7 +38,6 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final extensions = ref.watch(analyticsRegistryProvider);
     final selectedMonth = ref.watch(selectedMonthProvider);
 
     return Scaffold(
@@ -121,15 +113,16 @@ class _AnalyticsDashboardScreenState extends ConsumerState<AnalyticsDashboardScr
           const SizedBox(height: 16),
           CustomTabSelector(
             controller: _tabController,
-            tabs: extensions.map((e) => e.tabTitle).toList(),
+            tabs: const ['Trend', 'Category'],
           ),
           const SizedBox(height: 16),
           Expanded(
             child: TabBarView(
               controller: _tabController,
-              children: extensions.map((ext) {
-                return ext.buildTabView(context, ref);
-              }).toList(),
+              children: const [
+                MonthlyTrendTab(),
+                CategoryAnalysisTab(),
+              ],
             ),
           ),
         ],

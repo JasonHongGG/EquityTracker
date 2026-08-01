@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/core/registry/settings_extension.dart';
 import 'package:equity_tracker/features/app_update/presentation/providers/update_notifier.dart';
 import 'package:equity_tracker/features/app_update/presentation/widgets/update_dialog_helpers.dart';
 import 'package:equity_tracker/features/app_update/presentation/widgets/update_status_dialog.dart';
 import 'package:equity_tracker/features/app_update/presentation/widgets/already_latest_version_dialog.dart';
 import 'package:equity_tracker/features/app_update/presentation/widgets/version_display_button.dart';
 
-class AppUpdateSettingsExtension implements SettingsExtension {
-  @override
-  int get sortPriority => 99; // 放在最下面
+class AppUpdateSection extends ConsumerWidget {
+  const AppUpdateSection({super.key});
 
   @override
-  Widget buildSection(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context, WidgetRef ref) {
     const currentAppVersion = '1.0.0'; // 或者從某處讀取
 
     return Column(

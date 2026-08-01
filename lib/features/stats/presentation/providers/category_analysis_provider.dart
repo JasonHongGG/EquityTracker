@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/category/presentation/providers/category_notifier.dart';
-import 'package:equity_tracker/features/category_analysis/domain/category_stat.dart';
-import 'package:equity_tracker/features/category_analysis/domain/calculate_category_stats_usecase.dart';
+import 'package:equity_tracker/features/stats/domain/category_stat.dart';
+import 'package:equity_tracker/features/stats/domain/calculate_category_stats_usecase.dart';
 
 final calculateCategoryStatsUseCaseProvider = Provider<CalculateCategoryStatsUseCase>((ref) {
   return CalculateCategoryStatsUseCase();

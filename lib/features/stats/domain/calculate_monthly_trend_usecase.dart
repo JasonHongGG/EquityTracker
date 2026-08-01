@@ -1,6 +1,6 @@
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/trend_analysis/domain/daily_trend.dart';
+import 'package:equity_tracker/features/stats/domain/daily_trend.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class MonthlyTrendResult {
