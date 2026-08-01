@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/app/screens/splash_screen.dart';
 import 'package:equity_tracker/features/app/screens/home_screen.dart';
 import 'package:equity_tracker/features/settings/screens/settings_screen.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_transaction_screen.dart';
-import 'package:equity_tracker/features/transaction/screens/recurring_transactions_screen.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction_screen.dart';
+import 'package:equity_tracker/features/transaction/screens/add_edit_transaction/add_edit_transaction_screen.dart';
+import 'package:equity_tracker/features/transaction/screens/recurring_transactions/recurring_transactions_screen.dart';
+import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction/add_edit_recurring_transaction_screen.dart';
 import 'package:equity_tracker/features/category/screens/category_management_screen.dart';
 import 'package:equity_tracker/features/category/screens/add_category_screen.dart';
 
