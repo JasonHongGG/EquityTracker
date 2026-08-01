@@ -11,7 +11,7 @@ class TrendAnalyticsExtension implements AnalyticsExtension {
   IconData get tabIcon => Icons.show_chart_rounded;
 
   @override
-  int get sortPriority => 20;
+  int get sortPriority => 10;
 
   @override
   Widget buildTabView(BuildContext context, WidgetRef ref) {

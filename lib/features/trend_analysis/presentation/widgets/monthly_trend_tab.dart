@@ -16,29 +16,17 @@ class MonthlyTrendTab extends ConsumerStatefulWidget {
 }
 
 class _MonthlyTrendTabState extends ConsumerState<MonthlyTrendTab> {
-  int? _selectedDay;
+  int? _selectedDay = 1;
 
   @override
   void initState() {
     super.initState();
-    // We will initialize day on first build after getting transactions
   }
 
-  void _initializeSelectedDay(List<TransactionModel> transactions) {
-    if (transactions.isEmpty) {
-      setState(() => _selectedDay = null);
-      return;
-    }
-
-    final days = transactions.map((t) => t.date.day).toSet().toList()..sort();
-
-    if (days.isNotEmpty) {
-      setState(() {
-        _selectedDay = days.first;
-      });
-    } else {
-      setState(() => _selectedDay = null);
-    }
+  void _initializeSelectedDay() {
+    setState(() {
+      _selectedDay = 1;
+    });
   }
 
   @override
@@ -50,12 +38,7 @@ class _MonthlyTrendTabState extends ConsumerState<MonthlyTrendTab> {
 
     ref.listen(selectedMonthProvider, (prev, next) {
       if (prev != next) {
-        _initializeSelectedDay(transactions);
-      }
-    });
-    ref.listen(filteredTransactionsProvider, (prev, next) {
-      if (prev?.value != next.value) {
-        _initializeSelectedDay(next.value ?? []);
+        _initializeSelectedDay();
       }
     });
 

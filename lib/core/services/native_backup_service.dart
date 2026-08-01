@@ -21,7 +21,7 @@ class NativeBackupService {
 
   Future<String> createBackupJson() async {
     final categories = await _categoryRepo.getCategories();
-    final transactions = await _transactionRepo.getTransactions();
+    final transactions = await _transactionRepo.getAllTransactions();
 
     final backupData = {
       'version': 1,

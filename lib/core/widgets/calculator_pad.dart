@@ -218,8 +218,7 @@ class CalculatorPad extends StatelessWidget {
                       child: _buildButton(
                         _canCalculate ? '=' : 'OK',
                         height: (rowHeight * 2) + 8,
-                        color: primaryColor, // Fallback
-                        gradient: AppColors.primaryGradient, // Gradient Support
+                        color: primaryColor,
                         textColor: Colors.white,
                         isBold: true,
                         enableShadow: true,

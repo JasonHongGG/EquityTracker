@@ -9,8 +9,6 @@ import 'package:equity_tracker/features/app/presentation/widgets/main_bottom_nav
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 
-
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/presentation/providers/recurring_transaction_notifier.dart';
 import 'package:equity_tracker/features/app_update/presentation/providers/update_notifier.dart';
@@ -104,12 +102,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     width: 60,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: AppColors.primaryGradient,
+                      color: AppColors.primary,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.3),
-                          blurRadius: 15,
-                          offset: const Offset(0, 8),
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),

@@ -45,13 +45,13 @@ class CustomBottomNavBar extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         decoration: isSelected
             ? BoxDecoration(
-                gradient: AppColors.primaryGradient,
+                color: AppColors.primary,
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.4),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               )

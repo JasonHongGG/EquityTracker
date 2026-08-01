@@ -18,7 +18,7 @@ class SettingsNotifier extends AsyncNotifier<SettingsState> {
     final repo = ref.read(settingsRepositoryProvider);
 
     final themeMode = await repo.getThemeMode();
-    final isPrivacyModeEnabled = await repo.isPrivacyModeEnabled();
+    final isPrivacyModeEnabled = await repo.getPrivacyMode();
 
     return SettingsState(
       themeMode: themeMode,

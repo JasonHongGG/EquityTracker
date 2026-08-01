@@ -11,7 +11,7 @@ class CategoryAnalyticsExtension implements AnalyticsExtension {
   IconData get tabIcon => Icons.pie_chart_rounded;
 
   @override
-  int get sortPriority => 10;
+  int get sortPriority => 20;
 
   @override
   Widget buildTabView(BuildContext context, WidgetRef ref) {

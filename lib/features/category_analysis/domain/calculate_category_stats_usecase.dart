@@ -9,15 +9,16 @@ class CalculateCategoryStatsUseCase {
   List<CategoryStat> execute({
     required List<TransactionModel> transactions,
     required List<CategoryModel> allCategories,
+    required TransactionType type,
   }) {
     final Map<String, int> categoryTotals = {};
-    int totalExpense = 0;
+    int totalAmount = 0;
 
     for (var t in transactions) {
-      if (t.type == TransactionType.expense) {
+      if (t.type == type) {
         categoryTotals[t.categoryId] =
             (categoryTotals[t.categoryId] ?? 0) + t.amount;
-        totalExpense += t.amount;
+        totalAmount += t.amount;
       }
     }
 
@@ -36,7 +37,7 @@ class CalculateCategoryStatsUseCase {
         ),
       );
       
-      final percent = totalExpense > 0 ? (entry.value / totalExpense) : 0.0;
+      final percent = totalAmount > 0 ? (entry.value / totalAmount) : 0.0;
       
       stats.add(
         CategoryStat(
