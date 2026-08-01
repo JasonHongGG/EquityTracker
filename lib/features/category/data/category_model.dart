@@ -1,6 +1,5 @@
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/category/data/category_model.dart';
 
 import 'package:flutter/material.dart';
 

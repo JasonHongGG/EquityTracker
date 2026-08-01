@@ -24,7 +24,7 @@ class FrequencySelector extends StatelessWidget {
           color: isDark ? Colors.black26 : Colors.grey[100],
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+            color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
           ),
         ),
         child: Row(

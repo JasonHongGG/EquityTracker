@@ -13,8 +13,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/providers/recurring_transaction_notifier.dart';
 import 'package:equity_tracker/features/app_update/providers/update_notifier.dart';
 import 'package:equity_tracker/features/app_update/widgets/update_dialog_helpers.dart';
-import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
-import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -105,7 +103,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                       color: AppColors.primary,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 8,
                           offset: const Offset(0, 4),
                         ),

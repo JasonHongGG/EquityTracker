@@ -67,7 +67,7 @@ class PickerDialogShell extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      foregroundColor: secondaryTextColor.withOpacity(0.6),
+                      foregroundColor: secondaryTextColor.withValues(alpha: 0.6),
                     ),
                     child: const Text(
                       'Cancel',

@@ -1,4 +1,3 @@
-import 'package:equity_tracker/core/enums/frequency.dart';
 enum Frequency {
   daily,
   weekly,

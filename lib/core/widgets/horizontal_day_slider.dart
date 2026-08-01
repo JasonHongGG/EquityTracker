@@ -100,7 +100,7 @@ class _ArrowButton extends StatelessWidget {
         child: Icon(
           icon,
           size: 12,
-          color: onTap != null ? color : color.withOpacity(0.3),
+          color: onTap != null ? color : color.withValues(alpha: 0.3),
         ),
       ),
     );

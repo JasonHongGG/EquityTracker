@@ -5,7 +5,6 @@ import 'package:equity_tracker/features/category/data/category_repository.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_repository.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
-import 'package:uuid/uuid.dart';
 
 class BackupRestoreResult {
   final int categoriesImported;

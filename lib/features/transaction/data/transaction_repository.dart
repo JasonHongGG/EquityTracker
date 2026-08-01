@@ -2,7 +2,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:equity_tracker/core/database/database_helper.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
-import 'package:equity_tracker/core/enums/transaction_type.dart';
 
 class TransactionRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;

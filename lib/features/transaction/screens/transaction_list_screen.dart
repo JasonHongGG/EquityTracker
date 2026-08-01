@@ -3,12 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/settings/screens/settings_screen.dart';
 import 'package:equity_tracker/core/widgets/search_dialog.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
+import 'package:equity_tracker/features/transaction/controllers/transaction_list_controller.dart';
 import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
-import 'package:equity_tracker/features/transaction/screens/transaction_list_screen/dashboard_header_delegate.dart';
+import 'package:equity_tracker/features/transaction/widgets/transaction_list_screen/dashboard_header_delegate.dart';
 import 'package:equity_tracker/core/widgets/month_navigation_bar.dart';
 import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
-import 'package:equity_tracker/features/transaction/screens/transaction_list_screen/daily_transaction_card.dart';
-import 'package:equity_tracker/features/transaction/screens/transaction_list_screen/transaction_empty_state.dart';
+import 'package:equity_tracker/features/transaction/widgets/transaction_list_screen/daily_transaction_card.dart';
+import 'package:equity_tracker/features/transaction/widgets/transaction_list_screen/transaction_empty_state.dart';
 
 class TransactionListScreen extends ConsumerStatefulWidget {
   const TransactionListScreen({super.key});
@@ -24,52 +25,12 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
   @override
   Widget build(BuildContext context) {
     final selectedMonth = ref.watch(selectedMonthProvider);
-    final groupedTransactionsAsync = ref.watch(groupedTransactionsProvider);
-    
-    final filteredTransactionsAsync = ref.watch(filteredTransactionsProvider);
-    final transactionsAsync = ref.watch(transactionListProvider);
     final currentFilter = ref.watch(transactionFilterProvider);
-
-    // Read privacy mode
     final settingsAsync = ref.watch(settingsNotifierProvider);
     final isPrivacyMode = settingsAsync.value?.isPrivacyModeEnabled ?? false;
-
-    final isSearching =
-        currentFilter.searchQuery != null &&
-        currentFilter.searchQuery!.isNotEmpty;
+    final isSearching = currentFilter.searchQuery != null && currentFilter.searchQuery!.isNotEmpty;
         
-    // 1. Total Balance & Stats (All Time)
-    int totalBalance = 0;
-    int totalIncome = 0;
-    int totalExpense = 0;
-    if (transactionsAsync.hasValue) {
-      for (var t in transactionsAsync.value!) {
-        if (t.type.name == 'income') {
-          totalIncome += t.amount;
-          totalBalance += t.amount;
-        } else {
-          totalExpense += t.amount;
-          totalBalance -= t.amount;
-        }
-      }
-    }
-
-    // 2. Monthly Stats (Selected Month from Filter)
-    int monthlyBalance = 0;
-    int monthlyIncome = 0;
-    int monthlyExpense = 0;
-
-    if (filteredTransactionsAsync.hasValue) {
-      for (var t in filteredTransactionsAsync.value!) {
-        if (t.type.name == 'income') {
-          monthlyIncome += t.amount;
-          monthlyBalance += t.amount;
-        } else {
-          monthlyExpense += t.amount;
-          monthlyBalance -= t.amount;
-        }
-      }
-    }
+    final state = ref.watch(transactionListControllerProvider);
 
     return Scaffold(
       body: CustomScrollView(
@@ -166,12 +127,12 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           SliverPersistentHeader(
             pinned: true,
             delegate: DashboardHeaderDelegate(
-              totalBalance: totalBalance,
-              totalIncome: totalIncome,
-              totalExpense: totalExpense,
-              monthlyBalance: monthlyBalance,
-              monthlyIncome: monthlyIncome,
-              monthlyExpense: monthlyExpense,
+              totalBalance: state.totalBalance,
+              totalIncome: state.totalIncome,
+              totalExpense: state.totalExpense,
+              monthlyBalance: state.monthlyBalance,
+              monthlyIncome: state.monthlyIncome,
+              monthlyExpense: state.monthlyExpense,
               isMonthlyView: _isMonthlyView,
               onToggleView: () {
                 setState(() {
@@ -210,32 +171,27 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
           ),
 
           // List
-          groupedTransactionsAsync.when(
-            data: (groupedTransactions) {
-              if (groupedTransactions.isEmpty) {
-                return const TransactionEmptyState();
-              }
-
-              final dates = groupedTransactions.keys.toList();
-
-              return SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final date = dates[index];
-                  final transactions = groupedTransactions[date]!;
-                  return DailyTransactionCard(
-                    date: date,
-                    transactions: transactions,
-                    index: index,
-                  );
-                }, childCount: dates.length),
-              );
-            },
-            loading: () => const SliverFillRemaining(
+          if (state.isLoading)
+            const SliverFillRemaining(
               child: Center(child: CircularProgressIndicator()),
+            )
+          else if (state.errorMessage != null)
+            SliverFillRemaining(child: Center(child: Text('Error: \${state.errorMessage}')))
+          else if (state.groupedTransactions.isEmpty)
+            const TransactionEmptyState()
+          else
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final dates = state.groupedTransactions.keys.toList();
+                final date = dates[index];
+                final transactions = state.groupedTransactions[date]!;
+                return DailyTransactionCard(
+                  date: date,
+                  transactions: transactions,
+                  index: index,
+                );
+              }, childCount: state.groupedTransactions.length),
             ),
-            error: (e, s) =>
-                SliverFillRemaining(child: Center(child: Text('Error: \$e'))),
-          ),
 
           // Bottom Padding for Nav Bar
           const SliverPadding(padding: EdgeInsets.only(bottom: 100)),

@@ -65,7 +65,7 @@ class CategoryIconPicker extends StatelessWidget {
                           child: Container(
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? selectedColor.withOpacity(0.2)
+                                  ? selectedColor.withValues(alpha: 0.2)
                                   : (isDark ? Colors.white10 : Colors.grey.shade100),
                               shape: BoxShape.circle,
                               border: isSelected
@@ -155,7 +155,7 @@ class CategoryIconPicker extends StatelessWidget {
                   height: 50,
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? selectedColor.withOpacity(0.2)
+                        ? selectedColor.withValues(alpha: 0.2)
                         : (isDark ? Colors.white10 : Colors.grey.shade100),
                     borderRadius: BorderRadius.circular(16),
                     border: isSelected

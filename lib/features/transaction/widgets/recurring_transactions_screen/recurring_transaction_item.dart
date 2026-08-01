@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-import 'package:equity_tracker/core/enums/frequency.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 
@@ -10,7 +9,6 @@ import 'package:equity_tracker/features/category/providers/category_notifier.dar
 
 import 'package:equity_tracker/features/transaction/providers/recurring_transaction_notifier.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction_screen.dart';
-import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 
@@ -51,7 +49,7 @@ class RecurringTransactionItem extends ConsumerWidget {
         padding: const EdgeInsets.only(right: 20),
         margin: const EdgeInsets.only(bottom: 12),
         decoration: BoxDecoration(
-          color: Colors.redAccent.withOpacity(0.9),
+          color: Colors.redAccent.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(20),
         ),
         child: const Icon(
@@ -108,7 +106,7 @@ class RecurringTransactionItem extends ConsumerWidget {
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 15,
                 offset: const Offset(0, 5),
               ),
@@ -121,7 +119,7 @@ class RecurringTransactionItem extends ConsumerWidget {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: category?.color.withValues(alpha: 0.1) ??
-                      Colors.grey.withOpacity(0.1),
+                      Colors.grey.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(

@@ -115,8 +115,8 @@ class CalculatorPad extends StatelessWidget {
 
     // Button Backgrounds (Theme aware)
     final buttonBgColor = isDark ? const Color(0xFF2C2F3E) : Colors.white;
-    final operatorBgColor = AppColors.secondary.withOpacity(0.1);
-    final dangerBgColor = AppColors.expense.withOpacity(0.1);
+    final operatorBgColor = AppColors.secondary.withValues(alpha: 0.1);
+    final dangerBgColor = AppColors.expense.withValues(alpha: 0.1);
 
     return Container(
       color: backgroundColor,
@@ -304,7 +304,7 @@ class CalculatorPad extends StatelessWidget {
                 BoxShadow(
                   color:
                       (gradient != null ? (color ?? Colors.blue) : Colors.black)
-                          .withOpacity(gradient != null ? 0.3 : 0.05),
+                          .withValues(alpha: gradient != null ? 0.3 : 0.05),
                   blurRadius: gradient != null ? 8 : 4,
                   offset: gradient != null
                       ? const Offset(0, 4)

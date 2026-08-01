@@ -15,12 +15,11 @@ import 'package:equity_tracker/core/widgets/pickers/string_wheel_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction_screen/frequency_selector.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction_screen/recurring_transaction_delete_dialog.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction_screen/recurring_transaction_footer.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction_screen/recurring_transaction_header.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction_screen/trigger_date_time_selector.dart';
-import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/transaction/widgets/add_edit_recurring_transaction_screen/frequency_selector.dart';
+import 'package:equity_tracker/features/transaction/widgets/add_edit_recurring_transaction_screen/recurring_transaction_delete_dialog.dart';
+import 'package:equity_tracker/features/transaction/widgets/add_edit_recurring_transaction_screen/recurring_transaction_footer.dart';
+import 'package:equity_tracker/features/transaction/widgets/add_edit_recurring_transaction_screen/recurring_transaction_header.dart';
+import 'package:equity_tracker/features/transaction/widgets/add_edit_recurring_transaction_screen/trigger_date_time_selector.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 
 class AddEditRecurringTransactionModelScreen extends ConsumerStatefulWidget {
@@ -424,7 +423,7 @@ class _AddEditRecurringTransactionModelScreenState
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -508,8 +507,9 @@ class _AddEditRecurringTransactionModelScreenState
                               });
                             }
 
-                            if (filtered.isEmpty)
+                            if (filtered.isEmpty) {
                               return const Center(child: Text('No Categories'));
+                            }
 
                             return SingleChildScrollView(
                               padding: const EdgeInsets.symmetric(

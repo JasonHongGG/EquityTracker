@@ -26,7 +26,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
     final primaryColor = theme.colorScheme.primary;
     final surfaceColor = isDark ? const Color(0xFF1E1E2C) : Colors.white;
     final highlightColor = isDark
-        ? Colors.white.withOpacity(0.05)
+        ? Colors.white.withValues(alpha: 0.05)
         : Colors.grey.shade100;
 
     return Dialog(
@@ -46,7 +46,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
                   ? Icons.downloading_rounded
                   : Icons.rocket_launch_rounded,
               color: primaryColor,
-              backgroundColor: primaryColor.withOpacity(0.1),
+              backgroundColor: primaryColor.withValues(alpha: 0.1),
             ),
             const SizedBox(height: 24),
 
@@ -72,7 +72,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
                   color: highlightColor,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: theme.dividerColor.withOpacity(0.5),
+                    color: theme.dividerColor.withValues(alpha: 0.5),
                   ),
                 ),
                 child: Row(
@@ -82,7 +82,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
                       UpdateRepository.currentAppVersion,
                       style: TextStyle(
                         fontFamily: 'Outfit',
-                        color: theme.textTheme.bodyMedium?.color?.withOpacity(
+                        color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 
                           0.5,
                         ),
                         fontWeight: FontWeight.w600,
@@ -93,7 +93,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
                       child: Icon(
                         Icons.arrow_forward_rounded,
                         size: 14,
-                        color: theme.textTheme.bodyMedium?.color?.withOpacity(
+                        color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 
                           0.3,
                         ),
                       ),
@@ -132,7 +132,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
                           fontFamily: 'Outfit',
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: theme.textTheme.bodyMedium?.color?.withOpacity(
+                          color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 
                             0.5,
                           ),
                           letterSpacing: 1.0,
@@ -144,7 +144,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontFamily: 'Outfit',
                           height: 1.5,
-                          color: theme.textTheme.bodyMedium?.color?.withOpacity(
+                          color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 
                             0.8,
                           ),
                         ),
@@ -179,7 +179,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.redAccent.withOpacity(0.1),
+                  color: Colors.redAccent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -225,7 +225,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         foregroundColor: theme.textTheme.bodyMedium?.color
-                            ?.withOpacity(0.6),
+                            ?.withValues(alpha: 0.6),
                       ),
                       child: const Text(
                         '稍後更新',
@@ -246,7 +246,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        shadowColor: primaryColor.withOpacity(0.3),
+                        shadowColor: primaryColor.withValues(alpha: 0.3),
                         elevation: 4,
                       ),
                       child: _isProcessing

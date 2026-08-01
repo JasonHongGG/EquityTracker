@@ -40,7 +40,7 @@ class TransactionHeader extends ConsumerWidget {
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: (type == TransactionType.income ? AppColors.income : AppColors.expense).withOpacity(0.3),
+                      color: (type == TransactionType.income ? AppColors.income : AppColors.expense).withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -103,7 +103,7 @@ class TransactionHeader extends ConsumerWidget {
                       isDense: true,
                       hintText: 'What is this for?',
                       hintStyle: TextStyle(
-                        color: Colors.grey.withOpacity(0.5),
+                        color: Colors.grey.withValues(alpha: 0.5),
                       ),
                       border: InputBorder.none,
                     ),
@@ -130,7 +130,7 @@ class TransactionHeader extends ConsumerWidget {
                                   fontWeight: FontWeight.w500,
                                 ),
                                 elevation: 2,
-                                shadowColor: Colors.black.withOpacity(0.1),
+                                shadowColor: Colors.black.withValues(alpha: 0.1),
                                 side: BorderSide.none,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),

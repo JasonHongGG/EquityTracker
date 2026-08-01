@@ -133,7 +133,7 @@ class _DashboardHeaderContentState extends State<_DashboardHeaderContent> {
         ? SystemUiOverlayStyle.light
         : (isCollapsed ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.dark);
 
-    final Color? cardColor = isDarkTheme
+    final Color cardColor = isDarkTheme
         ? AppColors.surfaceDark
         : AppColors.surfaceLight;
     final Gradient? cardGradient = isDarkTheme ? null : null;
@@ -347,7 +347,7 @@ class _DashboardHeaderContentState extends State<_DashboardHeaderContent> {
                               constraints: const BoxConstraints(),
                               icon: Icon(
                                 Icons.chevron_left,
-                                color: textColor.withOpacity(0.8),
+                                color: textColor.withValues(alpha: 0.8),
                               ),
                             ),
                             const SizedBox(width: 2),
@@ -372,7 +372,7 @@ class _DashboardHeaderContentState extends State<_DashboardHeaderContent> {
                               constraints: const BoxConstraints(),
                               icon: Icon(
                                 Icons.chevron_right,
-                                color: textColor.withOpacity(0.8),
+                                color: textColor.withValues(alpha: 0.8),
                               ),
                             ),
                           ],
@@ -416,7 +416,7 @@ class _DashboardHeaderContentState extends State<_DashboardHeaderContent> {
                                   Text(
                                     _formatCurrency(currentIncome),
                                     style: TextStyle(
-                                      color: textColor.withOpacity(0.7),
+                                      color: textColor.withValues(alpha: 0.7),
                                       fontSize: 11,
                                     ),
                                   ),
@@ -429,7 +429,7 @@ class _DashboardHeaderContentState extends State<_DashboardHeaderContent> {
                                   Text(
                                     _formatCurrency(currentExpense),
                                     style: TextStyle(
-                                      color: textColor.withOpacity(0.7),
+                                      color: textColor.withValues(alpha: 0.7),
                                       fontSize: 11,
                                     ),
                                   ),
@@ -464,7 +464,7 @@ class _DashboardHeaderContentState extends State<_DashboardHeaderContent> {
         Container(
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
+            color: color.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 16),

@@ -30,7 +30,7 @@ class UpdateStatusDialog extends StatelessWidget {
               StatusIcon(
                 icon: Icons.error_rounded,
                 color: Colors.redAccent,
-                backgroundColor: Colors.redAccent.withOpacity(0.1),
+                backgroundColor: Colors.redAccent.withValues(alpha: 0.1),
               )
             else
               Container(
@@ -58,7 +58,7 @@ class UpdateStatusDialog extends StatelessWidget {
               message,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                 fontFamily: 'Outfit',
                 height: 1.5,
               ),

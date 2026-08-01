@@ -33,7 +33,7 @@ class PermissionRequestDialog extends StatelessWidget {
             StatusIcon(
               icon: icon,
               color: primaryColor,
-              backgroundColor: primaryColor.withOpacity(0.1),
+              backgroundColor: primaryColor.withValues(alpha: 0.1),
             ),
             const SizedBox(height: 24),
 
@@ -50,7 +50,7 @@ class PermissionRequestDialog extends StatelessWidget {
             Text(
               message,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
+                color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
                 fontFamily: 'Outfit',
                 height: 1.4,
               ),
@@ -89,7 +89,7 @@ class PermissionRequestDialog extends StatelessWidget {
                           height: 24,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: primaryColor.withOpacity(0.1),
+                            color: primaryColor.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: Text(
@@ -107,7 +107,7 @@ class PermissionRequestDialog extends StatelessWidget {
                               width: 2,
                               margin: const EdgeInsets.symmetric(vertical: 4),
                               decoration: BoxDecoration(
-                                color: theme.dividerColor.withOpacity(0.3),
+                                color: theme.dividerColor.withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(1),
                               ),
                             ),
@@ -125,7 +125,7 @@ class PermissionRequestDialog extends StatelessWidget {
                             fontSize: 15,
                             height: 1.3,
                             color: theme.textTheme.bodyLarge?.color
-                                ?.withOpacity(0.9),
+                                ?.withValues(alpha: 0.9),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -149,7 +149,7 @@ class PermissionRequestDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       foregroundColor: theme.textTheme.bodyMedium?.color
-                          ?.withOpacity(0.6),
+                          ?.withValues(alpha: 0.6),
                     ),
                     child: const Text(
                       '取消',
@@ -172,7 +172,7 @@ class PermissionRequestDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       elevation: 4,
-                      shadowColor: primaryColor.withOpacity(0.3),
+                      shadowColor: primaryColor.withValues(alpha: 0.3),
                     ),
                     child: const Text(
                       '前往設定',

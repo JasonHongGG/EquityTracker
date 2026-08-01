@@ -30,8 +30,8 @@ class SettingsTile extends StatelessWidget {
         : (isDark ? Colors.white : const Color(0xFF1A1D2B));
 
     final iconBgColor = isDestructive
-        ? Colors.redAccent.withOpacity(0.1)
-        : iconColor.withOpacity(0.15);
+        ? Colors.redAccent.withValues(alpha: 0.1)
+        : iconColor.withValues(alpha: 0.15);
 
     final displayIconColor = isDestructive ? Colors.redAccent : iconColor;
 

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/category/providers/category_notifier.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/category/widgets/common/category_grid.dart';
@@ -10,12 +8,13 @@ import 'package:equity_tracker/core/widgets/calculator_pad.dart';
 import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_transaction_screen/transaction_header.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_transaction_screen/transaction_date_selector.dart';
+import 'package:equity_tracker/features/transaction/widgets/add_edit_transaction_screen/transaction_header.dart';
+import 'package:equity_tracker/features/transaction/widgets/add_edit_transaction_screen/transaction_date_selector.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_transaction_screen/transaction_footer.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_transaction_screen/transaction_delete_dialog.dart';
+import 'package:equity_tracker/features/transaction/widgets/add_edit_transaction_screen/transaction_footer.dart';
+import 'package:equity_tracker/features/transaction/widgets/add_edit_transaction_screen/transaction_delete_dialog.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/transaction/controllers/add_edit_transaction_controller.dart';
 
 class AddEditTransactionScreen extends ConsumerStatefulWidget {
   final TransactionModel? transaction;
@@ -33,13 +32,9 @@ class AddEditTransactionScreen extends ConsumerStatefulWidget {
 }
 
 class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScreen> {
-  late TransactionType _type;
-  late DateTime _date;
-  late int _amount;
   late TextEditingController _amountController;
   late TextEditingController _titleController;
   late TextEditingController _noteController;
-  String? _selectedCategoryId;
 
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _noteFocusNode = FocusNode();
@@ -49,43 +44,23 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
   void initState() {
     super.initState();
     final t = widget.transaction;
-    _type = t?.type ?? TransactionType.expense;
-
-    if (t != null) {
-      _date = t.date;
-    } else {
-      final now = DateTime.now();
-      if (widget.initialDate != null) {
-        _date = DateTime(
-          widget.initialDate!.year,
-          widget.initialDate!.month,
-          widget.initialDate!.day,
-          now.hour,
-          now.minute,
-          now.second,
-        );
-      } else {
-        _date = now;
-      }
-    }
-
-    _amount = t?.amount ?? 0;
+    
     _amountController = TextEditingController(
       text: t != null ? t.amount.toString() : '',
     );
     _titleController = TextEditingController(text: t?.title ?? '');
     _noteController = TextEditingController(text: t?.note ?? '');
-    _selectedCategoryId = t?.categoryId;
 
     _titleFocusNode.addListener(() {
       setState(() {});
     });
 
-    if (widget.transaction == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(addEditTransactionControllerProvider.notifier).init(widget.transaction, widget.initialDate);
+      if (widget.transaction == null) {
         _showCalculatorSheet();
-      });
-    }
+      }
+    });
   }
 
   @override
@@ -97,28 +72,6 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
     _noteFocusNode.dispose();
     _suggestionsScrollController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickDate() async {
-    final DateTime? pickedDate = await showCustomDateTimePicker(
-      context: context,
-      initialDate: _date,
-      showYear: true,
-      showMonth: true,
-      showDay: true,
-    );
-    if (pickedDate != null) {
-      setState(() {
-        _date = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          _date.hour,
-          _date.minute,
-          _date.second,
-        );
-      });
-    }
   }
 
   void _showCalculatorSheet() {
@@ -139,8 +92,6 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
               onChanged: (val) {
                 setState(() {
                   _amountController.text = val;
-                  final parsed = int.tryParse(val);
-                  if (parsed != null) _amount = parsed;
                 });
                 setSheetState(() {});
               },
@@ -155,55 +106,27 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
     );
   }
 
-  void _saveTransaction() {
-    int finalAmount = _amount;
-    final val = _amountController.text;
-    final parsed = int.tryParse(val);
-    if (parsed == null) {
-      ToastService.showError(context, 'Invalid Amount');
-      return;
-    }
-    finalAmount = parsed;
-
-    if (finalAmount <= 0) {
-      ToastService.showError(context, 'Amount must be > 0');
-      return;
-    }
-    if (_selectedCategoryId == null) {
-      ToastService.showError(context, 'Please select a category');
-      return;
-    }
-
-    final newTx = TransactionModel(
-      id: widget.transaction?.id,
-      notionId: widget.transaction?.notionId,
-      title: _titleController.text.isNotEmpty ? _titleController.text : null,
-      type: _type,
-      amount: finalAmount,
-      categoryId: _selectedCategoryId!,
-      date: _date,
-      createdAt: widget.transaction?.createdAt ?? DateTime.now(),
-      note: _noteController.text,
+  Future<void> _saveTransaction() async {
+    final success = await ref.read(addEditTransactionControllerProvider.notifier).saveTransaction(
+      titleText: _titleController.text,
+      amountText: _amountController.text,
+      noteText: _noteController.text,
     );
 
-    if (widget.transaction == null) {
-      ref.read(transactionListProvider.notifier).addTransaction(newTx);
-    } else {
-      ref.read(transactionListProvider.notifier).updateTransaction(newTx);
+    if (success && mounted) {
+      Navigator.pop(context);
+    } else if (mounted) {
+      final error = ref.read(addEditTransactionControllerProvider).error;
+      if (error != null) {
+        ToastService.showError(context, error);
+      }
     }
-
-    Navigator.pop(context);
   }
 
   void _deleteTransaction() async {
     final shouldDelete = await TransactionDeleteDialog.show(context);
-    if (shouldDelete && widget.transaction?.id != null) {
-      ref
-          .read(transactionListProvider.notifier)
-          .deleteTransaction(
-            widget.transaction!.id!,
-            widget.transaction!.notionId,
-          );
+    if (shouldDelete) {
+      await ref.read(addEditTransactionControllerProvider.notifier).deleteTransaction();
       if (mounted) {
         Navigator.pop(context);
       }
@@ -212,6 +135,9 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
 
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(addEditTransactionControllerProvider);
+    final controller = ref.read(addEditTransactionControllerProvider.notifier);
+
     final categoriesAsync = ref.watch(categoryListProvider);
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -255,7 +181,7 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
               ),
 
               TransactionHeader(
-                type: _type,
+                type: state.type,
                 amountController: _amountController,
                 titleController: _titleController,
                 titleFocusNode: _titleFocusNode,
@@ -273,7 +199,7 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                         offset: const Offset(0, -5),
                       ),
@@ -282,10 +208,28 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
                   child: Column(
                     children: [
                       TransactionDateSelector(
-                        date: _date,
-                        onPreviousDay: () => setState(() => _date = _date.subtract(const Duration(days: 1))),
-                        onNextDay: () => setState(() => _date = _date.add(const Duration(days: 1))),
-                        onPickDate: _pickDate,
+                        date: state.date,
+                        onPreviousDay: () => controller.updateDate(state.date.subtract(const Duration(days: 1))),
+                        onNextDay: () => controller.updateDate(state.date.add(const Duration(days: 1))),
+                        onPickDate: () async {
+                          final DateTime? pickedDate = await showCustomDateTimePicker(
+                            context: context,
+                            initialDate: state.date,
+                            showYear: true,
+                            showMonth: true,
+                            showDay: true,
+                          );
+                          if (pickedDate != null) {
+                            controller.updateDate(DateTime(
+                              pickedDate.year,
+                              pickedDate.month,
+                              pickedDate.day,
+                              state.date.hour,
+                              state.date.minute,
+                              state.date.second,
+                            ));
+                          }
+                        },
                       ),
                       
                       Padding(
@@ -294,13 +238,8 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
                           children: [
                             Expanded(
                               child: SegmentedTypeTab(
-                                selectedType: _type,
-                                onChanged: (type) {
-                                  setState(() {
-                                    _type = type;
-                                    _selectedCategoryId = null;
-                                  });
-                                },
+                                selectedType: state.type,
+                                onChanged: controller.updateType,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -323,18 +262,16 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
                       Expanded(
                         child: categoriesAsync.when(
                           data: (categories) {
-                            final filtered = categories.where((c) => c.type == _type && c.isEnabled).toList();
+                            final filtered = categories.where((c) => c.type == state.type && c.isEnabled).toList();
 
-                            if (_selectedCategoryId == null && filtered.isNotEmpty) {
+                            if (state.categoryId == null && filtered.isNotEmpty) {
                               final defaultCat = filtered.firstWhere(
                                 (c) => c.name == '飲食',
                                 orElse: () => filtered.first,
                               );
                               Future.microtask(() {
-                                if (mounted && _selectedCategoryId == null) {
-                                  setState(() {
-                                    _selectedCategoryId = defaultCat.id;
-                                  });
+                                if (mounted && state.categoryId == null) {
+                                  controller.updateCategory(defaultCat.id);
                                 }
                               });
                             }
@@ -351,8 +288,8 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               child: CategoryGrid(
                                 categories: filtered,
-                                selectedCategoryId: _selectedCategoryId,
-                                onSelected: (id) => setState(() => _selectedCategoryId = id),
+                                selectedCategoryId: state.categoryId,
+                                onSelected: controller.updateCategory,
                               ),
                             );
                           },

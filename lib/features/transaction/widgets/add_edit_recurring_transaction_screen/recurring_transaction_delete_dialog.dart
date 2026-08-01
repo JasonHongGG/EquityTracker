@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class TransactionDeleteDialog extends StatelessWidget {
-  const TransactionDeleteDialog({super.key});
+class RecurringTransactionDeleteDialog extends StatelessWidget {
+  const RecurringTransactionDeleteDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +22,7 @@ class TransactionDeleteDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -33,7 +33,7 @@ class TransactionDeleteDialog extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Delete Transaction',
+              'Delete Rule',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Outfit',
@@ -44,7 +44,7 @@ class TransactionDeleteDialog extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Are you sure you want to delete this transaction?',
+              'Are you sure you want to delete this recurring rule? Past transactions will remain.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: 'Outfit',
@@ -109,7 +109,7 @@ class TransactionDeleteDialog extends StatelessWidget {
   static Future<bool> show(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (ctx) => const TransactionDeleteDialog(),
+      builder: (ctx) => const RecurringTransactionDeleteDialog(),
     );
     return result ?? false;
   }

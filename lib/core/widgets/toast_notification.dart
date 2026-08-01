@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'dart:async';
 
 enum ToastType { success, error, info }
@@ -130,7 +130,7 @@ class _ToastWidgetState extends State<_ToastWidget>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -138,7 +138,7 @@ class _ToastWidgetState extends State<_ToastWidget>
                 border: Border.all(
                   color: isDark
                       ? Colors.white10
-                      : Colors.black.withOpacity(0.05),
+                      : Colors.black.withValues(alpha: 0.05),
                 ),
               ),
               child: Row(

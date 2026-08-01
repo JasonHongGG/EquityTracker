@@ -15,7 +15,7 @@ class CustomTabSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isDark
-        ? Colors.grey.withOpacity(0.1)
+        ? Colors.grey.withValues(alpha: 0.1)
         : Colors.grey.shade200;
 
     final indicatorColor = isDark ? AppColors.surfaceDark : Colors.white;
@@ -23,8 +23,8 @@ class CustomTabSelector extends StatelessWidget {
     final selectedLabelColor = isDark ? Colors.white : Colors.black;
 
     final unselectedLabelColor = isDark
-        ? Colors.white.withOpacity(0.5)
-        : Colors.black.withOpacity(0.5);
+        ? Colors.white.withValues(alpha: 0.5)
+        : Colors.black.withValues(alpha: 0.5);
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 400),
@@ -49,7 +49,7 @@ class CustomTabSelector extends StatelessWidget {
             boxShadow: [
               if (!isDark)
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),

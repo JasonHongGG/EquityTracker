@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/transaction/domain/process_recurring_transactions_usecase.dart';
-import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 
 final processRecurringTransactionsUseCaseProvider = Provider<ProcessRecurringTransactionsUseCase>((ref) {

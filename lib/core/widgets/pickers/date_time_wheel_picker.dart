@@ -119,7 +119,7 @@ class _CustomDateTimePickerDialogState extends State<_CustomDateTimePickerDialog
     
     final textColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
     final secondaryTextColor = isDark ? Colors.white38 : Colors.black38;
-    final highlightColor = theme.primaryColor.withOpacity(0.12);
+    final highlightColor = theme.primaryColor.withValues(alpha: 0.12);
 
     final List<Widget> wheels = [];
     final List<Widget> separators = [];
@@ -189,7 +189,7 @@ class _CustomDateTimePickerDialogState extends State<_CustomDateTimePickerDialog
               style: TextStyle(
                 fontFamily: 'Outfit',
                 fontSize: 22,
-                color: textColor.withOpacity(0.3),
+                color: textColor.withValues(alpha: 0.3),
               ),
             ),
           )

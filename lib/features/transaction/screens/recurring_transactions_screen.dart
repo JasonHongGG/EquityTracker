@@ -5,10 +5,8 @@ import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/transaction/providers/recurring_transaction_notifier.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction_screen.dart';
 import 'package:equity_tracker/features/settings/screens/settings_screen.dart';
-import 'package:equity_tracker/features/transaction/screens/recurring_transactions_screen/recurring_transaction_empty_state.dart';
-import 'package:equity_tracker/features/transaction/screens/recurring_transactions_screen/recurring_transaction_item.dart';
-import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
-import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
+import 'package:equity_tracker/features/transaction/widgets/recurring_transactions_screen/recurring_transaction_empty_state.dart';
+import 'package:equity_tracker/features/transaction/widgets/recurring_transactions_screen/recurring_transaction_item.dart';
 
 class RecurringTransactionModelsScreen extends ConsumerStatefulWidget {
   const RecurringTransactionModelsScreen({super.key});

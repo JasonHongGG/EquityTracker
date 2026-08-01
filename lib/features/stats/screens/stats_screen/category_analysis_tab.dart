@@ -7,7 +7,6 @@ import 'package:equity_tracker/features/stats/widgets/stats_screen/category_prog
 import 'package:equity_tracker/features/stats/widgets/stats_screen/category_details_modal.dart';
 import 'package:equity_tracker/features/stats/providers/category_analysis_provider.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
-import 'package:equity_tracker/core/enums/transaction_type.dart';
 
 class CategoryAnalysisTab extends ConsumerWidget {
   const CategoryAnalysisTab({super.key});

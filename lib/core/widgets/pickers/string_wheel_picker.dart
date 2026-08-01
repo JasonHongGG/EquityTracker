@@ -58,7 +58,7 @@ class _CustomWheelPickerDialogState extends State<_CustomWheelPickerDialog> {
     
     final textColor = isDark ? Colors.white : const Color(0xFF1A1A1A);
     final secondaryTextColor = isDark ? Colors.white38 : Colors.black38;
-    final highlightColor = theme.primaryColor.withOpacity(0.12);
+    final highlightColor = theme.primaryColor.withValues(alpha: 0.12);
 
     return PickerDialogShell(
       title: widget.title,

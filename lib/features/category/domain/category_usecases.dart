@@ -67,7 +67,7 @@ class DeleteCategoryUseCase {
     }
 
     // 2. Reassign to Other
-    if (id != otherCategory!.id) {
+    if (id != otherCategory.id) {
       await transactionRepository.reassignCategoryModel(id, otherCategory.id);
     }
 

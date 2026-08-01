@@ -41,7 +41,7 @@ class RecurringTransactionHeader extends StatelessWidget {
                       color: (type == TransactionType.income
                               ? AppColors.income
                               : AppColors.expense)
-                          .withOpacity(0.3),
+                          .withValues(alpha: 0.3),
                       width: 2,
                     ),
                   ),
@@ -91,7 +91,7 @@ class RecurringTransactionHeader extends StatelessWidget {
               isDense: true,
               hintText: 'What is this for?',
               hintStyle: TextStyle(
-                color: Colors.grey.withOpacity(0.5),
+                color: Colors.grey.withValues(alpha: 0.5),
               ),
               border: InputBorder.none,
             ),

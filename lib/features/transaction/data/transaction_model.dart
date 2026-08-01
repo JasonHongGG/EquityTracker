@@ -1,6 +1,5 @@
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 
 class TransactionModel {
   final int? id;

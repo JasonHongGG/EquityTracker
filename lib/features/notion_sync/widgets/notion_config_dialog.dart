@@ -211,7 +211,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.greenAccent.withOpacity(0.1),
+                      color: Colors.greenAccent.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
@@ -236,7 +236,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
                     scale: 0.9,
                     child: Switch(
                       value: _isEnabled,
-                      activeColor: Colors.white,
+                      activeThumbColor: Colors.white,
                       activeTrackColor: Colors.green,
                       onChanged: (val) => setState(() => _isEnabled = val),
                     ),
@@ -249,7 +249,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade100,
+                  color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isDark ? Colors.white10 : Colors.grey.shade200,
@@ -413,7 +413,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
                             label: const Text("Undo Last Sync", style: TextStyle(color: Colors.orange)),
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
-                              backgroundColor: Colors.orange.withOpacity(0.1),
+                              backgroundColor: Colors.orange.withValues(alpha: 0.1),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),

@@ -1,7 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:equity_tracker/core/database/database_helper.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
-import 'package:equity_tracker/core/enums/transaction_type.dart';
 
 class CategoryRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;

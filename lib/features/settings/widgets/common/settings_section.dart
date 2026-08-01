@@ -35,7 +35,7 @@ class SettingsSection extends StatelessWidget {
             boxShadow: [
               if (!isDark)
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -56,8 +56,8 @@ class SettingsSection extends StatelessWidget {
                       indent: 56, // Align with text start
                       endIndent: 16,
                       color: isDark
-                          ? Colors.white.withOpacity(0.05)
-                          : Colors.grey.withOpacity(0.1),
+                          ? Colors.white.withValues(alpha: 0.05)
+                          : Colors.grey.withValues(alpha: 0.1),
                     ),
                 ],
               );
