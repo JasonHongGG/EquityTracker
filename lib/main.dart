@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/settings/presentation/providers/settings_notifier.dart';
+import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
 import 'package:equity_tracker/core/theme/app_theme.dart';
 import 'package:equity_tracker/core/router/app_router.dart';
 
