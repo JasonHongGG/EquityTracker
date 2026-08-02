@@ -34,10 +34,11 @@ class TriggerDateTimeSelector extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            const SizedBox(width: 12),
+            Icon(
               Icons.access_time_filled_rounded,
-              size: 18,
-              color: AppColors.primary,
+              color: Theme.of(context).primaryColor,
+              size: 20,
             ),
             const SizedBox(width: 8),
             Text(

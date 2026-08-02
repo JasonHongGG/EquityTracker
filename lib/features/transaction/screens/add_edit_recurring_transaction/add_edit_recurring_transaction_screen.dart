@@ -381,7 +381,7 @@ class _AddEditRecurringTransactionModelScreenState
                             _isEnabled
                                 ? Icons.alarm_on_rounded
                                 : Icons.alarm_off_rounded,
-                            color: _isEnabled ? AppColors.primary : Colors.grey,
+                            color: _isEnabled ? Theme.of(context).primaryColor : Colors.grey,
                             size: 24, // Slightly smaller than close/delete
                           ),
                           onPressed: () {

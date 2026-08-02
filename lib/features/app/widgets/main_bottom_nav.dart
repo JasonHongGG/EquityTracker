@@ -26,9 +26,9 @@ class CustomBottomNavBar extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(0, FontAwesomeIcons.wallet, 'Wallet'),
-              _buildNavItem(1, FontAwesomeIcons.chartPie, 'Analysis'),
-              _buildNavItem(2, FontAwesomeIcons.repeat, 'Recurring'),
+              _buildNavItem(context, 0, FontAwesomeIcons.wallet, 'Wallet'),
+              _buildNavItem(context, 1, FontAwesomeIcons.chartPie, 'Analysis'),
+              _buildNavItem(context, 2, FontAwesomeIcons.repeat, 'Recurring'),
             ],
           ),
         ),
@@ -36,7 +36,7 @@ class CustomBottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label) {
+  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label) {
     final isSelected = selectedIndex == index;
     return GestureDetector(
       onTap: () => onItemTapped(index),
@@ -45,20 +45,13 @@ class CustomBottomNavBar extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         decoration: isSelected
             ? BoxDecoration(
-                color: AppColors.primary,
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               )
             : null,
         child: Icon(
           icon,
-          color: isSelected ? Colors.white : Colors.grey,
+          color: isSelected ? Theme.of(context).primaryColor : Colors.grey,
           size: 20,
         ),
       ),

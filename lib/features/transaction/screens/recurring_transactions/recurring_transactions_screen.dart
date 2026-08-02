@@ -75,7 +75,7 @@ class _RecurringTransactionModelsScreenState
             centerTitle: true,
             actions: [
               IconButton(
-                icon: Icon(Icons.add, color: AppColors.primary, size: 28),
+                icon: Icon(Icons.add, color: Theme.of(context).primaryColor, size: 28),
                 onPressed: () {
                   Navigator.push(
                     context,

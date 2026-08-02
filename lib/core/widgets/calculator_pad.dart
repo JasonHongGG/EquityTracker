@@ -105,17 +105,18 @@ class CalculatorPad extends StatelessWidget {
     final backgroundColor = isDark
         ? AppColors.surfaceDark
         : AppColors.surfaceLight;
-    final primaryColor = AppColors.primary;
+    final primaryColor = Theme.of(context).primaryColor;
     // Numbers
     final numberTextColor = isDark
         ? AppColors.textPrimaryDark
         : AppColors.textPrimaryLight;
-    // Operators
-    final operatorTextColor = AppColors.secondary; // Sky Blue
-
+    // Operators (Restore original Sky Blue)
+    const operatorBlue = Color(0xFF2AB5F6);
+    final operatorTextColor = operatorBlue;
+    final operatorBgColor = operatorBlue.withValues(alpha: 0.1);
+    
     // Button Backgrounds (Theme aware)
     final buttonBgColor = isDark ? const Color(0xFF2C2F3E) : Colors.white;
-    final operatorBgColor = AppColors.secondary.withValues(alpha: 0.1);
     final dangerBgColor = AppColors.expense.withValues(alpha: 0.1);
 
     return Container(
@@ -218,10 +219,10 @@ class CalculatorPad extends StatelessWidget {
                       child: _buildButton(
                         _canCalculate ? '=' : 'OK',
                         height: (rowHeight * 2) + 8,
-                        color: primaryColor,
-                        textColor: Colors.white,
+                        color: primaryColor.withValues(alpha: 0.15),
+                        textColor: primaryColor,
                         isBold: true,
-                        enableShadow: true,
+                        enableShadow: false,
                         onTapOverride: () {
                           if (_canCalculate) {
                             _handleTap('=');

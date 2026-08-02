@@ -36,7 +36,7 @@ class RecurringTransactionFooter extends StatelessWidget {
               onPressed: onSave,
               child: Container(
                 decoration: BoxDecoration(
-                  color: AppColors.primary,
+                  color: Theme.of(context).primaryColor,
                   borderRadius: BorderRadius.circular(15),
                 ),
                 alignment: Alignment.center,

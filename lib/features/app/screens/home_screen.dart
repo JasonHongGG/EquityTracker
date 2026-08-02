@@ -100,19 +100,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                     width: 60,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColors.primary,
+                      color: isDark ? AppColors.surfaceDark : Colors.white,
+                      border: Border.all(
+                        color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
+                          color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Icon(
                         FontAwesomeIcons.plus,
-                        color: Colors.white,
+                        color: Theme.of(context).primaryColor,
                         size: 24,
                       ),
                     ),
