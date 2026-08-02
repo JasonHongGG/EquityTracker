@@ -119,6 +119,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           Expanded(
             child: TabBarView(
               controller: _tabController,
+              physics: const NeverScrollableScrollPhysics(),
               children: const [
                 MonthlyTrendTab(),
                 CategoryAnalysisTab(),

@@ -39,6 +39,7 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget _buildNavItem(BuildContext context, int index, IconData icon, String label) {
     final isSelected = selectedIndex == index;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => onItemTapped(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
