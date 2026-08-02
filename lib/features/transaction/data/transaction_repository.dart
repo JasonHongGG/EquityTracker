@@ -3,12 +3,19 @@ import 'package:equity_tracker/core/database/database_helper.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 
+import 'package:equity_tracker/core/enums/sync_status.dart';
+
 class TransactionRepository {
   final DatabaseHelper _dbHelper = DatabaseHelper.instance;
 
   Future<List<TransactionModel>> getAllTransactions() async {
     final db = await _dbHelper.database;
-    final List<Map<String, dynamic>> maps = await db.query('transactions', orderBy: 'date DESC, id DESC');
+    final List<Map<String, dynamic>> maps = await db.query(
+      'transactions',
+      where: 'syncStatus != ?',
+      whereArgs: [SyncStatus.pendingDelete.name],
+      orderBy: 'date DESC, id DESC',
+    );
     return List.generate(maps.length, (i) => TransactionModel.fromMap(maps[i]));
   }
 
@@ -16,8 +23,8 @@ class TransactionRepository {
     final db = await _dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'transactions',
-      where: 'date >= ? AND date <= ?',
-      whereArgs: [start.toIso8601String(), end.toIso8601String()],
+      where: 'date >= ? AND date <= ? AND syncStatus != ?',
+      whereArgs: [start.toIso8601String(), end.toIso8601String(), SyncStatus.pendingDelete.name],
       orderBy: 'date DESC, id DESC',
     );
     return List.generate(maps.length, (i) => TransactionModel.fromMap(maps[i]));
@@ -26,6 +33,16 @@ class TransactionRepository {
   Future<int> insertTransaction(TransactionModel transaction) async {
     final db = await _dbHelper.database;
     return await db.insert('transactions', transaction.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<List<TransactionModel>> getPendingTransactions() async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'transactions',
+      where: 'syncStatus != ?',
+      whereArgs: [SyncStatus.synced.name],
+    );
+    return List.generate(maps.length, (i) => TransactionModel.fromMap(maps[i]));
   }
 
   Future<int> updateTransaction(TransactionModel transaction) async {

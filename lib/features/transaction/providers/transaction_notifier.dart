@@ -4,6 +4,9 @@ import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/domain/transaction_usecases.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/core/enums/sync_status.dart';
+import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
+import 'package:equity_tracker/core/database/database_helper.dart';
 
 // --- UseCase Providers ---
 
@@ -92,7 +95,17 @@ class TransactionList extends AsyncNotifier<List<TransactionModel>> {
   Future<void> addTransaction(TransactionModel transaction) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(transactionRepositoryProvider).insertTransaction(transaction);
+      final config = ref.read(notionConfigControllerProvider);
+      var toInsert = transaction;
+      if (config.isEnabled) {
+        toInsert = toInsert.copyWith(syncStatus: SyncStatus.pendingCreate);
+      }
+      
+      await ref.read(transactionRepositoryProvider).insertTransaction(toInsert);
+      
+      if (config.isEnabled) {
+        ref.read(notionConfigControllerProvider.notifier).pushPendingChanges(silent: true);
+      }
       return _fetchAll();
     });
   }
@@ -100,7 +113,17 @@ class TransactionList extends AsyncNotifier<List<TransactionModel>> {
   Future<void> updateTransaction(TransactionModel transaction) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(transactionRepositoryProvider).updateTransaction(transaction);
+      final config = ref.read(notionConfigControllerProvider);
+      var toUpdate = transaction;
+      if (config.isEnabled) {
+        toUpdate = toUpdate.copyWith(syncStatus: SyncStatus.pendingUpdate);
+      }
+
+      await ref.read(transactionRepositoryProvider).updateTransaction(toUpdate);
+      
+      if (config.isEnabled) {
+        ref.read(notionConfigControllerProvider.notifier).pushPendingChanges(silent: true);
+      }
       return _fetchAll();
     });
   }
@@ -108,7 +131,21 @@ class TransactionList extends AsyncNotifier<List<TransactionModel>> {
   Future<void> deleteTransaction(int id, [String? notionId]) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(transactionRepositoryProvider).deleteTransaction(id);
+      final config = ref.read(notionConfigControllerProvider);
+      
+      if (config.isEnabled && notionId != null && notionId.isNotEmpty) {
+        // Mark as pending_delete instead of deleting from SQLite immediately
+        final db = await DatabaseHelper.instance.database;
+        await db.update(
+          'transactions', 
+          {'syncStatus': SyncStatus.pendingDelete.name},
+          where: 'id = ?', 
+          whereArgs: [id]
+        );
+        ref.read(notionConfigControllerProvider.notifier).pushPendingChanges(silent: true);
+      } else {
+        await ref.read(transactionRepositoryProvider).deleteTransaction(id);
+      }
       return _fetchAll();
     });
   }

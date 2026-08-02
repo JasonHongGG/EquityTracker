@@ -5,6 +5,7 @@ import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
+import 'package:equity_tracker/core/enums/sync_status.dart';
 
 class NotionConfigState {
   final String token;
@@ -84,6 +85,9 @@ class NotionConfigController extends Notifier<NotionConfigState> {
   Future<void> syncFromNotion() async {
     final prefs = await SharedPreferences.getInstance();
     state = state.copyWith(isLoading: true, message: 'Syncing from Notion... ⏳', isError: false);
+
+    // First push local changes
+    await pushPendingChanges(silent: true);
 
     try {
       final lastSyncStr = prefs.getString('notion_last_sync_time');
@@ -182,6 +186,89 @@ class NotionConfigController extends Notifier<NotionConfigState> {
       state = state.copyWith(message: 'Last Notion Sync Reverted ↩️', isError: false);
     } catch (e) {
       state = state.copyWith(message: 'Undo Failed: \$e', isError: true);
+    }
+  }
+
+  Future<void> pushPendingChanges({bool silent = false}) async {
+    if (!state.isEnabled || state.token.isEmpty || state.dbId.isEmpty) return;
+
+    final pending = await ref.read(transactionRepositoryProvider).getPendingTransactions();
+    if (pending.isEmpty) return;
+
+    if (!silent) {
+      state = state.copyWith(isLoading: true, message: 'Pushing changes... ⏳', isError: false);
+    }
+
+    try {
+      final categories = await ref.read(categoryRepositoryProvider).getCategories();
+      final apiClient = ref.read(notionApiClientProvider);
+      final repo = ref.read(transactionRepositoryProvider);
+
+      for (var tx in pending) {
+        final category = categories.firstWhere(
+          (c) => c.id == tx.categoryId,
+          orElse: () => categories.first,
+        );
+
+        if (tx.syncStatus == SyncStatus.pendingCreate) {
+          final newId = await apiClient.createTransaction(
+            state.token,
+            state.dbId,
+            tx,
+            category.name,
+          );
+          if (newId != null) {
+            final updatedTx = tx.copyWith(notionId: newId, syncStatus: SyncStatus.synced);
+            await repo.updateTransaction(updatedTx);
+          }
+        } else if (tx.syncStatus == SyncStatus.pendingUpdate) {
+          if (tx.notionId == null || tx.notionId!.isEmpty) {
+            // Treat as create if notionId is missing
+            final newId = await apiClient.createTransaction(
+              state.token,
+              state.dbId,
+              tx,
+              category.name,
+            );
+            if (newId != null) {
+              final updatedTx = tx.copyWith(notionId: newId, syncStatus: SyncStatus.synced);
+              await repo.updateTransaction(updatedTx);
+            }
+          } else {
+            final success = await apiClient.updateTransaction(
+              state.token,
+              tx.notionId!,
+              tx,
+              category.name,
+            );
+            if (success) {
+              final updatedTx = tx.copyWith(syncStatus: SyncStatus.synced);
+              await repo.updateTransaction(updatedTx);
+            }
+          }
+        } else if (tx.syncStatus == SyncStatus.pendingDelete) {
+          if (tx.notionId != null && tx.notionId!.isNotEmpty) {
+            final success = await apiClient.deleteTransaction(state.token, tx.notionId!);
+            if (success && tx.id != null) {
+              await repo.deleteTransaction(tx.id!);
+            }
+          } else if (tx.id != null) {
+            // Delete locally directly since it's not in Notion
+            await repo.deleteTransaction(tx.id!);
+          }
+        }
+      }
+      
+      // ignore: unused_result
+      ref.refresh(transactionNotifierProvider);
+
+      if (!silent) {
+        state = state.copyWith(isLoading: false, message: 'Push successful! ✅', isError: false);
+      }
+    } catch (e) {
+      if (!silent) {
+        state = state.copyWith(isLoading: false, message: 'Push Error: \$e', isError: true);
+      }
     }
   }
 
