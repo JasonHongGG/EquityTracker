@@ -55,12 +55,12 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
           },
           selectedDate: selectedMonth,
           onPrevious: () {
-            ref.read(selectedMonthProvider.notifier).state =
-                DateTime(selectedMonth.year, selectedMonth.month - 1);
+            ref.read(selectedMonthProvider.notifier).update(
+                DateTime(selectedMonth.year, selectedMonth.month - 1));
           },
           onNext: () {
-            ref.read(selectedMonthProvider.notifier).state =
-                DateTime(selectedMonth.year, selectedMonth.month + 1);
+            ref.read(selectedMonthProvider.notifier).update(
+                DateTime(selectedMonth.year, selectedMonth.month + 1));
           },
           onSearch: () {
             showDialog(
@@ -103,7 +103,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen>
               showMonth: true,
             );
             if (newDate != null) {
-              ref.read(selectedMonthProvider.notifier).state = newDate;
+              ref.read(selectedMonthProvider.notifier).update(newDate);
             }
           },
         ),

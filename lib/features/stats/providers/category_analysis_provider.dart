@@ -9,7 +9,18 @@ final calculateCategoryStatsUseCaseProvider = Provider<CalculateCategoryStatsUse
   return CalculateCategoryStatsUseCase();
 });
 
-final categoryAnalysisTypeProvider = StateProvider<TransactionType>((ref) => TransactionType.expense);
+class CategoryAnalysisTypeNotifier extends Notifier<TransactionType> {
+  @override
+  TransactionType build() => TransactionType.expense;
+
+  void updateType(TransactionType type) {
+    state = type;
+  }
+}
+
+final categoryAnalysisTypeProvider = NotifierProvider<CategoryAnalysisTypeNotifier, TransactionType>(
+  CategoryAnalysisTypeNotifier.new,
+);
 
 final categoryStatsProvider = FutureProvider<List<CategoryStat>>((ref) async {
   final transactionsAsync = ref.watch(filteredTransactionsProvider);

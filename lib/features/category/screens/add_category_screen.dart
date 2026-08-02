@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/features/category/providers/category_notifier.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/features/category/screens/add_category_screen/category_type_selector.dart';
 import 'package:equity_tracker/features/category/screens/add_category_screen/category_color_picker.dart';
@@ -11,6 +9,7 @@ import 'package:equity_tracker/features/category/screens/add_category_screen/cat
 import 'package:equity_tracker/features/category/screens/add_category_screen/category_preview.dart';
 import 'package:equity_tracker/features/category/screens/add_category_screen/category_name_input.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
+import 'package:equity_tracker/features/category/controllers/add_category_controller.dart';
 
 class AddCategoryScreen extends ConsumerStatefulWidget {
   final TransactionType? initialType;
@@ -23,64 +22,42 @@ class AddCategoryScreen extends ConsumerStatefulWidget {
 }
 
 class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
-  late TransactionType _selectedType;
   final TextEditingController _nameController = TextEditingController();
-
-  int _selectedIconCode = 0xe52d; // Default: FastFood
-  String? _selectedFontFamily = 'MaterialIcons';
-  String? _selectedFontPackage;
-  Color _selectedColor = const Color(0xFFFF9500); // Default Orange
 
   @override
   void initState() {
     super.initState();
-    if (widget.categoryToEdit != null) {
-      final c = widget.categoryToEdit!;
-      _selectedType = c.type;
-      _nameController.text = c.name;
-      _selectedIconCode = c.iconCodePoint;
-      _selectedFontFamily = c.iconFontFamily;
-      _selectedFontPackage = c.iconFontPackage;
-      _selectedColor = c.color;
-    } else {
-      _selectedType = widget.initialType ?? TransactionType.expense;
-    }
+    _nameController.text = widget.categoryToEdit?.name ?? '';
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(addCategoryControllerProvider.notifier).init(widget.categoryToEdit, widget.initialType);
+    });
   }
 
-  void _save() {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) {
-      ToastService.showError(context, 'Please enter a category name');
-      return;
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final success = await ref.read(addCategoryControllerProvider.notifier).saveCategory(_nameController.text);
+    if (success && mounted) {
+      Navigator.pop(context);
+    } else if (mounted) {
+      final error = ref.read(addCategoryControllerProvider).error;
+      if (error != null) {
+        ToastService.showError(context, error);
+      }
     }
-
-    final id = widget.categoryToEdit?.id ?? const Uuid().v4();
-
-    final category = CategoryModel(
-      id: id,
-      name: name,
-      iconCodePoint: _selectedIconCode,
-      iconFontFamily: _selectedFontFamily,
-      iconFontPackage: _selectedFontPackage,
-      colorValue: _selectedColor.value,
-      type: _selectedType,
-      isSystem: widget.categoryToEdit?.isSystem ?? false,
-      isEnabled: true,
-    );
-
-    if (widget.categoryToEdit != null) {
-      ref.read(categoryListProvider.notifier).updateCategoryModel(category);
-    } else {
-      ref.read(categoryListProvider.notifier).addCategoryModel(category);
-    }
-
-    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final state = ref.watch(addCategoryControllerProvider);
+    final controller = ref.read(addCategoryControllerProvider.notifier);
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0F111A) : const Color(0xFFF5F7FA),
@@ -105,10 +82,10 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
         child: Column(
           children: [
             CategoryPreview(
-              color: _selectedColor,
-              iconCode: _selectedIconCode,
-              fontFamily: _selectedFontFamily,
-              fontPackage: _selectedFontPackage,
+              color: state.color,
+              iconCode: state.iconCodePoint,
+              fontFamily: state.iconFontFamily,
+              fontPackage: state.iconFontPackage,
             ),
             const SizedBox(height: 16),
             
@@ -136,8 +113,8 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                         Expanded(
                           flex: 2,
                           child: CategoryTypeSelector(
-                            selectedType: _selectedType,
-                            onChanged: (type) => setState(() => _selectedType = type),
+                            selectedType: state.type,
+                            onChanged: controller.updateType,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -151,20 +128,16 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
                   const SizedBox(height: 4),
                   
                   CategoryColorPicker(
-                    selectedColor: _selectedColor,
-                    onChanged: (color) => setState(() => _selectedColor = color),
+                    selectedColor: state.color,
+                    onChanged: controller.updateColor,
                   ),
                   
                   const SizedBox(height: 12),
                   
                   CategoryIconPicker(
-                    selectedIconCode: _selectedIconCode,
-                    selectedColor: _selectedColor,
-                    onChanged: (codePoint, family, pkg) => setState(() {
-                      _selectedIconCode = codePoint;
-                      _selectedFontFamily = family;
-                      _selectedFontPackage = pkg;
-                    }),
+                    selectedIconCode: state.iconCodePoint,
+                    selectedColor: state.color,
+                    onChanged: controller.updateIcon,
                   ),
                   
                   const SizedBox(height: 32),

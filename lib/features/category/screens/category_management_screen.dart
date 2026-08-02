@@ -1,25 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/category/providers/category_notifier.dart';
 import 'package:equity_tracker/features/category/screens/category_management_screen/category_type_toggle.dart';
 import 'package:equity_tracker/features/category/screens/category_management_screen/category_reorderable_grid.dart';
+import 'package:equity_tracker/features/category/controllers/category_management_controller.dart';
 
-class CategoryManagementScreen extends ConsumerStatefulWidget {
+class CategoryManagementScreen extends ConsumerWidget {
   const CategoryManagementScreen({super.key});
 
   @override
-  ConsumerState<CategoryManagementScreen> createState() =>
-      _CategoryManagementScreenState();
-}
-
-class _CategoryManagementScreenState
-    extends ConsumerState<CategoryManagementScreen> {
-  TransactionType _selectedType = TransactionType.expense;
-  bool _isEditMode = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(categoryManagementControllerProvider);
+    final controller = ref.read(categoryManagementControllerProvider.notifier);
+    
     final categoriesAsync = ref.watch(categoryListProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -38,16 +31,12 @@ class _CategoryManagementScreenState
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {
-              setState(() {
-                _isEditMode = !_isEditMode;
-              });
-            },
+            onPressed: controller.toggleEditMode,
             icon: Icon(
-              _isEditMode ? Icons.check : Icons.edit,
+              state.isEditMode ? Icons.check : Icons.edit,
               color: theme.primaryColor,
             ),
-            tooltip: _isEditMode ? 'Done' : 'Edit',
+            tooltip: state.isEditMode ? 'Done' : 'Edit',
           ),
           const SizedBox(width: 8),
         ],
@@ -55,24 +44,20 @@ class _CategoryManagementScreenState
       body: Column(
         children: [
           CategoryTypeToggle(
-            selectedType: _selectedType,
-            onChanged: (type) {
-              setState(() {
-                _selectedType = type;
-              });
-            },
+            selectedType: state.selectedType,
+            onChanged: controller.updateType,
           ),
           Expanded(
             child: categoriesAsync.when(
               data: (categories) {
                 final filteredCats = categories
-                    .where((c) => c.type == _selectedType)
+                    .where((c) => c.type == state.selectedType)
                     .toList();
 
                 return CategoryReorderableGrid(
                   categories: filteredCats,
-                  type: _selectedType,
-                  isEditMode: _isEditMode,
+                  type: state.selectedType,
+                  isEditMode: state.isEditMode,
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart' as equity_tracker_transaction_notifier;
-import 'package:equity_tracker/features/stats/widgets/stats_screen/category_pie_chart.dart';
-import 'package:equity_tracker/features/stats/widgets/stats_screen/category_legend.dart';
-import 'package:equity_tracker/features/stats/widgets/stats_screen/category_progress_item.dart';
-import 'package:equity_tracker/features/stats/widgets/stats_screen/category_details_modal.dart';
+import 'package:equity_tracker/features/stats/screens/stats_screen/category_pie_chart.dart';
+import 'package:equity_tracker/features/stats/screens/stats_screen/category_legend.dart';
+import 'package:equity_tracker/features/stats/screens/stats_screen/category_progress_item.dart';
+import 'package:equity_tracker/features/stats/screens/stats_screen/category_details_modal.dart';
 import 'package:equity_tracker/features/stats/providers/category_analysis_provider.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
 
@@ -26,7 +26,7 @@ class CategoryAnalysisTab extends ConsumerWidget {
             child: SegmentedTypeTab(
               selectedType: currentType,
               onChanged: (type) {
-                ref.read(categoryAnalysisTypeProvider.notifier).state = type;
+                ref.read(categoryAnalysisTypeProvider.notifier).updateType(type);
               },
             ),
           ),

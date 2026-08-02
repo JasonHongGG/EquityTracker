@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:equity_tracker/core/providers/repository_providers.dart';
-
-
-import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
-import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
-import 'package:equity_tracker/features/category/data/category_model.dart';
+import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
 
 class NotionConfigDialog extends ConsumerStatefulWidget {
   const NotionConfigDialog({super.key});
@@ -19,30 +14,15 @@ class NotionConfigDialog extends ConsumerStatefulWidget {
 class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
   late TextEditingController _tokenController;
   late TextEditingController _dbIdController;
-  bool _isEnabled = false;
-  bool _isVerifying = false;
-  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     _tokenController = TextEditingController();
     _dbIdController = TextEditingController();
-    _loadConfig();
-  }
-
-  Future<void> _loadConfig() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('notion_token') ?? '';
-    final dbId = prefs.getString('notion_database_id') ?? '';
-    final isEnabled = prefs.getBool('notion_enabled') ?? false;
-    if (mounted) {
-      setState(() {
-        _tokenController.text = token;
-        _dbIdController.text = dbId;
-        _isEnabled = isEnabled;
-      });
-    }
+    
+    // We can't immediately read state and set text if we wait for future, 
+    // but the state is sync initialized empty then loaded. We will just listen to state changes.
   }
 
   @override
@@ -52,140 +32,36 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
     super.dispose();
   }
 
-  Future<void> _syncFromNotion() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() => _isLoading = true);
-
-    if (mounted) {
-      ToastService.showInfo(context, 'Syncing from Notion... ⏳');
-    }
-
-    try {
-      final lastSyncStr = prefs.getString('notion_last_sync_time');
-      final DateTime? lastSync = lastSyncStr != null ? DateTime.parse(lastSyncStr) : null;
-
-      final categories = List<CategoryModel>.from(await ref.read(categoryRepositoryProvider).getCategories());
-      final transactions = await ref.read(notionApiClientProvider).fetchTransactions(
-        _tokenController.text.trim(),
-        _dbIdController.text.trim(),
-        categories,
-        since: lastSync,
-      );
-
-      if (transactions.isEmpty) {
-        if (mounted) {
-          ToastService.showInfo(context, 'No new transactions found.');
-        }
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      final currentTx = ref.read(transactionNotifierProvider).value ?? [];
-      final List<TransactionModel> toInsert = [];
-
-      for (final tx in transactions) {
-        final exists = currentTx.any(
-          (existing) =>
-              existing.amount == tx.amount &&
-              existing.title == tx.title &&
-              DateUtils.isSameDay(existing.date, tx.date) &&
-              existing.type == tx.type,
-        );
-
-        if (!exists) {
-          toInsert.add(tx);
-        }
-      }
-
-      if (toInsert.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('All items were duplicates. Skipped.')),
-          );
-        }
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      final List<int> insertedIds = [];
-      for (final tx in toInsert) {
-        final id = await ref.read(transactionRepositoryProvider).insertTransaction(tx);
-        insertedIds.add(id);
-      }
-
-      // ignore: unused_result
-      ref.refresh(transactionNotifierProvider);
-
-      await prefs.setStringList(
-        'notion_last_pull_ids',
-        insertedIds.map((e) => e.toString()).toList(),
-      );
-      if (lastSyncStr != null) {
-        await prefs.setString('notion_prev_sync_time', lastSyncStr);
-      } else {
-        await prefs.remove('notion_prev_sync_time');
-      }
-
-      await prefs.setString(
-        'notion_last_sync_time',
-        DateTime.now().toIso8601String(),
-      );
-
-      if (mounted) {
-        ToastService.showSuccess(
-          context,
-          'Synced ${insertedIds.length} items from Notion! 🎉',
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ToastService.showError(context, 'Sync Error: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  Future<void> _undoNotionSync() async {
-    final prefs = await SharedPreferences.getInstance();
-    final idsStr = prefs.getStringList('notion_last_pull_ids');
-    if (idsStr == null || idsStr.isEmpty) return;
-
-    try {
-      final ids = idsStr.map((e) => int.parse(e)).toList();
-
-      for (final id in ids) {
-        await ref.read(transactionRepositoryProvider).deleteTransaction(id);
-      }
-
-      final prevTime = prefs.getString('notion_prev_sync_time');
-      if (prevTime != null) {
-        await prefs.setString('notion_last_sync_time', prevTime);
-      } else {
-        await prefs.remove('notion_last_sync_time');
-      }
-
-      await prefs.remove('notion_last_pull_ids');
-      await prefs.remove('notion_prev_sync_time');
-
-      // ignore: unused_result
-      ref.refresh(transactionNotifierProvider);
-
-      if (mounted) {
-        ToastService.showSuccess(context, 'Last Notion Sync Reverted ↩️');
-        setState(() {}); // refresh UI
-      }
-    } catch (e) {
-      if (mounted) {
-        ToastService.showError(context, 'Undo Failed: $e');
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(notionConfigControllerProvider);
+    final controller = ref.read(notionConfigControllerProvider.notifier);
+
+    // Sync text controllers with state initially if they are empty
+    if (_tokenController.text.isEmpty && state.token.isNotEmpty) {
+      _tokenController.text = state.token;
+    }
+    if (_dbIdController.text.isEmpty && state.dbId.isNotEmpty) {
+      _dbIdController.text = state.dbId;
+    }
+
+    // Listen for messages to show toasts
+    ref.listen<NotionConfigState>(notionConfigControllerProvider, (previous, next) {
+      if (next.message != null && (previous?.message != next.message)) {
+        if (next.isError) {
+          ToastService.showError(context, next.message!);
+        } else {
+          ToastService.showSuccess(context, next.message!);
+        }
+        
+        if (next.connectionSuccess) {
+          Navigator.pop(context);
+        }
+        
+        Future.microtask(() => controller.clearMessage());
+      }
+    });
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final backgroundColor = isDark ? const Color(0xFF1E1E2C) : Colors.white;
     final inputFillColor = isDark ? Colors.black12 : Colors.grey.shade50;
@@ -235,10 +111,10 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
                   Transform.scale(
                     scale: 0.9,
                     child: Switch(
-                      value: _isEnabled,
+                      value: state.isEnabled,
                       activeThumbColor: Colors.white,
                       activeTrackColor: Colors.green,
-                      onChanged: (val) => setState(() => _isEnabled = val),
+                      onChanged: controller.toggleEnabled,
                     ),
                   ),
                 ],
@@ -306,10 +182,10 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
 
               TextField(
                 controller: _tokenController,
-                enabled: _isEnabled,
+                enabled: state.isEnabled,
                 style: TextStyle(
                   fontFamily: 'Outfit',
-                  color: _isEnabled
+                  color: state.isEnabled
                       ? (isDark ? Colors.white : Colors.black)
                       : (isDark ? Colors.white24 : Colors.black26),
                 ),
@@ -331,10 +207,10 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
 
               TextField(
                 controller: _dbIdController,
-                enabled: _isEnabled,
+                enabled: state.isEnabled,
                 style: TextStyle(
                   fontFamily: 'Outfit',
-                  color: _isEnabled
+                  color: state.isEnabled
                       ? (isDark ? Colors.white : Colors.black)
                       : (isDark ? Colors.white24 : Colors.black26),
                 ),
@@ -352,7 +228,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
                 ),
               ),
               
-              if (_isEnabled) ...[
+              if (state.isEnabled) ...[
                 const Divider(height: 48, color: Colors.white10),
                 Text(
                   "DATA SYNC",
@@ -370,15 +246,19 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
-                        onPressed: _isLoading ? null : _syncFromNotion,
-                        icon: _isLoading
+                        onPressed: state.isLoading ? null : () {
+                          controller.updateToken(_tokenController.text);
+                          controller.updateDbId(_dbIdController.text);
+                          controller.syncFromNotion();
+                        },
+                        icon: state.isLoading
                             ? const SizedBox(
                                 width: 16,
                                 height: 16,
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               )
                             : const Icon(Icons.download_rounded, size: 18),
-                        label: Text(_isLoading ? "Syncing..." : "Sync Now"),
+                        label: Text(state.isLoading ? "Syncing..." : "Sync Now"),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           side: BorderSide(
@@ -408,7 +288,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
                         SizedBox(
                           width: double.infinity,
                           child: TextButton.icon(
-                            onPressed: _isLoading ? null : _undoNotionSync,
+                            onPressed: state.isLoading ? null : controller.undoNotionSync,
                             icon: const Icon(Icons.undo_rounded, size: 18, color: Colors.orange),
                             label: const Text("Undo Last Sync", style: TextStyle(color: Colors.orange)),
                             style: TextButton.styleFrom(
@@ -453,34 +333,10 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _isVerifying
+                      onPressed: state.isVerifying
                           ? null
-                          : () async {
-                              setState(() => _isVerifying = true);
-                              final prefs = await SharedPreferences.getInstance();
-                              await prefs.setString('notion_token', _tokenController.text.trim());
-                              await prefs.setString('notion_database_id', _dbIdController.text.trim());
-                              await prefs.setBool('notion_enabled', _isEnabled);
-
-                              if (_isEnabled) {
-                                final success = await ref.read(notionApiClientProvider).testConnection(_tokenController.text.trim(), _dbIdController.text.trim());
-                                if (success) {
-                                  if (mounted) {
-                                    Navigator.pop(context);
-                                    ToastService.showSuccess(context, 'Connected Successfully! ✅');
-                                  }
-                                } else {
-                                  if (mounted) {
-                                    setState(() => _isVerifying = false);
-                                    ToastService.showError(context, 'Connection Failed ❌\nCheck Token/ID');
-                                  }
-                                }
-                              } else {
-                                if (mounted) {
-                                  Navigator.pop(context);
-                                  ToastService.showInfo(context, 'Notion Sync Disabled');
-                                }
-                              }
+                          : () {
+                              controller.saveAndVerify(_tokenController.text, _dbIdController.text);
                             },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black87,
@@ -491,7 +347,7 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: _isVerifying
+                      child: state.isVerifying
                           ? const SizedBox(
                               width: 20,
                               height: 20,
