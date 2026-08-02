@@ -29,6 +29,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final settingsAsync = ref.watch(settingsNotifierProvider);
     final isPrivacyMode = settingsAsync.value?.isPrivacyModeEnabled ?? false;
     final isSearching = currentFilter.searchQuery != null && currentFilter.searchQuery!.isNotEmpty;
+    final currencySymbol = settingsAsync.value?.currencySymbol ?? '\$';
         
     final state = ref.watch(transactionListControllerProvider);
 
@@ -134,6 +135,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
               monthlyIncome: state.monthlyIncome,
               monthlyExpense: state.monthlyExpense,
               isMonthlyView: _isMonthlyView,
+              currencySymbol: currencySymbol,
               onToggleView: () {
                 setState(() {
                   _isMonthlyView = !_isMonthlyView;
@@ -189,6 +191,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   date: date,
                   transactions: transactions,
                   index: index,
+                  currencySymbol: currencySymbol,
                 );
               }, childCount: state.groupedTransactions.length),
             ),

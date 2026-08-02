@@ -19,10 +19,12 @@ class SettingsNotifier extends AsyncNotifier<SettingsState> {
 
     final themeMode = await repo.getThemeMode();
     final isPrivacyModeEnabled = await repo.getPrivacyMode();
+    final currencySymbol = await repo.getCurrencySymbol();
 
     return SettingsState(
       themeMode: themeMode,
       isPrivacyModeEnabled: isPrivacyModeEnabled,
+      currencySymbol: currencySymbol,
     );
   }
 
@@ -37,21 +39,35 @@ class SettingsNotifier extends AsyncNotifier<SettingsState> {
       state.value!.copyWith(isPrivacyModeEnabled: enabled),
     );
   }
+
+  Future<void> setCurrencySymbol(String symbol) async {
+    await ref.read(settingsRepositoryProvider).setCurrencySymbol(symbol);
+    state = AsyncValue.data(
+      state.value!.copyWith(currencySymbol: symbol),
+    );
+  }
 }
 
 class SettingsState {
   final ThemeMode themeMode;
   final bool isPrivacyModeEnabled;
+  final String currencySymbol;
 
   const SettingsState({
     required this.themeMode,
     required this.isPrivacyModeEnabled,
+    required this.currencySymbol,
   });
 
-  SettingsState copyWith({ThemeMode? themeMode, bool? isPrivacyModeEnabled}) {
+  SettingsState copyWith({
+    ThemeMode? themeMode, 
+    bool? isPrivacyModeEnabled,
+    String? currencySymbol,
+  }) {
     return SettingsState(
       themeMode: themeMode ?? this.themeMode,
       isPrivacyModeEnabled: isPrivacyModeEnabled ?? this.isPrivacyModeEnabled,
+      currencySymbol: currencySymbol ?? this.currencySymbol,
     );
   }
 }

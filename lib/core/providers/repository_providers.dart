@@ -4,7 +4,6 @@ import 'package:equity_tracker/features/transaction/data/transaction_repository.
 import 'package:equity_tracker/features/settings/data/settings_repository.dart';
 import 'package:equity_tracker/features/app_update/data/update_repository.dart';
 import 'package:equity_tracker/features/notion_sync/data/notion_api_client.dart';
-import 'package:equity_tracker/features/data_management/domain/import_data_usecase.dart';
 
 final notionApiClientProvider = Provider<NotionApiClient>((ref) {
   return NotionApiClient();
@@ -26,9 +25,4 @@ final updateRepositoryProvider = Provider<UpdateRepository>((ref) {
   return UpdateRepository();
 });
 
-final importDataUseCaseProvider = Provider<ImportDataUseCase>((ref) {
-  return ImportDataUseCase(
-    ref.watch(transactionRepositoryProvider),
-    ref.watch(categoryRepositoryProvider),
-  );
-});
+

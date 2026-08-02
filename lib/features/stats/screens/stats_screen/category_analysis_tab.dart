@@ -7,6 +7,7 @@ import 'package:equity_tracker/features/stats/screens/stats_screen/category_prog
 import 'package:equity_tracker/features/stats/screens/stats_screen/category_details_modal.dart';
 import 'package:equity_tracker/features/stats/providers/category_analysis_provider.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
+import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
 
 class CategoryAnalysisTab extends ConsumerWidget {
   const CategoryAnalysisTab({super.key});
@@ -17,6 +18,8 @@ class CategoryAnalysisTab extends ConsumerWidget {
     final transactionsAsync = ref.watch(equity_tracker_transaction_notifier.filteredTransactionsProvider);
     final transactions = transactionsAsync.value ?? [];
     final currentType = ref.watch(categoryAnalysisTypeProvider);
+    final settingsAsync = ref.watch(settingsNotifierProvider);
+    final currencySymbol = settingsAsync.value?.currencySymbol ?? '\$';
 
     return CustomScrollView(
       slivers: [
@@ -54,6 +57,7 @@ class CategoryAnalysisTab extends ConsumerWidget {
                         child: CategoryPieChart(
                           stats: stats,
                           totalAmount: totalAmount,
+                          currencySymbol: currencySymbol,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -67,6 +71,7 @@ class CategoryAnalysisTab extends ConsumerWidget {
                     category: stat.category,
                     amount: stat.totalAmount,
                     percent: stat.percentage,
+                    currencySymbol: currencySymbol,
                     onTap: () {
                       CategoryDetailsModal.show(context, stat.category, transactions);
                     },

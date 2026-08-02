@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/stats/screens/stats_screen/trend_line_chart.dart';
 import 'package:equity_tracker/core/widgets/horizontal_day_slider.dart';
 import 'package:equity_tracker/features/stats/providers/trend_analysis_provider.dart';
+import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/stats/screens/stats_screen/trend_legend_item.dart';
 import 'package:equity_tracker/features/stats/screens/stats_screen/trend_transaction_list.dart';
@@ -35,6 +36,8 @@ class _MonthlyTrendTabState extends ConsumerState<MonthlyTrendTab> {
     final transactionsAsync = ref.watch(filteredTransactionsProvider);
     final transactions = transactionsAsync.value ?? [];
     final month = ref.watch(selectedMonthProvider);
+    final settingsAsync = ref.watch(settingsNotifierProvider);
+    final currencySymbol = settingsAsync.value?.currencySymbol ?? '\$';
 
     ref.listen(selectedMonthProvider, (prev, next) {
       if (prev != next) {
@@ -70,6 +73,7 @@ class _MonthlyTrendTabState extends ConsumerState<MonthlyTrendTab> {
                   daysInMonth: daysInMonth,
                   month: month,
                   selectedDay: _selectedDay,
+                  currencySymbol: currencySymbol,
                   onDateSelected: (day) {
                     setState(() {
                       _selectedDay = day;
@@ -110,6 +114,7 @@ class _MonthlyTrendTabState extends ConsumerState<MonthlyTrendTab> {
                 selectedDay: _selectedDay,
                 month: month,
                 transactions: selectedTransactions,
+                currencySymbol: currencySymbol,
               ),
             ),
           ],

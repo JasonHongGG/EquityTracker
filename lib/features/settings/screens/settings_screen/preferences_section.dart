@@ -57,9 +57,42 @@ class PreferencesSection extends ConsumerWidget {
           icon: Icons.currency_exchange,
           iconColor: Colors.amber,
           title: 'Currency Symbol',
-          subtitle: '\$ (USD)',
+          subtitle: themeModeAsync.when(
+            data: (settings) => settings.currencySymbol,
+            loading: () => '...',
+            error: (e, s) => 'Error',
+          ),
+          onTap: () {
+            if (themeModeAsync.hasValue) {
+              _showCurrencyDialog(context, ref, themeModeAsync.value!.currencySymbol);
+            }
+          },
         ),
       ],
+    );
+  }
+
+  void _showCurrencyDialog(BuildContext context, WidgetRef ref, String currentSymbol) {
+    final symbols = ['\$', 'NT\$', '€', '£', '¥', '₩'];
+    
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Select Currency', style: TextStyle(fontFamily: 'Outfit')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: symbols.map((sym) {
+            return ListTile(
+              title: Text(sym, style: const TextStyle(fontSize: 18)),
+              trailing: currentSymbol == sym ? const Icon(Icons.check, color: Colors.blue) : null,
+              onTap: () {
+                ref.read(settingsNotifierProvider.notifier).setCurrencySymbol(sym);
+                Navigator.pop(ctx);
+              },
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 }

@@ -90,4 +90,9 @@ class TransactionRepository {
     final db = await _dbHelper.database;
     return await db.delete('recurring_transactions', where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<void> clearAllRecurringTransactions() async {
+    final db = await _dbHelper.database;
+    await db.delete('recurring_transactions');
+  }
 }

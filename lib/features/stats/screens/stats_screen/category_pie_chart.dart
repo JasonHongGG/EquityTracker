@@ -1,15 +1,18 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:equity_tracker/features/stats/domain/category_stat.dart';
+import 'package:equity_tracker/core/utils/currency_formatter.dart';
 
 class CategoryPieChart extends StatefulWidget {
   final List<CategoryStat> stats;
   final int totalAmount;
+  final String currencySymbol;
 
   const CategoryPieChart({
     super.key,
     required this.stats,
     required this.totalAmount,
+    required this.currencySymbol,
   });
 
   @override
@@ -91,7 +94,7 @@ class _CategoryPieChartState extends State<CategoryPieChart> {
               ),
             ),
             Text(
-              '\$${widget.totalAmount}',
+              CurrencyFormatter.format(widget.totalAmount, widget.currencySymbol),
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,

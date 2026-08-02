@@ -7,6 +7,8 @@ import 'package:equity_tracker/core/enums/transaction_type.dart';
 
 import 'package:equity_tracker/features/category/providers/category_notifier.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
+import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
+import 'package:equity_tracker/core/utils/currency_formatter.dart';
 
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
@@ -27,6 +29,8 @@ class TransactionItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categoriesAsync = ref.watch(categoryListProvider);
+    final settingsAsync = ref.watch(settingsNotifierProvider);
+    final currencySymbol = settingsAsync.value?.currencySymbol ?? '\$';
 
     final category = categoriesAsync.asData?.value.firstWhere(
       (c) => c.id == transaction.categoryId,
@@ -109,7 +113,7 @@ class TransactionItem extends ConsumerWidget {
 
             // Amount
             Text(
-              '${transaction.type == TransactionType.income ? '+' : '-'}\$${transaction.amount}',
+              '${transaction.type == TransactionType.income ? '+' : '-'}${CurrencyFormatter.format(transaction.amount, currencySymbol)}',
               style: TextStyle(
                 color: color,
                 fontWeight: FontWeight.bold,

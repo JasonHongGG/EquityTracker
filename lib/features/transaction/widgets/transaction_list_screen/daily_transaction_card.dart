@@ -10,12 +10,14 @@ class DailyTransactionCard extends StatelessWidget {
   final DateTime date;
   final List<TransactionModel> transactions;
   final int index;
+  final String currencySymbol;
 
   const DailyTransactionCard({
     super.key,
     required this.date,
     required this.transactions,
     required this.index,
+    required this.currencySymbol,
   });
 
   @override
@@ -60,6 +62,7 @@ class DailyTransactionCard extends StatelessWidget {
                   child: DateHeader(
                     date: date,
                     totalAmount: dayTotal,
+                    currencySymbol: currencySymbol,
                   ),
                 ),
                 for (var i = 0; i < transactions.length; i++) ...[

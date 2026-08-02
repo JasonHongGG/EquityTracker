@@ -20,6 +20,27 @@ class DataManagementSection extends ConsumerStatefulWidget {
 
 class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
   bool _isLoading = false;
+  bool _hasSnapshot = false;
+  late NativeBackupService _backupService;
+
+  @override
+  void initState() {
+    super.initState();
+    _backupService = NativeBackupService(
+      ref.read(categoryRepositoryProvider), 
+      ref.read(transactionRepositoryProvider)
+    );
+    _checkSnapshot();
+  }
+
+  Future<void> _checkSnapshot() async {
+    final hasSnap = await _backupService.hasSnapshot();
+    if (mounted) {
+      setState(() {
+        _hasSnapshot = hasSnap;
+      });
+    }
+  }
 
   Future<void> _exportBackup() async {
     try {
@@ -36,11 +57,7 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
         );
       }
 
-      final backupService = NativeBackupService(
-        ref.read(categoryRepositoryProvider), 
-        ref.read(transactionRepositoryProvider)
-      );
-      final jsonContent = await backupService.createBackupJson();
+      final jsonContent = await _backupService.createBackupJson();
 
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final filename = 'equity_tracker_backup_$timestamp.json';
@@ -87,11 +104,11 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
         final file = File(path);
         final content = await file.readAsString();
 
-        final backupService = NativeBackupService(
-          ref.read(categoryRepositoryProvider), 
-          ref.read(transactionRepositoryProvider)
-        );
-        final report = await backupService.restoreFromBackupContent(content);
+        // 1. Create a snapshot for undo
+        await _backupService.createSnapshot();
+        
+        // 2. Replace database
+        final report = await _backupService.replaceDatabaseFromContent(content);
 
         // ignore: unused_result
         ref.refresh(transactionNotifierProvider);
@@ -101,9 +118,10 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
         if (mounted) {
           Navigator.of(context).pop();
           setState(() => _isLoading = false);
+          _checkSnapshot();
           ToastService.showSuccess(
             context,
-            'Restored: ${report.categoriesImported} Categories, ${report.transactionsImported} Transactions',
+            'Restored: ${report.categoriesImported} Categories, ${report.transactionsImported} Transactions, ${report.recurringTransactionsImported} Recurring',
           );
         }
       }
@@ -114,6 +132,42 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
           setState(() => _isLoading = false);
         }
         ToastService.showError(context, 'Restore failed: $e');
+      }
+    }
+  }
+
+  Future<void> _undoRestore() async {
+    try {
+      setState(() => _isLoading = true);
+
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => const Center(child: CircularProgressIndicator()),
+        );
+      }
+
+      await _backupService.restoreFromSnapshot();
+      
+      // ignore: unused_result
+      ref.refresh(transactionNotifierProvider);
+      // ignore: unused_result
+      ref.refresh(settingsNotifierProvider);
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        setState(() => _isLoading = false);
+        _checkSnapshot();
+        ToastService.showSuccess(context, 'Restore reverted successfully.');
+      }
+    } catch (e) {
+      if (mounted) {
+        if (_isLoading) {
+          Navigator.of(context).pop();
+          setState(() => _isLoading = false);
+        }
+        ToastService.showError(context, 'Undo failed: $e');
       }
     }
   }
@@ -141,9 +195,17 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
           icon: Icons.restore_page_rounded,
           iconColor: Colors.indigoAccent,
           title: 'Restore Backup',
-          subtitle: 'Merge from backup file',
+          subtitle: 'Replace current data with backup',
           onTap: _isLoading ? null : _importBackup,
         ),
+        if (_hasSnapshot)
+          SettingsTile(
+            icon: Icons.undo_rounded,
+            iconColor: Colors.orange,
+            title: 'Undo Last Restore',
+            subtitle: 'Revert to previous state',
+            onTap: _isLoading ? null : _undoRestore,
+          ),
       ],
     );
   }

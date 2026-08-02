@@ -1,5 +1,6 @@
-﻿import 'package:fl_chart/fl_chart.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:equity_tracker/core/utils/currency_formatter.dart';
 
 class TrendLineChart extends StatefulWidget {
   final Map<int, double> incomeSpots; // Day -> Amount
@@ -8,6 +9,7 @@ class TrendLineChart extends StatefulWidget {
   final DateTime month; // New: For tooltip formatting
   final int? selectedDay;
   final Function(int day)? onDateSelected;
+  final String currencySymbol;
 
   const TrendLineChart({
     super.key,
@@ -17,6 +19,7 @@ class TrendLineChart extends StatefulWidget {
     required this.month,
     this.selectedDay,
     this.onDateSelected,
+    required this.currencySymbol,
   });
 
   @override
@@ -260,7 +263,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
                     ),
                     children: [
                       TextSpan(
-                        text: '$sign\$${spot.y.toInt()}',
+                        text: '$sign${CurrencyFormatter.format(spot.y.toInt(), widget.currencySymbol)}',
                         style: TextStyle(
                           color: color,
                           fontWeight: FontWeight.bold,
@@ -273,7 +276,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
                 } else {
                   // Subsequent items only show value
                   return LineTooltipItem(
-                    '$sign\$${spot.y.toInt()}',
+                    '$sign${CurrencyFormatter.format(spot.y.toInt(), widget.currencySymbol)}',
                     TextStyle(
                       color: color,
                       fontWeight: FontWeight.bold,

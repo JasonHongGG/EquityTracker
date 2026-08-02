@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
+import 'package:equity_tracker/core/utils/currency_formatter.dart';
 
 class DateHeader extends StatelessWidget {
   final DateTime date;
   final int totalAmount;
+  final String currencySymbol;
 
-  const DateHeader({super.key, required this.date, required this.totalAmount});
+  const DateHeader({super.key, required this.date, required this.totalAmount, required this.currencySymbol});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +48,7 @@ class DateHeader extends StatelessWidget {
             ],
           ),
           Text(
-            '\$$totalAmount',
+            CurrencyFormatter.format(totalAmount, currencySymbol),
             style: TextStyle(
               color: totalColor,
               fontWeight: FontWeight.bold,

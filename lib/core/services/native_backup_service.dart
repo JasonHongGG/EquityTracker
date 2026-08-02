@@ -1,15 +1,18 @@
 import 'dart:convert';
-
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:equity_tracker/features/category/data/category_repository.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_repository.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
+import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
 
 class BackupRestoreResult {
   final int categoriesImported;
   final int transactionsImported;
-  const BackupRestoreResult(this.categoriesImported, this.transactionsImported);
+  final int recurringTransactionsImported;
+  const BackupRestoreResult(this.categoriesImported, this.transactionsImported, this.recurringTransactionsImported);
 }
 
 class NativeBackupService {
@@ -21,81 +24,103 @@ class NativeBackupService {
   Future<String> createBackupJson() async {
     final categories = await _categoryRepo.getCategories();
     final transactions = await _transactionRepo.getAllTransactions();
+    final recurring = await _transactionRepo.getAllRecurringTransactions();
 
     final backupData = {
-      'version': 1,
+      'version': 2,
       'timestamp': DateTime.now().toIso8601String(),
       'categories': categories.map((c) => c.toMap()).toList(),
       'transactions': transactions.map((t) => t.toMap()).toList(),
+      'recurring_transactions': recurring.map((r) => r.toMap()).toList(),
     };
 
     const encoder = JsonEncoder.withIndent('  ');
     return encoder.convert(backupData);
   }
 
-  Future<BackupRestoreResult> restoreFromBackupContent(String jsonContent) async {
+  /// Creates a snapshot of the current database before a restore operation.
+  Future<void> createSnapshot() async {
+    final jsonContent = await createBackupJson();
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/snapshot_before_restore.json');
+    await file.writeAsString(jsonContent);
+  }
+
+  /// Checks if a snapshot exists.
+  Future<bool> hasSnapshot() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/snapshot_before_restore.json');
+    return await file.exists();
+  }
+
+  /// Restores from the snapshot, effectively undoing the last restore.
+  Future<BackupRestoreResult> restoreFromSnapshot() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/snapshot_before_restore.json');
+    if (!await file.exists()) {
+      throw Exception('No snapshot found.');
+    }
+    final content = await file.readAsString();
+    final result = await replaceDatabaseFromContent(content);
+    // Delete snapshot after successful undo so it can only be used once
+    await file.delete();
+    return result;
+  }
+
+  /// Replaces the entire database with the provided JSON content.
+  Future<BackupRestoreResult> replaceDatabaseFromContent(String jsonContent) async {
     dynamic json = jsonDecode(jsonContent);
     if (json is! Map<String, dynamic>) throw const FormatException('Root must be object');
 
     final List<dynamic> catList = json['categories'] ?? [];
     final List<dynamic> txnList = json['transactions'] ?? [];
+    final List<dynamic> recurringList = json['recurring_transactions'] ?? [];
+
+    // Clear existing data
+    await _transactionRepo.clearAllTransactions();
+    await _transactionRepo.clearAllRecurringTransactions();
+    await _categoryRepo.clearAllCategories();
 
     int categoriesImported = 0;
     int transactionsImported = 0;
+    int recurringTransactionsImported = 0;
 
-    final existingCategories = await _categoryRepo.getCategories();
-    final Map<String, String> idMapping = {};
-
+    // Insert Categories
     for (var catMap in catList) {
       if (catMap is! Map<String, dynamic>) continue;
       try {
         final importedCat = CategoryModel.fromMap(catMap);
-        final finalId = _findMatchingCategoryId(importedCat, existingCategories);
-        if (finalId != null) {
-          idMapping[importedCat.id] = finalId;
-        } else {
-          await _categoryRepo.addCategoryModel(importedCat);
-          idMapping[importedCat.id] = importedCat.id;
-          categoriesImported++;
-        }
+        await _categoryRepo.addCategoryModel(importedCat);
+        categoriesImported++;
       } catch (e) {
         // ignore
       }
     }
 
+    // Insert Transactions
     for (var txnMap in txnList) {
       if (txnMap is! Map<String, dynamic>) continue;
       try {
         final importedTxn = TransactionModel.fromMap(txnMap);
-        final mappedCategoryId = idMapping[importedTxn.categoryId];
-        if (mappedCategoryId == null) continue;
-        
-        final newTxn = TransactionModel(
-          notionId: importedTxn.notionId,
-          title: importedTxn.title,
-          type: importedTxn.type,
-          amount: importedTxn.amount,
-          categoryId: mappedCategoryId,
-          date: importedTxn.date,
-          createdAt: importedTxn.createdAt,
-          note: importedTxn.note,
-        );
-        await _transactionRepo.insertTransaction(newTxn);
+        await _transactionRepo.insertTransaction(importedTxn);
         transactionsImported++;
       } catch (e) {
         // ignore
       }
     }
-    return BackupRestoreResult(categoriesImported, transactionsImported);
-  }
 
-  String? _findMatchingCategoryId(CategoryModel imported, List<CategoryModel> existing) {
-    for (var e in existing) {
-      if (e.id == imported.id) return e.id;
+    // Insert Recurring Transactions
+    for (var recMap in recurringList) {
+      if (recMap is! Map<String, dynamic>) continue;
+      try {
+        final importedRec = RecurringTransactionModel.fromMap(recMap);
+        await _transactionRepo.insertRecurringTransaction(importedRec);
+        recurringTransactionsImported++;
+      } catch (e) {
+        // ignore
+      }
     }
-    for (var e in existing) {
-      if (e.name == imported.name && e.type == imported.type) return e.id;
-    }
-    return null;
+
+    return BackupRestoreResult(categoriesImported, transactionsImported, recurringTransactionsImported);
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/core/widgets/gradient_card.dart';
+import 'package:equity_tracker/core/utils/currency_formatter.dart';
 
 class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   final int totalBalance;
@@ -21,6 +22,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
   final VoidCallback? onDateTap;
 
   final bool isPrivacyMode;
+  final String currencySymbol;
 
   DashboardHeaderDelegate({
     required this.totalBalance,
@@ -37,6 +39,7 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
     required this.onNextMonth,
     this.onDateTap,
     this.isPrivacyMode = false,
+    required this.currencySymbol,
   });
 
   @override
@@ -68,7 +71,8 @@ class DashboardHeaderDelegate extends SliverPersistentHeaderDelegate {
         oldDelegate.topPadding != topPadding ||
         oldDelegate.totalIncome != totalIncome ||
         oldDelegate.monthlyIncome != monthlyIncome ||
-        oldDelegate.isPrivacyMode != isPrivacyMode;
+        oldDelegate.isPrivacyMode != isPrivacyMode ||
+        oldDelegate.currencySymbol != currencySymbol;
   }
 }
 
@@ -104,7 +108,7 @@ class _DashboardHeaderContentState extends State<_DashboardHeaderContent> {
     if (widget.delegate.isPrivacyMode && !_isRevealed) {
       return '****';
     }
-    return '\$$amount';
+    return CurrencyFormatter.format(amount, widget.delegate.currencySymbol);
   }
 
   @override
@@ -377,65 +381,76 @@ class _DashboardHeaderContentState extends State<_DashboardHeaderContent> {
                             ),
                           ],
                         ),
+                        const SizedBox(width: 8),
 
                         // Right: Compact Stats (Animated)
-                        GestureDetector(
-                          onTap: () {
-                            if (delegate.isPrivacyMode) {
-                              setState(() {
-                                _isRevealed = !_isRevealed;
-                              });
-                            }
-                          },
-                          onHorizontalDragEnd: (details) {
-                            if (details.primaryVelocity!.abs() > 300) {
-                              delegate.onToggleView();
-                            }
-                          },
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                _formatCurrency(currentBalance),
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  fontFamily: 'Outfit',
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              if (delegate.isPrivacyMode) {
+                                setState(() {
+                                  _isRevealed = !_isRevealed;
+                                });
+                              }
+                            },
+                            onHorizontalDragEnd: (details) {
+                              if (details.primaryVelocity!.abs() > 300) {
+                                delegate.onToggleView();
+                              }
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    _formatCurrency(currentBalance),
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      fontFamily: 'Outfit',
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.arrow_downward,
-                                    color: AppColors.income,
-                                    size: 12,
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerRight,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.arrow_downward,
+                                        color: AppColors.income,
+                                        size: 12,
+                                      ),
+                                      Text(
+                                        _formatCurrency(currentIncome),
+                                        style: TextStyle(
+                                          color: textColor.withValues(alpha: 0.7),
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Icon(
+                                        Icons.arrow_upward,
+                                        color: AppColors.expense,
+                                        size: 12,
+                                      ),
+                                      Text(
+                                        _formatCurrency(currentExpense),
+                                        style: TextStyle(
+                                          color: textColor.withValues(alpha: 0.7),
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  Text(
-                                    _formatCurrency(currentIncome),
-                                    style: TextStyle(
-                                      color: textColor.withValues(alpha: 0.7),
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Icon(
-                                    Icons.arrow_upward,
-                                    color: AppColors.expense,
-                                    size: 12,
-                                  ),
-                                  Text(
-                                    _formatCurrency(currentExpense),
-                                    style: TextStyle(
-                                      color: textColor.withValues(alpha: 0.7),
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],

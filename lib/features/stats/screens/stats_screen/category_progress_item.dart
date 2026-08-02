@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
-
+import 'package:equity_tracker/core/utils/currency_formatter.dart';
 
 class CategoryProgressItem extends StatelessWidget {
   final CategoryModel category;
   final int amount;
   final double percent;
   final VoidCallback onTap;
+  final String currencySymbol;
 
   const CategoryProgressItem({
     super.key,
@@ -14,6 +15,7 @@ class CategoryProgressItem extends StatelessWidget {
     required this.amount,
     required this.percent,
     required this.onTap,
+    required this.currencySymbol,
   });
 
   @override
@@ -32,7 +34,7 @@ class CategoryProgressItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(2),
       ),
       trailing: Text(
-        '\$$amount',
+        CurrencyFormatter.format(amount, currencySymbol),
         style: const TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 16,

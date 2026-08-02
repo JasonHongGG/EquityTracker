@@ -10,12 +10,14 @@ class TrendTransactionList extends StatelessWidget {
   final int? selectedDay;
   final DateTime month;
   final List<TransactionModel> transactions;
+  final String currencySymbol;
 
   const TrendTransactionList({
     super.key,
     required this.selectedDay,
     required this.month,
     required this.transactions,
+    required this.currencySymbol,
   });
 
   @override
@@ -73,6 +75,7 @@ class TrendTransactionList extends StatelessWidget {
                       ? sum + t.amount
                       : sum - t.amount,
                 ),
+                currencySymbol: currencySymbol,
               ),
               for (var i = 0; i < transactions.length; i++) ...[
                 if (i > 0)
