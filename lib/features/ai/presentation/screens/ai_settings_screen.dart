@@ -110,6 +110,37 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
     return Icons.cloud_done_rounded;
   }
 
+  BoxDecoration _cardDecoration(bool isDark) {
+    return BoxDecoration(
+      color: isDark ? AppColors.surfaceDark : Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        if (!isDark)
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader(String title, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16, bottom: 10, top: 24),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontFamily: 'Outfit',
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.2,
+          color: isDark ? Colors.white54 : Colors.black54,
+        ),
+      ),
+    );
+  }
+
   void _showProviderSelectorBottomSheet(AIConfigState state, bool isDark) {
     showModalBottomSheet(
       context: context,
@@ -182,32 +213,23 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
     );
   }
 
-  Widget _buildSmartSelector(AIConfigState state, bool isDark) {
+  Widget _buildSmartSelectorCard(AIConfigState state, bool isDark) {
     final type = state.providerType;
     return GestureDetector(
       onTap: () => _showProviderSelectorBottomSheet(state, isDark),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            if (!isDark)
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-          ],
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: _cardDecoration(isDark),
         child: Row(
           children: [
-            Icon(
-              _getProviderIcon(type),
-              color: Theme.of(context).primaryColor,
-              size: 24,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Icon(
+                _getProviderIcon(type),
+                color: Theme.of(context).primaryColor,
+                size: 22,
+              ),
             ),
-            const SizedBox(width: 16),
             Expanded(
               child: Text(
                 type.name.toUpperCase(),
@@ -215,22 +237,23 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
                   fontFamily: 'Outfit',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: isDark ? Colors.white : Colors.black87,
                   letterSpacing: 0.5,
                 ),
               ),
             ),
             Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: isDark ? Colors.white54 : Colors.black54,
+              color: isDark ? Colors.white38 : Colors.black38,
             ),
+            const SizedBox(width: 8),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMinimalField(String hint, IconData icon, TextEditingController controller, bool isDark, {bool obscureText = false}) {
+  Widget _buildSettingsTile(String hint, IconData icon, TextEditingController controller, bool isDark, {bool obscureText = false}) {
     return TextFormField(
       controller: controller,
       onChanged: (_) => _onFieldChanged(),
@@ -238,8 +261,7 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
       style: TextStyle(
         fontFamily: 'Outfit',
         fontSize: 16,
-        fontWeight: FontWeight.w500,
-        color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+        color: isDark ? Colors.white : Colors.black87,
       ),
       decoration: InputDecoration(
         hintText: hint,
@@ -251,54 +273,98 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Icon(
             icon,
-            color: isDark ? Colors.white54 : Colors.black45,
-            size: 20,
+            color: Theme.of(context).primaryColor,
+            size: 22,
           ),
         ),
-        prefixIconConstraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+        prefixIconConstraints: const BoxConstraints(minWidth: 50, minHeight: 50),
         filled: true,
-        fillColor: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.5),
-            width: 2,
-          ),
-        ),
+        fillColor: Colors.transparent,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
       ),
     );
   }
 
-  Widget _buildAnimatedForm(AIConfigState state, bool isDark) {
-    return AnimatedSize(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOutCubic,
-      alignment: Alignment.topCenter,
-      child: Column(
-        key: ValueKey(state.providerType),
-        children: [
-          _buildMinimalField('Model Name', Icons.smart_toy_rounded, _modelNameController, isDark),
-          const SizedBox(height: 16),
-          if (state.activeConfig is VertexAIConfig) ...[
-            _buildMinimalField('Project ID', Icons.business_rounded, _projectIdController, isDark),
-            const SizedBox(height: 16),
-            _buildMinimalField('Region', Icons.public_rounded, _regionController, isDark),
-            const SizedBox(height: 16),
-            _buildMinimalField('Access Token', Icons.key_rounded, _accessTokenController, isDark, obscureText: true),
-          ] else ...[
-            _buildMinimalField('Base URL', Icons.dns_rounded, _baseUrlController, isDark),
-          ],
-        ],
+  Widget _buildDivider(bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 60),
+      child: Divider(
+        height: 1,
+        thickness: 0.5,
+        color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
       ),
+    );
+  }
+
+  List<Widget> _buildParameterFields(AIConfigState state, bool isDark) {
+    final List<Widget> fields = [];
+    
+    fields.add(_buildSettingsTile('Model Name', Icons.smart_toy_rounded, _modelNameController, isDark));
+    
+    if (state.activeConfig is VertexAIConfig) {
+      fields.add(_buildDivider(isDark));
+      fields.add(_buildSettingsTile('Project ID', Icons.business_rounded, _projectIdController, isDark));
+      fields.add(_buildDivider(isDark));
+      fields.add(_buildSettingsTile('Region', Icons.public_rounded, _regionController, isDark));
+      fields.add(_buildDivider(isDark));
+      fields.add(_buildSettingsTile('Access Token', Icons.key_rounded, _accessTokenController, isDark, obscureText: true));
+    } else {
+      fields.add(_buildDivider(isDark));
+      fields.add(_buildSettingsTile('Base URL', Icons.dns_rounded, _baseUrlController, isDark));
+    }
+    
+    return fields;
+  }
+
+  Widget _buildAnimatedParametersGroup(AIConfigState state, bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Engine Parameters', isDark),
+        Container(
+          decoration: _cardDecoration(isDark),
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeOutQuart,
+            alignment: Alignment.topCenter,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0.0, 0.05),
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                );
+              },
+              child: Column(
+                key: ValueKey(state.providerType),
+                children: _buildParameterFields(state, isDark),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildGlobalSettingsGroup(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionHeader('Global Integrations', isDark),
+        Container(
+          decoration: _cardDecoration(isDark),
+          child: _buildSettingsTile('Google Map API Key (Optional)', Icons.map_rounded, _googleMapApiController, isDark, obscureText: true),
+        ),
+      ],
     );
   }
 
@@ -322,16 +388,19 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildSmartSelector(state, isDark),
-            const SizedBox(height: 32),
-            _buildAnimatedForm(state, isDark),
-            const SizedBox(height: 32),
-            const Divider(height: 1, thickness: 1),
-            const SizedBox(height: 32),
-            _buildMinimalField('Google Map API Key (Optional)', Icons.map_rounded, _googleMapApiController, isDark, obscureText: true),
+            _buildGlobalSettingsGroup(isDark),
+            const SizedBox(height: 16),
+            
+            _buildSectionHeader('AI Engine', isDark),
+            _buildSmartSelectorCard(state, isDark),
+            const SizedBox(height: 8),
+            
+            _buildAnimatedParametersGroup(state, isDark),
+            
             const SizedBox(height: 60),
           ],
         ),
