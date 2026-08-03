@@ -4,6 +4,7 @@ import 'package:equity_tracker/features/ai/presentation/controllers/ai_session_c
 import 'package:equity_tracker/features/ai/usecases/process_expense_usecase.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/ai_log_viewer_screen.dart';
+import 'package:equity_tracker/features/ai/presentation/widgets/thinking_orb.dart';
 import 'dart:math' as math;
 
 void showAiInputBottomSheet(BuildContext context) {
@@ -302,7 +303,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      GlowingThinkingOrbs(baseColor: Theme.of(context).primaryColor),
+                      ThinkingOrb(isDark: isDark, size: 24.0),
                       const SizedBox(width: 12),
                       Text(
                         'AI 思考中...',
@@ -498,71 +499,6 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class GlowingThinkingOrbs extends StatefulWidget {
-  final Color baseColor;
-  
-  const GlowingThinkingOrbs({super.key, required this.baseColor});
-
-  @override
-  State<GlowingThinkingOrbs> createState() => _GlowingThinkingOrbsState();
-}
-
-class _GlowingThinkingOrbsState extends State<GlowingThinkingOrbs> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: List.generate(3, (index) {
-            // Offset the animation for each dot
-            final t = (_controller.value * 2 * math.pi) + (index * (2 * math.pi / 3));
-            final scale = 0.8 + 0.4 * (0.5 * (1 + math.sin(t)));
-            final opacity = 0.4 + 0.6 * (0.5 * (1 + math.sin(t)));
-            
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: Transform.scale(
-                scale: scale,
-                child: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: widget.baseColor.withValues(alpha: opacity),
-                    boxShadow: [
-                      BoxShadow(
-                        color: widget.baseColor.withValues(alpha: opacity * 0.8),
-                        blurRadius: 8 * scale,
-                        spreadRadius: 2 * scale,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }),
-        );
-      },
     );
   }
 }
