@@ -4,20 +4,27 @@ import 'dart:convert';
 class JsonTreeViewer extends StatelessWidget {
   final dynamic data;
   final bool isDark;
+  final String? rootName;
 
   const JsonTreeViewer({
     super.key,
     required this.data,
     required this.isDark,
+    this.rootName,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (rootName != null) {
+      return _JsonNodeRenderer(keyName: rootName!, data: data, isDark: isDark, isRoot: true);
+    }
+
     if (data is! Map && data is! List) {
       return _JsonNodeRenderer(keyName: 'data', data: data, isDark: isDark, isRoot: true);
     }
     
-    // For root level Maps or Lists, we just render their children directly
+    // For root level Maps or Lists without a specific root name, 
+    // we just render their children directly
     // so we don't have a useless 'root' expandable box taking up space.
     if (data is Map) {
       return Column(
@@ -206,11 +213,25 @@ class _JsonNodeRendererState extends State<_JsonNodeRenderer> {
         try {
           int startObj = str.indexOf('{');
           int endObj = str.lastIndexOf('}');
-          if (startObj >= 0 && endObj > startObj) {
-            final jsonSub = str.substring(startObj, endObj + 1);
+          int startArr = str.indexOf('[');
+          int endArr = str.lastIndexOf(']');
+          
+          int startIdx = -1;
+          int endIdx = -1;
+          
+          if (startObj >= 0 && endObj > startObj && (startArr == -1 || startObj < startArr)) {
+            startIdx = startObj;
+            endIdx = endObj;
+          } else if (startArr >= 0 && endArr > startArr) {
+            startIdx = startArr;
+            endIdx = endArr;
+          }
+
+          if (startIdx >= 0 && endIdx > startIdx) {
+            final jsonSub = str.substring(startIdx, endIdx + 1);
             final parsed = jsonDecode(jsonSub);
             final pretty = const JsonEncoder.withIndent('  ').convert(parsed);
-            displayStr = str.substring(0, startObj) + pretty + str.substring(endObj + 1);
+            displayStr = str.substring(0, startIdx) + pretty + str.substring(endIdx + 1);
           }
         } catch (_) {}
 

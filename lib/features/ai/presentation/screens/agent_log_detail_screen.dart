@@ -47,54 +47,12 @@ class AgentLogDetailScreen extends StatelessWidget {
             const SizedBox(height: 24),
             
             if (logData['request'] != null) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 4, bottom: 8),
-                child: Text(
-                  'REQUEST',
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    letterSpacing: 1.2,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
-                ),
-                child: JsonTreeViewer(data: logData['request'], isDark: isDark),
-              ),
-              const SizedBox(height: 24),
+              JsonTreeViewer(data: logData['request'], isDark: isDark, rootName: 'request'),
+              const SizedBox(height: 8),
             ],
             
             if (logData['response'] != null) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 4, bottom: 8),
-                child: Text(
-                  'RESPONSE',
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                    letterSpacing: 1.2,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
-                ),
-                child: JsonTreeViewer(data: logData['response'], isDark: isDark),
-              ),
+              JsonTreeViewer(data: logData['response'], isDark: isDark, rootName: 'response'),
             ],
             const SizedBox(height: 40),
           ],
