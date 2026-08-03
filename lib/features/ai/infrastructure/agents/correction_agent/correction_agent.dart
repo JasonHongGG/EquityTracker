@@ -1,0 +1,41 @@
+import 'package:equity_tracker/features/ai/domain/models/record_data.dart';
+import 'package:equity_tracker/features/ai/infrastructure/agents/base_agent.dart';
+import 'package:equity_tracker/features/ai/infrastructure/providers/ai_provider.dart';
+import 'package:equity_tracker/features/ai/infrastructure/agents/correction_agent/prompts.dart';
+
+class CorrectionInput {
+  final RecordData record;
+  final String answer;
+
+  CorrectionInput({
+    required this.record,
+    required this.answer,
+  });
+}
+
+class CorrectionResult {
+  final RecordData record;
+
+  CorrectionResult({required this.record});
+}
+
+class CorrectionAgent extends BaseAgent<CorrectionInput, CorrectionResult> {
+  CorrectionAgent(AIProvider provider) : super('Correction', provider);
+
+  @override
+  Future<CorrectionResult> execute(CorrectionInput input, {void Function(String)? onChunk}) async {
+    final systemPrompt = buildSystemPrompt();
+    final userPrompt = buildUserPrompt(input);
+
+    String resultText = '';
+    final stream = executeStreamPrompt(userPrompt, systemPrompt);
+    
+    await for (final chunk in stream) {
+      resultText += chunk;
+      if (onChunk != null) onChunk(chunk);
+    }
+    
+    final map = extractJson<Map<String, dynamic>>(resultText, 'object');
+    return CorrectionResult(record: RecordData.fromMap(map));
+  }
+}

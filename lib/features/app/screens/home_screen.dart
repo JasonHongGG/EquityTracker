@@ -86,43 +86,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
         child: Stack(
           children: [
             _pages[_selectedIndex],
-            // Floating Action Button for Add
-            if (_selectedIndex == 0)
-              Positioned(
-                bottom: 100,
-                right: 20,
-                child: ScaleButton(
-                  onPressed: () {
-                    context.push('/add-transaction');
-                  },
-                  child: Container(
-                    height: 60,
-                    width: 60,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isDark ? AppColors.surfaceDark : Colors.white,
-                      border: Border.all(
-                        color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                          blurRadius: 15,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Icon(
-                        FontAwesomeIcons.plus,
-                        color: Theme.of(context).primaryColor,
-                        size: 24,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-
             Positioned(
               bottom: 0,
               left: 0,

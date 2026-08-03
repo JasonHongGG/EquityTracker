@@ -6,6 +6,7 @@ import 'package:equity_tracker/features/data_management/widgets/data_management_
 import 'package:equity_tracker/features/data_management/widgets/experimental_section.dart';
 import 'package:equity_tracker/features/data_management/widgets/danger_zone_section.dart';
 import 'package:equity_tracker/features/app_update/widgets/app_update_section.dart';
+import 'package:equity_tracker/features/ai/presentation/widgets/ai_settings_section.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -30,6 +31,7 @@ class SettingsScreen extends ConsumerWidget {
         padding: const EdgeInsets.only(bottom: 20),
         children: const [
           PreferencesSection(),
+          AiSettingsSection(),
           DataManagementSection(),
           ExperimentalSection(), // Contains Notion Sync & Import
           DangerZoneSection(),
