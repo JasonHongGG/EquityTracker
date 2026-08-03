@@ -2,12 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/ai/domain/enums/record_status.dart';
 import 'package:equity_tracker/features/ai/domain/models/transaction_record.dart';
 import 'package:equity_tracker/features/ai/domain/models/transaction_session.dart';
-import 'package:equity_tracker/features/ai/infrastructure/agents/agent_factory.dart';
+import 'package:equity_tracker/features/ai/infrastructure/agents/extraction_agent/extraction_agent.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/store_lookup_agent/store_lookup_agent.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/validation_agent/validation_agent.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/correction_agent/correction_agent.dart';
 import 'package:equity_tracker/features/ai/infrastructure/map/i_map_search_service.dart';
-import 'package:equity_tracker/features/ai/infrastructure/map/map_search_factory.dart';
+import 'package:equity_tracker/features/ai/infrastructure/map/google_map_search_service.dart';
 
 abstract class UseCaseResult {}
 
@@ -36,11 +36,17 @@ class RequireCorrectionResult extends UseCaseResult {
 class SuccessResult extends UseCaseResult {}
 
 class ProcessExpenseUseCase {
-  final AgentFactory agentFactory;
+  final ExtractionAgent extractionAgent;
+  final StoreLookupAgent storeLookupAgent;
+  final ValidationAgent validationAgent;
+  final CorrectionAgent correctionAgent;
   final IMapSearchService mapSearchService;
 
   ProcessExpenseUseCase({
-    required this.agentFactory,
+    required this.extractionAgent,
+    required this.storeLookupAgent,
+    required this.validationAgent,
+    required this.correctionAgent,
     required this.mapSearchService,
   });
 
@@ -48,7 +54,6 @@ class ProcessExpenseUseCase {
     // 1. Extraction Phase
     if (session.records.isEmpty) {
       onProgress?.call('🔍 正在提取花費資訊...');
-      final extractionAgent = agentFactory.createExtractionAgent();
       final extractedData = await extractionAgent.execute(session.originalText);
       final records = extractedData.map((data) => TransactionRecord(data)).toList();
       session.setRecords(records);
@@ -79,7 +84,6 @@ class ProcessExpenseUseCase {
             searchResults = await mapSearchService.search(queryStr);
           }
 
-          final storeLookupAgent = agentFactory.createStoreLookupAgent();
           final lookupResponse = await storeLookupAgent.execute(
             StoreLookupInput(
               originalText: session.originalText,
@@ -111,7 +115,6 @@ class ProcessExpenseUseCase {
       // Step B: Validation
       if (status == RecordStatus.validating) {
         onProgress?.call('驗證商品資訊...');
-        final validationAgent = agentFactory.createValidationAgent();
         final validationResponse = await validationAgent.execute(
           ValidationInput(record: record.data),
         );
@@ -147,7 +150,6 @@ class ProcessExpenseUseCase {
       record.updateStore(userInput);
       record.markValidating();
     } else if (record.status == RecordStatus.needsHumanCorrection) {
-      final correctionAgent = agentFactory.createCorrectionAgent();
       final correctionResponse = await correctionAgent.execute(
         CorrectionInput(record: record.data, answer: userInput),
       );
@@ -161,11 +163,11 @@ class ProcessExpenseUseCase {
 }
 
 final processExpenseUseCaseProvider = Provider<ProcessExpenseUseCase>((ref) {
-  final agentFactory = ref.watch(agentFactoryProvider);
-  final mapSearchService = ref.watch(mapSearchServiceProvider);
-  
   return ProcessExpenseUseCase(
-    agentFactory: agentFactory,
-    mapSearchService: mapSearchService,
+    extractionAgent: ref.watch(extractionAgentProvider),
+    storeLookupAgent: ref.watch(storeLookupAgentProvider),
+    validationAgent: ref.watch(validationAgentProvider),
+    correctionAgent: ref.watch(correctionAgentProvider),
+    mapSearchService: ref.watch(mapSearchServiceProvider),
   );
 });

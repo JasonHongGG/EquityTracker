@@ -33,8 +33,9 @@ class CustomBottomNavBar extends StatelessWidget {
               _buildNavItem(context, 1, FontAwesomeIcons.chartPie, 'Analysis'),
               _buildCenterAddButton(context),
               _buildNavItem(context, 2, FontAwesomeIcons.repeat, 'Recurring'),
-              // Empty space to balance the 5 items layout
-              const SizedBox(width: 40), 
+              _buildNavItem(context, 3, FontAwesomeIcons.robot, 'AI', onTapOverride: () {
+                showAiInputBottomSheet(context);
+              }),
             ],
           ),
         ),
@@ -45,7 +46,7 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget _buildCenterAddButton(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        _showAddOptions(context);
+        context.push('/add-transaction');
       },
       child: Container(
         height: 50,
@@ -77,68 +78,11 @@ class CustomBottomNavBar extends StatelessWidget {
     );
   }
 
-  void _showAddOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return GlassContainer(
-          opacity: 0.15,
-          blur: 20,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: Colors.blueAccent,
-                    child: Icon(FontAwesomeIcons.robot, color: Colors.white, size: 18),
-                  ),
-                  title: const Text('AI 智慧記帳', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('用一句話自動記錄多筆花費'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    showAiInputBottomSheet(context);
-                  },
-                ),
-                const SizedBox(height: 10),
-                ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: Colors.green,
-                    child: Icon(FontAwesomeIcons.penToSquare, color: Colors.white, size: 18),
-                  ),
-                  title: const Text('手動記帳', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('開啟詳細的記帳表單'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    context.push('/add-transaction');
-                  },
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label) {
+  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label, {VoidCallback? onTapOverride}) {
     final isSelected = selectedIndex == index;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () => onItemTapped(index),
+      onTap: onTapOverride ?? () => onItemTapped(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(10),

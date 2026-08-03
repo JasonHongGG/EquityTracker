@@ -1,5 +1,7 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/ai/domain/models/record_data.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/base_agent.dart';
+import 'package:equity_tracker/features/ai/infrastructure/providers/provider_factory.dart';
 import 'package:equity_tracker/features/ai/infrastructure/providers/ai_provider.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/validation_agent/prompts.dart';
 
@@ -46,3 +48,7 @@ class ValidationAgent extends BaseAgent<ValidationInput, ValidationResult> {
     return ValidationResult.fromMap(map);
   }
 }
+
+final validationAgentProvider = Provider<ValidationAgent>((ref) {
+  return ValidationAgent(ref.watch(aiProviderProvider));
+});

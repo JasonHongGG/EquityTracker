@@ -6,7 +6,9 @@ import 'package:equity_tracker/features/data_management/widgets/data_management_
 import 'package:equity_tracker/features/data_management/widgets/experimental_section.dart';
 import 'package:equity_tracker/features/data_management/widgets/danger_zone_section.dart';
 import 'package:equity_tracker/features/app_update/widgets/app_update_section.dart';
-import 'package:equity_tracker/features/ai/presentation/widgets/ai_settings_section.dart';
+import 'package:equity_tracker/features/ai/presentation/screens/ai_settings_screen.dart';
+import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
+import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -29,10 +31,28 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 20),
-        children: const [
-          PreferencesSection(),
-          AiSettingsSection(),
-          DataManagementSection(),
+        children: [
+          const PreferencesSection(),
+          SettingsSection(
+            title: 'AI ASSISTANT',
+            children: [
+              SettingsTile(
+                icon: Icons.smart_toy_rounded,
+                iconColor: Colors.blueAccent,
+                title: 'AI Configuration',
+                subtitle: 'Manage API keys and models',
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AiSettingsScreen(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          const DataManagementSection(),
           ExperimentalSection(), // Contains Notion Sync & Import
           DangerZoneSection(),
           AppUpdateSection(),

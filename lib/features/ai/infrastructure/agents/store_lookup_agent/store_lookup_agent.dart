@@ -1,4 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/base_agent.dart';
+import 'package:equity_tracker/features/ai/infrastructure/providers/provider_factory.dart';
 import 'package:equity_tracker/features/ai/infrastructure/providers/ai_provider.dart';
 import 'package:equity_tracker/features/ai/infrastructure/map/i_map_search_service.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/store_lookup_agent/prompts.dart';
@@ -59,3 +61,7 @@ class StoreLookupAgent extends BaseAgent<StoreLookupInput, StoreLookupResult> {
     return StoreLookupResult.fromMap(map);
   }
 }
+
+final storeLookupAgentProvider = Provider<StoreLookupAgent>((ref) {
+  return StoreLookupAgent(ref.watch(aiProviderProvider));
+});

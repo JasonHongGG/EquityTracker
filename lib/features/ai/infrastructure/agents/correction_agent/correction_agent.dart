@@ -1,5 +1,7 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/ai/domain/models/record_data.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/base_agent.dart';
+import 'package:equity_tracker/features/ai/infrastructure/providers/provider_factory.dart';
 import 'package:equity_tracker/features/ai/infrastructure/providers/ai_provider.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/correction_agent/prompts.dart';
 
@@ -39,3 +41,7 @@ class CorrectionAgent extends BaseAgent<CorrectionInput, CorrectionResult> {
     return CorrectionResult(record: RecordData.fromMap(map));
   }
 }
+
+final correctionAgentProvider = Provider<CorrectionAgent>((ref) {
+  return CorrectionAgent(ref.watch(aiProviderProvider));
+});
