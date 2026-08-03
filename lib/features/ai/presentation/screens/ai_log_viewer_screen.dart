@@ -7,8 +7,6 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/ai/infrastructure/logger/system_log_manager.dart';
-import 'package:equity_tracker/features/ai/infrastructure/logger/i_logger.dart';
-
 import 'package:equity_tracker/features/ai/presentation/screens/agent_log_detail_screen.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/map_log_detail_screen.dart';
 
@@ -20,42 +18,22 @@ class AiLogViewerScreen extends ConsumerStatefulWidget {
 }
 
 class _AiLogViewerScreenState extends ConsumerState<AiLogViewerScreen> with SingleTickerProviderStateMixin {
-  List<FileSystemEntity> _agentLogs = [];
-  List<FileSystemEntity> _mapLogs = [];
-  bool _isLoading = true;
   late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _loadAllLogs();
+    // Listen to changes to rebuild the segmented control animation
+    _tabController.addListener(() {
+      setState(() {});
+    });
   }
   
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadAllLogs() async {
-    setState(() => _isLoading = true);
-    try {
-      final agentLogger = ref.read(agentLoggerProvider);
-      final mapLogger = ref.read(mapLoggerProvider);
-      
-      final agentLogs = await agentLogger.getLogs();
-      final mapLogs = await mapLogger.getLogs();
-      
-      setState(() {
-        _agentLogs = agentLogs;
-        _mapLogs = mapLogs;
-      });
-    } catch (e) {
-      print('Failed to load logs: $e');
-    } finally {
-      setState(() => _isLoading = false);
-    }
   }
   
   Future<void> _clearAllLogs() async {
@@ -75,9 +53,10 @@ class _AiLogViewerScreenState extends ConsumerState<AiLogViewerScreen> with Sing
     );
     
     if (confirm == true) {
-      setState(() => _isLoading = true);
       await ref.read(systemLogManagerProvider).clearAllLogs();
-      await _loadAllLogs();
+      // Reactive state invalidation
+      ref.invalidate(agentLogListProvider);
+      ref.invalidate(mapLogListProvider);
     }
   }
 
@@ -90,20 +69,15 @@ class _AiLogViewerScreenState extends ConsumerState<AiLogViewerScreen> with Sing
       
       final fileName = file.path.split(Platform.pathSeparator).last;
       
-      // Polymorphic Routing based on Log Domain
       if (isMapLog) {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => MapLogDetailScreen(logData: json, fileName: fileName),
-          ),
+          MaterialPageRoute(builder: (context) => MapLogDetailScreen(logData: json, fileName: fileName)),
         );
       } else {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (context) => AgentLogDetailScreen(logData: json, fileName: fileName),
-          ),
+          MaterialPageRoute(builder: (context) => AgentLogDetailScreen(logData: json, fileName: fileName)),
         );
       }
     } catch (e) {
@@ -111,136 +85,76 @@ class _AiLogViewerScreenState extends ConsumerState<AiLogViewerScreen> with Sing
     }
   }
   
-  Widget _buildLogList(List<FileSystemEntity> logFiles, bool isDark, ThemeData theme, bool isMapLog) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (logFiles.isEmpty) {
-      return const Center(child: Text('No logs found.'));
-    }
-    
-    return ListView.builder(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
-      itemCount: logFiles.length,
-      itemBuilder: (context, index) {
-        final file = logFiles[index];
-        final fileName = file.path.split(Platform.pathSeparator).last;
-        final parts = fileName.split('_');
-        String title = fileName;
-        String subtitle = '';
-        
-        if (parts.length >= 2) {
-          try {
-            final dateStr = parts[0];
-            final timeStr = parts[1];
-            
-            final year = int.parse(dateStr.substring(0, 4));
-            final month = int.parse(dateStr.substring(4, 6));
-            final day = int.parse(dateStr.substring(6, 8));
-            final hour = int.parse(timeStr.substring(0, 2));
-            final min = int.parse(timeStr.substring(2, 4));
-            final sec = int.parse(timeStr.substring(4, 6));
-            
-            final dt = DateTime(year, month, day, hour, min, sec);
-            
-            if (parts.length >= 4) {
-              title = parts[2]; // Agent name
-            } else if (parts.length >= 3 && parts[2].startsWith('map')) {
-              title = 'Map Search';
-            }
-            
-            subtitle = DateFormat('yyyy-MM-dd HH:mm:ss').format(dt);
-          } catch (_) {}
+  Widget _buildLogList(AsyncValue<List<FileSystemEntity>> logsAsync, bool isDark, ThemeData theme, bool isMapLog) {
+    return logsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Center(child: Text('Error: $err')),
+      data: (logFiles) {
+        if (logFiles.isEmpty) {
+          return const Center(child: Text('No logs found.'));
         }
+        return ListView.builder(
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16, top: 8),
+          itemCount: logFiles.length,
+          itemBuilder: (context, index) {
+            final file = logFiles[index];
+            final fileName = file.path.split(Platform.pathSeparator).last;
+            final parts = fileName.split('_');
+            String title = fileName;
+            String subtitle = '';
+            
+            if (parts.length >= 2) {
+              try {
+                final dateStr = parts[0];
+                final timeStr = parts[1];
+                
+                final year = int.parse(dateStr.substring(0, 4));
+                final month = int.parse(dateStr.substring(4, 6));
+                final day = int.parse(dateStr.substring(6, 8));
+                final hour = int.parse(timeStr.substring(0, 2));
+                final min = int.parse(timeStr.substring(2, 4));
+                final sec = int.parse(timeStr.substring(4, 6));
+                
+                final dt = DateTime(year, month, day, hour, min, sec);
+                
+                if (parts.length >= 4) {
+                  title = parts[2]; // Agent name
+                } else if (parts.length >= 3 && parts[2].startsWith('map')) {
+                  title = 'Map Search';
+                }
+                
+                subtitle = DateFormat('yyyy-MM-dd HH:mm:ss').format(dt);
+              } catch (_) {}
+            }
 
-        return Card(
-          elevation: 0,
-          margin: const EdgeInsets.only(bottom: 8),
-          color: isDark ? AppColors.surfaceDark : Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: isDark ? Colors.white12 : Colors.black12, width: 1),
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-            leading: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: theme.primaryColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+            return Card(
+              elevation: 0,
+              margin: const EdgeInsets.only(bottom: 8),
+              color: isDark ? AppColors.surfaceDark : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: isDark ? Colors.white12 : Colors.black12, width: 1),
               ),
-              child: Icon(
-                isMapLog ? Icons.map_outlined : Icons.smart_toy_outlined, 
-                color: theme.primaryColor
-              ),
-            ),
-            title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Outfit')),
-            subtitle: Text(subtitle),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            onTap: () => _openLogDetail(file, isDark, isMapLog),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildSegmentedControl(ThemeData theme, bool isDark) {
-    return AnimatedBuilder(
-      animation: _tabController,
-      builder: (context, child) {
-        return Container(
-          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _tabController.animateTo(0),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: _tabController.index == 0 ? theme.primaryColor : Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Agent',
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontWeight: FontWeight.bold,
-                        color: _tabController.index == 0 ? Colors.white : (isDark ? Colors.white54 : Colors.black54),
-                      ),
-                    ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isMapLog ? Icons.map_outlined : Icons.smart_toy_outlined, 
+                    color: theme.primaryColor
                   ),
                 ),
+                title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Outfit')),
+                subtitle: Text(subtitle),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () => _openLogDetail(file, isDark, isMapLog),
               ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () => _tabController.animateTo(1),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    decoration: BoxDecoration(
-                      color: _tabController.index == 1 ? theme.primaryColor : Colors.transparent,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Map Search',
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontWeight: FontWeight.bold,
-                        color: _tabController.index == 1 ? Colors.white : (isDark ? Colors.white54 : Colors.black54),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         );
       }
     );
@@ -251,37 +165,158 @@ class _AiLogViewerScreenState extends ConsumerState<AiLogViewerScreen> with Sing
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    final agentLogsAsync = ref.watch(agentLogListProvider);
+    final mapLogsAsync = ref.watch(mapLogListProvider);
+
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
         title: const Text('System Logs', style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-            tooltip: 'Clear All Logs',
-            onPressed: _clearAllLogs,
+        centerTitle: true,
+        leadingWidth: 72,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
           ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadAllLogs,
-          )
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              tooltip: 'Clear All Logs',
+              onPressed: _clearAllLogs,
+            ),
+          ),
         ],
       ),
       body: Column(
         children: [
-          _buildSegmentedControl(theme, isDark),
+          // Using the decoupled SlidingSegmentedControl widget
+          SlidingSegmentedControl(
+            tabController: _tabController,
+            isDark: isDark,
+            theme: theme,
+          ),
           Expanded(
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildLogList(_agentLogs, isDark, theme, false),
-                _buildLogList(_mapLogs, isDark, theme, true),
+                _buildLogList(agentLogsAsync, isDark, theme, false),
+                _buildLogList(mapLogsAsync, isDark, theme, true),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class SlidingSegmentedControl extends StatelessWidget {
+  final TabController tabController;
+  final bool isDark;
+  final ThemeData theme;
+
+  const SlidingSegmentedControl({
+    super.key,
+    required this.tabController,
+    required this.isDark,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 48,
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: AnimatedBuilder(
+        // The AnimatedBuilder MUST be here to trigger frame-by-frame updates of the offset
+        animation: tabController.animation!,
+        builder: (context, child) {
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final tabWidth = constraints.maxWidth / 2;
+              final offset = tabController.animation!.value * tabWidth;
+
+              return Stack(
+                children: [
+                  Positioned(
+                    left: offset,
+                    top: 0,
+                    bottom: 0,
+                    width: tabWidth,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: theme.primaryColor,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: theme.primaryColor.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          )
+                        ]
+                      ),
+                    ),
+                  ),
+                  // The interactive text tabs
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => tabController.animateTo(0),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 200),
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: tabController.index == 0 ? Colors.white : (isDark ? Colors.white54 : Colors.black54),
+                              ),
+                              child: const Text('Agent'),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => tabController.animateTo(1),
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 200),
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                                color: tabController.index == 1 ? Colors.white : (isDark ? Colors.white54 : Colors.black54),
+                              ),
+                              child: const Text('Map Search'),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            }
+          );
+        }
       ),
     );
   }

@@ -30,3 +30,13 @@ final agentLoggerProvider = Provider<AIAgentLogger>((ref) {
 final mapLoggerProvider = Provider<MapSearchLogger>((ref) {
   return MapSearchLogger();
 });
+
+final agentLogListProvider = FutureProvider.autoDispose<List<FileSystemEntity>>((ref) async {
+  final logger = ref.watch(agentLoggerProvider);
+  return await logger.getLogs();
+});
+
+final mapLogListProvider = FutureProvider.autoDispose<List<FileSystemEntity>>((ref) async {
+  final logger = ref.watch(mapLoggerProvider);
+  return await logger.getLogs();
+});
