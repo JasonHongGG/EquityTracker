@@ -359,7 +359,7 @@ class _DashboardHeaderContentState extends State<_DashboardHeaderContent> {
                               onTap: delegate.onDateTap,
                               child: Text(
                                 DateFormat(
-                                  'yyyy / MM',
+                                  'yy / MM',
                                 ).format(delegate.selectedDate),
                                 style: TextStyle(
                                   color: textColor,

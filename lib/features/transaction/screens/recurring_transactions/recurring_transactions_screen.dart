@@ -40,53 +40,54 @@ class _RecurringTransactionModelsScreenState
           // AppBar Style Header with Settings logic preserved
           SliverAppBar(
             pinned: true,
-            toolbarHeight: 65,
-            leadingWidth: 65,
             backgroundColor: isDark
                 ? AppColors.backgroundDark
                 : AppColors.backgroundLight,
             elevation: 0,
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: IconButton(
-                icon: Icon(
-                  FontAwesomeIcons.gear,
-                  color: isDark ? Colors.white70 : Colors.black54,
-                  size: 20,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  );
-                },
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              icon: Icon(
+                Icons.settings_outlined,
+                color: isDark ? Colors.white70 : Colors.black54,
               ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const SettingsScreen(),
+                  ),
+                );
+              },
             ),
             title: Text(
               'Recurring',
-              style: TextStyle(
-                color: isDark ? Colors.white : Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
             ),
             centerTitle: true,
             actions: [
-              IconButton(
-                icon: Icon(Icons.add, color: Theme.of(context).primaryColor, size: 28),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const AddEditRecurringTransactionModelScreen(),
-                    ),
-                  );
-                },
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.add, color: Theme.of(context).primaryColor, size: 28),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const AddEditRecurringTransactionModelScreen(),
+                        ),
+                      );
+                    },
+                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                    padding: EdgeInsets.zero,
+                  ),
+                  const SizedBox(width: 12),
+                ],
               ),
-              const SizedBox(width: 16),
             ],
           ),
 

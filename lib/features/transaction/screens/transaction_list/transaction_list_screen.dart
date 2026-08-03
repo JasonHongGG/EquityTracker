@@ -6,7 +6,7 @@ import 'package:equity_tracker/features/transaction/providers/transaction_notifi
 import 'package:equity_tracker/features/transaction/controllers/transaction_list_controller.dart';
 import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
 import 'package:equity_tracker/features/transaction/screens/transaction_list/dashboard_header_delegate.dart';
-import 'package:equity_tracker/core/widgets/month_navigation_bar.dart';
+import 'package:equity_tracker/core/widgets/month_selector_title.dart';
 import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
 import 'package:equity_tracker/features/transaction/widgets/transaction_list_screen/daily_transaction_card.dart';
 import 'package:equity_tracker/features/transaction/widgets/transaction_list_screen/transaction_empty_state.dart';
@@ -37,91 +37,98 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
       body: CustomScrollView(
         slivers: [
           // 1. Scrollable Month Selector
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top,
-                bottom: 0,
-              ),
-              child: MonthNavigationBar(
-                selectedDate: selectedMonth,
-                isSearching: isSearching,
-                onSettings: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  );
-                },
-                onPrevious: () {
-                  ref
-                      .read(selectedMonthProvider.notifier)
-                      .update(
-                        DateTime(selectedMonth.year, selectedMonth.month - 1),
-                      );
-                },
-                onNext: () {
-                  ref
-                      .read(selectedMonthProvider.notifier)
-                      .update(
-                        DateTime(selectedMonth.year, selectedMonth.month + 1),
-                      );
-                },
-                onClearSearch: () {
-                  ref
-                      .read(transactionFilterProvider.notifier)
-                      .update(
-                        ref
-                            .read(transactionFilterProvider)
-                            .copyWith(searchQuery: ''),
-                      );
-                },
-                onSearch: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return SearchDialog(
-                        subtitle: 'Find transactions by title or note',
-                        initialQuery:
-                            ref.read(transactionFilterProvider).searchQuery ??
-                            '',
-                        onChanged: (value) {
-                          ref
-                              .read(transactionFilterProvider.notifier)
-                              .update(
-                                ref
-                                    .read(transactionFilterProvider)
-                                    .copyWith(searchQuery: value),
-                              );
-                        },
-                        onClear: () {
-                          ref
-                              .read(transactionFilterProvider.notifier)
-                              .update(
-                                ref
-                                    .read(transactionFilterProvider)
-                                    .copyWith(searchQuery: ''),
-                              );
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
-                  );
-                },
-                onTitleTap: () async {
-                  final newDate = await showCustomDateTimePicker(
-                    context: context,
-                    initialDate: ref.read(selectedMonthProvider),
-                    showYear: true,
-                    showMonth: true,
-                  );
-                  if (newDate != null) {
-                    ref.read(selectedMonthProvider.notifier).update(newDate);
-                  }
-                },
+          SliverAppBar(
+            floating: true,
+            pinned: false,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                );
+              },
+              icon: Icon(
+                Icons.settings_outlined,
+                color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black54,
               ),
             ),
+            title: MonthSelectorTitle(
+              selectedDate: selectedMonth,
+              onPrevious: () {
+                ref.read(selectedMonthProvider.notifier).update(
+                      DateTime(selectedMonth.year, selectedMonth.month - 1),
+                    );
+              },
+              onNext: () {
+                ref.read(selectedMonthProvider.notifier).update(
+                      DateTime(selectedMonth.year, selectedMonth.month + 1),
+                    );
+              },
+              onTitleTap: () async {
+                final newDate = await showCustomDateTimePicker(
+                  context: context,
+                  initialDate: ref.read(selectedMonthProvider),
+                  showYear: true,
+                  showMonth: true,
+                );
+                if (newDate != null) {
+                  ref.read(selectedMonthProvider.notifier).update(newDate);
+                }
+              },
+            ),
+            centerTitle: true,
+            actions: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: isSearching
+                        ? () {
+                            ref.read(transactionFilterProvider.notifier).update(
+                                  ref.read(transactionFilterProvider).copyWith(searchQuery: ''),
+                                );
+                          }
+                        : () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return SearchDialog(
+                                  subtitle: 'Find transactions by title or note',
+                                  initialQuery:
+                                      ref.read(transactionFilterProvider).searchQuery ?? '',
+                                  onChanged: (value) {
+                                    ref.read(transactionFilterProvider.notifier).update(
+                                          ref
+                                              .read(transactionFilterProvider)
+                                              .copyWith(searchQuery: value),
+                                        );
+                                  },
+                                  onClear: () {
+                                    ref.read(transactionFilterProvider.notifier).update(
+                                          ref
+                                              .read(transactionFilterProvider)
+                                              .copyWith(searchQuery: ''),
+                                        );
+                                    Navigator.pop(context);
+                                  },
+                                );
+                              },
+                            );
+                          },
+                    constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
+                      isSearching ? Icons.close : Icons.search,
+                      color: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black54,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+              ),
+            ],
           ),
 
           // 2. AppBar & Dashboard
