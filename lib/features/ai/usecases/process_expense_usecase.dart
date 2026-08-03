@@ -92,12 +92,12 @@ class StoreResolutionStep implements RecordProcessingStep {
     if (queryStr.isNotEmpty) {
       searchResults = await mapSearchService.search(queryStr);
       if (searchResults.isEmpty) {
-        onProgress?.call('(Google Map 查無結果，或未啟用，交由 AI 直接推斷)');
+        onProgress?.call('Google Map 查無結果，或未啟用，交由 AI 直接推斷');
       } else {
-        onProgress?.call('(Google Map 找到 ${searchResults.length} 筆可能店家，交由 AI 篩選)');
+        onProgress?.call('Google Map 找到 ${searchResults.length} 筆可能店家，交由 AI 篩選');
       }
     } else {
-      onProgress?.call('(無足夠線索查詢地圖，交由 AI 盲猜)');
+      onProgress?.call('無足夠線索查詢地圖，交由 AI 推斷');
     }
 
     final lookupResponse = await storeLookupAgent.execute(
@@ -111,7 +111,7 @@ class StoreResolutionStep implements RecordProcessingStep {
     );
 
     if (lookupResponse.isCertain && lookupResponse.storeName != null && lookupResponse.storeName!.isNotEmpty) {
-      onProgress?.call('✅ 確認店家名稱為: ${lookupResponse.storeName}');
+      onProgress?.call('確認店家名稱為: ${lookupResponse.storeName}');
       record.updateStore(lookupResponse.storeName!);
       record.markValidating();
       return null;
@@ -134,7 +134,6 @@ class StoreResolutionStep implements RecordProcessingStep {
     }
   }
 
-  @override
   Future<UseCaseResult?> handleCorrection(
     int recordIndex,
     TransactionRecord record,
@@ -144,10 +143,12 @@ class StoreResolutionStep implements RecordProcessingStep {
   ) async {
     if (record.status != RecordStatus.needsStoreResolution) return null;
     
-    onProgress?.call('✅ 更新店家名稱為: $userInput');
+    onProgress?.call('根據輸入「$userInput」重新查詢店家...');
     record.updateStore(userInput);
-    record.markValidating();
-    return null;
+    record.markExtracted();
+    
+    // 遞迴呼叫 execute 進行二次地圖驗證
+    return await execute(recordIndex, record, session, onProgress: onProgress);
   }
 }
 
@@ -173,7 +174,7 @@ class ValidationStep implements RecordProcessingStep {
     );
 
     if (validationResponse.isValid) {
-      onProgress?.call('✅ 資訊確認無誤。');
+      onProgress?.call('資訊確認無誤。');
       record.markResolved();
       return null;
     } else {
@@ -226,7 +227,7 @@ class ProcessExpenseUseCase {
   Future<UseCaseResult> execute(TransactionSession session, List<CategoryModel> categories, {void Function(String)? onProgress}) async {
     // 1. Extraction Phase
     if (session.records.isEmpty) {
-      onProgress?.call('🔍 正在提取花費資訊...');
+      onProgress?.call('正在提取花費資訊...');
       final extractedData = await extractionAgent.execute(
         session.originalText, 
         categories: categories,

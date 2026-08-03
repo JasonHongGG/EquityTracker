@@ -14,6 +14,10 @@ class TransactionRecord {
   RecordStatus get status => _status;
   String? get validationQuestion => _validationQuestion;
 
+  void markExtracted() {
+    _status = RecordStatus.extracted;
+  }
+
   void markNeedsStoreResolution() {
     _status = RecordStatus.needsStoreResolution;
   }

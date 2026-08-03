@@ -24,29 +24,33 @@ class ChatMessage {
 
 class AISessionState {
   final TransactionSession? session;
-  final List<ChatMessage> messages;
   final bool isProcessing;
   final UseCaseResult? pendingAction;
+  final List<ChatMessage> messages;
+  final List<String> thinkingSteps;
 
   AISessionState({
     this.session,
-    this.messages = const [],
     this.isProcessing = false,
     this.pendingAction,
+    this.messages = const [],
+    this.thinkingSteps = const [],
   });
 
   AISessionState copyWith({
     TransactionSession? session,
-    List<ChatMessage>? messages,
     bool? isProcessing,
     UseCaseResult? pendingAction,
     bool clearPendingAction = false,
+    List<ChatMessage>? messages,
+    List<String>? thinkingSteps,
   }) {
     return AISessionState(
       session: session ?? this.session,
-      messages: messages ?? this.messages,
       isProcessing: isProcessing ?? this.isProcessing,
       pendingAction: clearPendingAction ? null : (pendingAction ?? this.pendingAction),
+      messages: messages ?? this.messages,
+      thinkingSteps: thinkingSteps ?? this.thinkingSteps,
     );
   }
 }
@@ -67,14 +71,18 @@ class AISessionController extends Notifier<AISessionState> {
   }
 
   void _addProgress(String msg) {
-    _addMessage(msg, ChatMessageType.system);
+    state = state.copyWith(thinkingSteps: [...state.thinkingSteps, msg]);
   }
 
   Future<void> startSession(String input) async {
     _addMessage(input, ChatMessageType.user);
     
     final session = TransactionSession(input);
-    state = state.copyWith(session: session, isProcessing: true);
+    state = state.copyWith(
+      session: session, 
+      isProcessing: true,
+      thinkingSteps: [],
+    );
 
     try {
       final useCase = ref.read(processExpenseUseCaseProvider);
@@ -93,7 +101,11 @@ class AISessionController extends Notifier<AISessionState> {
     if (state.pendingAction == null || state.session == null) return;
 
     final action = state.pendingAction!;
-    state = state.copyWith(isProcessing: true, clearPendingAction: true);
+    state = state.copyWith(
+      isProcessing: true, 
+      clearPendingAction: true,
+      thinkingSteps: [], // Reset thinking steps
+    );
     _addMessage(answer, ChatMessageType.user);
 
     try {

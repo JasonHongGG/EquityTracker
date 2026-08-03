@@ -4,6 +4,7 @@ import 'package:equity_tracker/features/ai/presentation/controllers/ai_session_c
 import 'package:equity_tracker/features/ai/usecases/process_expense_usecase.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/ai_log_viewer_screen.dart';
+import 'dart:math' as math;
 
 void showAiInputBottomSheet(BuildContext context) {
   showModalBottomSheet(
@@ -98,7 +99,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
               _buildActionCard(context, sessionState.pendingAction!, isDark),
               
             if (sessionState.isProcessing)
-              _buildTypingIndicator(isDark),
+              _buildThinkingBubble(sessionState, isDark),
 
             _buildInputArea(sessionState, isDark),
           ],
@@ -262,23 +263,82 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
     );
   }
 
-  Widget _buildTypingIndicator(bool isDark) {
+  Widget _buildThinkingBubble(AISessionState sessionState, bool isDark) {
+    if (!sessionState.isProcessing) return const SizedBox();
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           CircleAvatar(
             radius: 16,
             backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-            child: Icon(Icons.more_horiz, size: 16, color: Theme.of(context).primaryColor),
+            child: Icon(Icons.smart_toy_outlined, size: 16, color: Theme.of(context).primaryColor),
           ),
           const SizedBox(width: 8),
-          Text(
-            'AI 思考中...',
-            style: TextStyle(
-              fontSize: 12,
-              color: isDark ? Colors.white54 : Colors.black54,
-              fontStyle: FontStyle.italic,
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.surfaceDark : Colors.white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(4),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GlowingThinkingOrbs(baseColor: Theme.of(context).primaryColor),
+                      const SizedBox(width: 12),
+                      Text(
+                        'AI 思考中...',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (sessionState.thinkingSteps.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    ...sessionState.thinkingSteps.map((step) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.check_circle_outline, size: 12, color: isDark ? Colors.white54 : Colors.black54),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              step,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark ? Colors.white54 : Colors.black54,
+                                height: 1.2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+                  ],
+                ],
+              ),
             ),
           ),
         ],
@@ -289,7 +349,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
   Widget _buildActionCard(BuildContext context, UseCaseResult action, bool isDark) {
     if (action is RequireStoreSelectionResult) {
       return Container(
-        margin: const EdgeInsets.only(top: 8, bottom: 16),
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : Colors.white,
@@ -382,10 +442,6 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
   }
 
   Widget _buildInputArea(AISessionState sessionState, bool isDark) {
-    final hasSession = sessionState.session != null;
-    if (sessionState.pendingAction == null && !sessionState.isProcessing && hasSession) {
-      return const SizedBox(height: 24);
-    }
     
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
@@ -442,6 +498,71 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class GlowingThinkingOrbs extends StatefulWidget {
+  final Color baseColor;
+  
+  const GlowingThinkingOrbs({super.key, required this.baseColor});
+
+  @override
+  State<GlowingThinkingOrbs> createState() => _GlowingThinkingOrbsState();
+}
+
+class _GlowingThinkingOrbsState extends State<GlowingThinkingOrbs> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(3, (index) {
+            // Offset the animation for each dot
+            final t = (_controller.value * 2 * math.pi) + (index * (2 * math.pi / 3));
+            final scale = 0.8 + 0.4 * (0.5 * (1 + math.sin(t)));
+            final opacity = 0.4 + 0.6 * (0.5 * (1 + math.sin(t)));
+            
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: Transform.scale(
+                scale: scale,
+                child: Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: widget.baseColor.withValues(alpha: opacity),
+                    boxShadow: [
+                      BoxShadow(
+                        color: widget.baseColor.withValues(alpha: opacity * 0.8),
+                        blurRadius: 8 * scale,
+                        spreadRadius: 2 * scale,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 }
