@@ -42,7 +42,7 @@ abstract class BaseAgent<TInput, TOutput> {
 
       logger.logInteraction(
         {'prompt': prompt, 'systemPrompt': systemPrompt},
-        {'response': parsedResponse},
+        parsedResponse,
         startTime,
       );
     }
