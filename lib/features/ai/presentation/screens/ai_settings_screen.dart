@@ -337,38 +337,29 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
   }
 
   Widget _buildAnimatedParametersGroup(AIConfigState state, bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSectionHeader('Engine Parameters', isDark),
-        Container(
-          decoration: _cardDecoration(isDark),
-          child: AnimatedSize(
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeOutQuart,
-            alignment: Alignment.topCenter,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(0.0, 0.05),
-                      end: Offset.zero,
-                    ).animate(animation),
-                    child: child,
-                  ),
-                );
-              },
-              child: Column(
-                key: ValueKey(state.providerType),
-                children: _buildParameterFields(state, isDark),
-              ),
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeOutQuart,
+      alignment: Alignment.topCenter,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0.0, 0.05),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
             ),
-          ),
+          );
+        },
+        child: Column(
+          key: ValueKey(state.providerType),
+          children: _buildParameterFields(state, isDark),
         ),
-      ],
+      ),
     );
   }
 
@@ -383,7 +374,7 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
             children: [
               SwitchListTile(
                 title: Text(
-                  'Enable Google Map API',
+                  'Google Map API',
                   style: TextStyle(
                     fontFamily: 'Outfit',
                     fontSize: 16,
@@ -445,7 +436,7 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
                 children: [
                   SwitchListTile(
                     title: Text(
-                      'Enable AI Smart Accounting',
+                      'AI Agent',
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         fontSize: 16,
@@ -459,12 +450,10 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
                   ),
                   _buildDivider(isDark),
                   _buildSmartSelectorCard(state, isDark),
+                  _buildAnimatedParametersGroup(state, isDark),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            
-            _buildAnimatedParametersGroup(state, isDark),
             
             const SizedBox(height: 60),
           ],
