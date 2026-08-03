@@ -203,11 +203,22 @@ class _PremiumCalendarPickerDialogState extends State<_PremiumCalendarPickerDial
       ));
     }
 
-    return GridView.count(
-      crossAxisCount: 7,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
-      children: cells,
+    // Chunk cells into rows of 7
+    final List<Widget> rows = [];
+    for (int i = 0; i < cells.length; i += 7) {
+      final end = (i + 7 < cells.length) ? i + 7 : cells.length;
+      final rowCells = cells.sublist(i, end);
+      rows.add(
+        Expanded(
+          child: Row(
+            children: rowCells.map((cell) => Expanded(child: cell)).toList(),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: rows,
     );
   }
 
