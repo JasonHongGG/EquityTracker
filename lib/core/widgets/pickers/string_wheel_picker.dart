@@ -8,8 +8,10 @@ Future<int?> showCustomWheelPicker({
   required List<String> items,
   required int initialIndex,
 }) {
-  return showDialog<int>(
+  return showModalBottomSheet<int>(
     context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
     builder: (context) => _CustomWheelPickerDialog(
       title: title,
       items: items,
@@ -60,24 +62,25 @@ class _CustomWheelPickerDialogState extends State<_CustomWheelPickerDialog> {
     final secondaryTextColor = isDark ? Colors.white38 : Colors.black38;
     final highlightColor = theme.primaryColor.withValues(alpha: 0.12);
 
-    return PickerDialogShell(
+    return PickerBottomSheetShell(
       title: widget.title,
-      onCancel: () => Navigator.pop(context),
-      onConfirm: () => Navigator.pop(context, _selectedIndex),
-      child: SizedBox(
-        height: 150,
-        child: Stack(
-          children: [
-            // Selection Highlight
-            Center(
-              child: Container(
-                height: itemHeight,
-                decoration: BoxDecoration(
-                  color: highlightColor,
-                  borderRadius: BorderRadius.circular(12),
+      onConfirm: () => Navigator.pop(context, _selectedIndex % widget.items.length),
+      child: Stack(
+        children: [
+          // Selection Highlight (The "Pill")
+          Center(
+            child: Container(
+              height: itemHeight,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
+                  width: 1,
                 ),
               ),
             ),
+          ),
             
             // Wheel
             ListWheelScrollView.useDelegate(
@@ -90,26 +93,28 @@ class _CustomWheelPickerDialogState extends State<_CustomWheelPickerDialog> {
                 setState(() => _selectedIndex = index);
                 HapticFeedback.selectionClick();
               },
-              childDelegate: ListWheelChildBuilderDelegate(
-                childCount: widget.items.length,
-                builder: (context, index) {
-                  final isSelected = index == _selectedIndex;
-                  return Center(
-                    child: Text(
-                      widget.items[index],
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontSize: isSelected ? 20 : 18,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                        color: isSelected ? textColor : secondaryTextColor,
+              childDelegate: ListWheelChildLoopingListDelegate(
+                children: List.generate(
+                  widget.items.length,
+                  (index) {
+                    final isSelected = index == (_selectedIndex % widget.items.length);
+                    return Center(
+                      child: Text(
+                        widget.items[index],
+                        style: TextStyle(
+                          fontFamily: 'Outfit',
+                          fontSize: isSelected ? 24 : 18,
+                          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                          color: isSelected ? textColor : secondaryTextColor.withValues(alpha: 0.4),
+                          letterSpacing: 1.0,
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

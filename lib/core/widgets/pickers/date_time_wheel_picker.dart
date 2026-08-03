@@ -11,8 +11,10 @@ Future<DateTime?> showCustomDateTimePicker({
   bool showTime = false,
   String title = 'Select Date & Time',
 }) {
-  return showDialog<DateTime>(
+  return showModalBottomSheet<DateTime>(
     context: context,
+    backgroundColor: Colors.transparent,
+    isScrollControlled: true,
     builder: (context) => _CustomDateTimePickerDialog(
       initialDate: initialDate,
       showYear: showYear,
@@ -148,12 +150,13 @@ class _CustomDateTimePickerDialogState extends State<_CustomDateTimePickerDialog
         _buildExpandedWheel(
           controller: _monthController,
           itemCount: 12,
+          isLooping: true,
           onChanged: (index) {
-            setState(() => _selectedMonth = index + 1);
+            setState(() => _selectedMonth = (index % 12) + 1);
             _onMonthOrYearChanged();
           },
           builder: (context, index) {
-            final month = index + 1;
+            final month = (index % 12) + 1;
             return _buildWheelItem(month.toString().padLeft(2, '0'), month == _selectedMonth, textColor, secondaryTextColor);
           },
         )
@@ -167,11 +170,12 @@ class _CustomDateTimePickerDialogState extends State<_CustomDateTimePickerDialog
         _buildExpandedWheel(
           controller: _dayController,
           itemCount: daysInCurrentMonth,
+          isLooping: true,
           onChanged: (index) {
-            setState(() => _selectedDay = index + 1);
+            setState(() => _selectedDay = (index % daysInCurrentMonth) + 1);
           },
           builder: (context, index) {
-            final day = index + 1;
+            final day = (index % daysInCurrentMonth) + 1;
             return _buildWheelItem(day.toString().padLeft(2, '0'), day == _selectedDay, textColor, secondaryTextColor);
           },
         )
@@ -200,9 +204,11 @@ class _CustomDateTimePickerDialogState extends State<_CustomDateTimePickerDialog
         _buildExpandedWheel(
           controller: _hourController,
           itemCount: 24,
-          onChanged: (index) => setState(() => _selectedHour = index),
+          isLooping: true,
+          onChanged: (index) => setState(() => _selectedHour = index % 24),
           builder: (context, index) {
-            return _buildWheelItem(index.toString().padLeft(2, '0'), index == _selectedHour, textColor, secondaryTextColor);
+            final hour = index % 24;
+            return _buildWheelItem(hour.toString().padLeft(2, '0'), hour == _selectedHour, textColor, secondaryTextColor);
           },
         )
       );
@@ -213,9 +219,11 @@ class _CustomDateTimePickerDialogState extends State<_CustomDateTimePickerDialog
         _buildExpandedWheel(
           controller: _minuteController,
           itemCount: 60,
-          onChanged: (index) => setState(() => _selectedMinute = index),
+          isLooping: true,
+          onChanged: (index) => setState(() => _selectedMinute = index % 60),
           builder: (context, index) {
-            return _buildWheelItem(index.toString().padLeft(2, '0'), index == _selectedMinute, textColor, secondaryTextColor);
+            final minute = index % 60;
+            return _buildWheelItem(minute.toString().padLeft(2, '0'), minute == _selectedMinute, textColor, secondaryTextColor);
           },
         )
       );
@@ -230,9 +238,8 @@ class _CustomDateTimePickerDialogState extends State<_CustomDateTimePickerDialog
       }
     }
 
-    return PickerDialogShell(
+    return PickerBottomSheetShell(
       title: widget.title,
-      onCancel: () => Navigator.pop(context),
       onConfirm: () {
         final result = DateTime(
           widget.showYear ? _selectedYear : widget.initialDate.year,
@@ -243,28 +250,29 @@ class _CustomDateTimePickerDialogState extends State<_CustomDateTimePickerDialog
         );
         Navigator.pop(context, result);
       },
-      child: SizedBox(
-        height: 150, // 3 items visible (50px each)
-        child: Stack(
-          children: [
-            // Selection Highlight (The "Pill")
-            Center(
-              child: Container(
-                height: itemHeight,
-                decoration: BoxDecoration(
-                  color: highlightColor,
-                  borderRadius: BorderRadius.circular(12),
+      child: Stack(
+        children: [
+          // Selection Highlight (The "Pill") - Elegant frosted or outlined pill
+          Center(
+            child: Container(
+              height: itemHeight,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
+                  width: 1,
                 ),
               ),
             ),
+          ),
 
-            // Wheels Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: rowChildren,
-            ),
-          ],
-        ),
+          // Wheels Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: rowChildren,
+          ),
+        ],
       ),
     );
   }
@@ -274,6 +282,7 @@ class _CustomDateTimePickerDialogState extends State<_CustomDateTimePickerDialog
     required int itemCount,
     required ValueChanged<int> onChanged,
     required IndexedWidgetBuilder builder,
+    bool isLooping = false,
   }) {
     return Expanded(
       child: ListWheelScrollView.useDelegate(
@@ -286,10 +295,17 @@ class _CustomDateTimePickerDialogState extends State<_CustomDateTimePickerDialog
           onChanged(index);
           HapticFeedback.selectionClick();
         },
-        childDelegate: ListWheelChildBuilderDelegate(
-          builder: builder,
-          childCount: itemCount,
-        ),
+        childDelegate: isLooping
+            ? ListWheelChildLoopingListDelegate(
+                children: List.generate(
+                  itemCount,
+                  (index) => builder(context, index),
+                ),
+              )
+            : ListWheelChildBuilderDelegate(
+                builder: builder,
+                childCount: itemCount,
+              ),
       ),
     );
   }
@@ -300,28 +316,18 @@ class _CustomDateTimePickerDialogState extends State<_CustomDateTimePickerDialog
         text,
         style: TextStyle(
           fontFamily: 'Outfit',
-          fontSize: isSelected ? 20 : 18,
-          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-          color: isSelected ? primary : secondary,
+          fontSize: isSelected ? 24 : 18,
+          fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+          color: isSelected ? primary : secondary.withValues(alpha: 0.4),
+          letterSpacing: 1.0,
         ),
       ),
     );
   }
 
   Widget _buildSeparator(String char, Color textColor) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 2),
-        child: Text(
-          char,
-          style: TextStyle(
-            fontFamily: 'Outfit',
-            fontSize: 22,
-            fontWeight: FontWeight.w400,
-            color: textColor,
-          ),
-        ),
-      ),
-    );
+    // For a cleaner look, return just empty spacing instead of a physical char,
+    // or return a very subtle dot if requested. We'll use a wide space here.
+    return const SizedBox(width: 16);
   }
 }

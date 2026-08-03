@@ -1,111 +1,126 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class PickerDialogShell extends StatelessWidget {
+class PickerBottomSheetShell extends StatelessWidget {
   final String title;
   final Widget child;
   final VoidCallback onConfirm;
-  final VoidCallback onCancel;
-
-  const PickerDialogShell({
+  
+  const PickerBottomSheetShell({
     super.key,
     required this.title,
     required this.child,
     required this.onConfirm,
-    required this.onCancel,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final primaryColor = theme.primaryColor;
+    
+    // Glassmorphism colors
+    final backgroundColor = isDark 
+        ? const Color(0xFF1E1E1E).withValues(alpha: 0.8) 
+        : Colors.white.withValues(alpha: 0.85);
+    final secondaryTextColor = isDark ? Colors.white54 : Colors.black54;
 
-    // Premium Colors
-    final backgroundColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final secondaryTextColor = isDark ? Colors.white38 : Colors.black38;
-
-    return Dialog(
-      backgroundColor: backgroundColor,
-      surfaceTintColor: Colors.transparent, // Remove M3 tint
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-      child: Container(
-        width: 340, // Fixed width for consistent look
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Text(
-              title,
-              style: TextStyle(
-                fontFamily: 'Outfit',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.5,
-                color: secondaryTextColor,
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            border: Border(
+              top: BorderSide(
+                color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.05),
+                width: 1,
               ),
             ),
-            const SizedBox(height: 24),
-
-            // Content Area (Wheels)
-            child,
-
-            const SizedBox(height: 32),
-
-            // Actions
-            Row(
-              children: [
-                Expanded(
-                  child: TextButton(
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      onCancel();
-                    },
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      foregroundColor: secondaryTextColor.withValues(alpha: 0.6),
-                    ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontWeight: FontWeight.w600,
-                      ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Drag Handle
+                  Container(
+                    width: 48,
+                    height: 5,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.white24 : Colors.black12,
+                      borderRadius: BorderRadius.circular(2.5),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      onConfirm();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+
+                  // Header with Title and Done Icon
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Placeholder to keep title perfectly centered
+                      const SizedBox(width: 48),
+                      
+                      // Header Title
+                      Text(
+                        title.toUpperCase(),
+                        style: TextStyle(
+                          fontFamily: 'Outfit',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 2.0,
+                          color: secondaryTextColor,
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      'Confirm',
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontWeight: FontWeight.bold,
+
+                      // Done Button (Icon)
+                      IconButton(
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          onConfirm();
+                        },
+                        icon: const Icon(Icons.check_circle_rounded),
+                        color: theme.primaryColor,
+                        iconSize: 28,
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(
+                          minWidth: 48,
+                          minHeight: 48,
+                        ),
                       ),
+                    ],
+                  ),
+                  
+                  const SizedBox(height: 24),
+
+                  // Content Area with ShaderMask for smooth fade out
+                  SizedBox(
+                    height: 200, // Taller area for premium feel
+                    child: ShaderMask(
+                      shaderCallback: (Rect bounds) {
+                        return LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black,
+                            Colors.black,
+                            Colors.transparent,
+                          ],
+                          stops: const [0.0, 0.25, 0.75, 1.0],
+                        ).createShader(bounds);
+                      },
+                      blendMode: BlendMode.dstIn,
+                      child: child,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
