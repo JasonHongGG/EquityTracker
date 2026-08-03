@@ -12,7 +12,7 @@ class GeminiFlowClient {
   Future<GeminiFlowChatResponse> chat({
     required String prompt,
     String? systemPrompt,
-    String model = 'gemini-2.5-flash',
+    String model = 'gemini-3.6-flash',
     String language = 'zh-TW',
     List<String>? images,
     String? sessionId,
@@ -49,7 +49,7 @@ class GeminiFlowClient {
   Stream<GeminiFlowStreamData> stream({
     required String prompt,
     String? systemPrompt,
-    String model = 'gemini-2.5-flash',
+    String model = 'gemini-3.6-flash',
     String language = 'zh-TW',
     List<String>? images,
     String? sessionId,

@@ -1,34 +1,33 @@
+import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-enum AIProviderType {
-  gemini,
-  ollama
-}
+import 'package:equity_tracker/features/ai/domain/models/ai_provider_config.dart';
 
 class AIConfigState {
   final AIProviderType providerType;
-  final String baseUrl;
-  final String modelName;
+  final Map<AIProviderType, ProviderConfig> configs;
   final String googleMapApiKey;
 
   AIConfigState({
-    this.providerType = AIProviderType.gemini,
-    this.baseUrl = 'http://127.0.0.1:8000',
-    this.modelName = 'gemini-2.5-flash',
+    this.providerType = AIProviderType.geminiflow,
+    Map<AIProviderType, ProviderConfig>? configs,
     this.googleMapApiKey = '',
-  });
+  }) : configs = configs ?? {
+         AIProviderType.geminiflow: const GeminiFlowConfig(),
+         AIProviderType.ollama: const OllamaConfig(),
+         AIProviderType.vertexai: const VertexAIConfig(),
+       };
+
+  ProviderConfig get activeConfig => configs[providerType]!;
 
   AIConfigState copyWith({
     AIProviderType? providerType,
-    String? baseUrl,
-    String? modelName,
+    Map<AIProviderType, ProviderConfig>? configs,
     String? googleMapApiKey,
   }) {
     return AIConfigState(
       providerType: providerType ?? this.providerType,
-      baseUrl: baseUrl ?? this.baseUrl,
-      modelName: modelName ?? this.modelName,
+      configs: configs ?? this.configs,
       googleMapApiKey: googleMapApiKey ?? this.googleMapApiKey,
     );
   }
@@ -44,37 +43,59 @@ class AIConfigController extends Notifier<AIConfigState> {
   Future<void> _loadConfig() async {
     final prefs = await SharedPreferences.getInstance();
     final typeStr = prefs.getString('ai_provider_type');
-    final type = typeStr != null ? AIProviderType.values.byName(typeStr) : AIProviderType.gemini;
-    final baseUrl = prefs.getString('ai_base_url') ?? 'http://127.0.0.1:8000';
-    final modelName = prefs.getString('ai_model_name') ?? 'gemini-2.5-flash';
+    final type = typeStr != null ? AIProviderType.values.byName(typeStr) : AIProviderType.geminiflow;
+    
+    final Map<AIProviderType, ProviderConfig> loadedConfigs = {
+      AIProviderType.geminiflow: const GeminiFlowConfig(),
+      AIProviderType.ollama: const OllamaConfig(),
+      AIProviderType.vertexai: const VertexAIConfig(),
+    };
+
+    final geminiflowJson = prefs.getString('ai_config_geminiflow');
+    if (geminiflowJson != null) loadedConfigs[AIProviderType.geminiflow] = GeminiFlowConfig.fromJson(jsonDecode(geminiflowJson));
+
+    final ollamaJson = prefs.getString('ai_config_ollama');
+    if (ollamaJson != null) loadedConfigs[AIProviderType.ollama] = OllamaConfig.fromJson(jsonDecode(ollamaJson));
+
+    final vertexaiJson = prefs.getString('ai_config_vertexai');
+    if (vertexaiJson != null) loadedConfigs[AIProviderType.vertexai] = VertexAIConfig.fromJson(jsonDecode(vertexaiJson));
+
     final googleMapApiKey = prefs.getString('google_map_api_key') ?? '';
 
     state = AIConfigState(
       providerType: type,
-      baseUrl: baseUrl,
-      modelName: modelName,
+      configs: loadedConfigs,
       googleMapApiKey: googleMapApiKey,
     );
   }
 
   Future<void> saveConfig({
-    required AIProviderType providerType,
-    required String baseUrl,
-    required String modelName,
-    required String googleMapApiKey,
+    AIProviderType? providerType,
+    ProviderConfig? activeProviderConfig,
+    String? googleMapApiKey,
   }) async {
+    final newConfigs = Map<AIProviderType, ProviderConfig>.from(state.configs);
+    
+    if (activeProviderConfig != null) {
+      newConfigs[providerType ?? state.providerType] = activeProviderConfig;
+    }
+
     state = state.copyWith(
       providerType: providerType,
-      baseUrl: baseUrl,
-      modelName: modelName,
+      configs: newConfigs,
       googleMapApiKey: googleMapApiKey,
     );
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('ai_provider_type', providerType.index);
-    await prefs.setString('ai_base_url', baseUrl.trim());
-    await prefs.setString('ai_model_name', modelName.trim());
-    await prefs.setString('google_map_api_key', googleMapApiKey.trim());
+    await prefs.setString('ai_provider_type', state.providerType.name);
+    
+    await prefs.setString('ai_config_geminiflow', jsonEncode(state.configs[AIProviderType.geminiflow]!.toJson()));
+    await prefs.setString('ai_config_ollama', jsonEncode(state.configs[AIProviderType.ollama]!.toJson()));
+    await prefs.setString('ai_config_vertexai', jsonEncode(state.configs[AIProviderType.vertexai]!.toJson()));
+    
+    if (googleMapApiKey != null) {
+      await prefs.setString('google_map_api_key', googleMapApiKey.trim());
+    }
   }
 }
 
