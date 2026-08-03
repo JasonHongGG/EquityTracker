@@ -6,12 +6,16 @@ class PickerBottomSheetShell extends StatelessWidget {
   final String title;
   final Widget child;
   final VoidCallback onConfirm;
+  final double contentHeight;
+  final bool useShaderMask;
   
   const PickerBottomSheetShell({
     super.key,
     required this.title,
     required this.child,
     required this.onConfirm,
+    this.contentHeight = 200,
+    this.useShaderMask = true,
   });
 
   @override
@@ -96,26 +100,28 @@ class PickerBottomSheetShell extends StatelessWidget {
                   
                   const SizedBox(height: 24),
 
-                  // Content Area with ShaderMask for smooth fade out
+                  // Content Area
                   SizedBox(
-                    height: 200, // Taller area for premium feel
-                    child: ShaderMask(
-                      shaderCallback: (Rect bounds) {
-                        return LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            Colors.black,
-                            Colors.black,
-                            Colors.transparent,
-                          ],
-                          stops: const [0.0, 0.25, 0.75, 1.0],
-                        ).createShader(bounds);
-                      },
-                      blendMode: BlendMode.dstIn,
-                      child: child,
-                    ),
+                    height: contentHeight,
+                    child: useShaderMask
+                        ? ShaderMask(
+                            shaderCallback: (Rect bounds) {
+                              return LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black,
+                                  Colors.black,
+                                  Colors.transparent,
+                                ],
+                                stops: const [0.0, 0.25, 0.75, 1.0],
+                              ).createShader(bounds);
+                            },
+                            blendMode: BlendMode.dstIn,
+                            child: child,
+                          )
+                        : child,
                   ),
                 ],
               ),

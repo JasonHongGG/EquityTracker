@@ -6,6 +6,7 @@ import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/category/widgets/common/category_grid.dart';
 import 'package:equity_tracker/core/widgets/calculator_pad.dart';
 import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
+import 'package:equity_tracker/core/widgets/pickers/premium_calendar_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_transaction/transaction_header.dart';
@@ -212,12 +213,9 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
                         onPreviousDay: () => controller.updateDate(state.date.subtract(const Duration(days: 1))),
                         onNextDay: () => controller.updateDate(state.date.add(const Duration(days: 1))),
                         onPickDate: () async {
-                          final DateTime? pickedDate = await showCustomDateTimePicker(
+                          final DateTime? pickedDate = await showPremiumCalendarPicker(
                             context: context,
                             initialDate: state.date,
-                            showYear: true,
-                            showMonth: true,
-                            showDay: true,
                           );
                           if (pickedDate != null) {
                             controller.updateDate(DateTime(

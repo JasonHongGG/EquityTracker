@@ -11,6 +11,7 @@ import 'package:equity_tracker/features/category/widgets/common/category_grid.da
 import 'package:equity_tracker/core/widgets/calculator_pad.dart';
 
 import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
+import 'package:equity_tracker/core/widgets/pickers/premium_calendar_picker.dart';
 import 'package:equity_tracker/core/widgets/pickers/string_wheel_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
@@ -319,11 +320,9 @@ class _AddEditRecurringTransactionModelScreenState
 
     if (_frequency == Frequency.yearly) {
       // 1. Pick Date
-      final DateTime? pickedDate = await showCustomDateTimePicker(
+      final DateTime? pickedDate = await showPremiumCalendarPicker(
         context: context,
         initialDate: _nextDueDate,
-        showMonth: true,
-        showDay: true,
       );
       if (pickedDate != null) {
         // 2. Pick Time
