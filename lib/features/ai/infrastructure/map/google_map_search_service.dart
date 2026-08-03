@@ -19,7 +19,7 @@ class GoogleMapSearchService implements IMapSearchService {
 
     try {
       final url = Uri.parse(
-          'https://maps.googleapis.com/maps/api/place/textsearch/json?query=\${Uri.encodeComponent(query)}&language=zh-TW&key=\$apiKey');
+          'https://maps.googleapis.com/maps/api/place/textsearch/json?query=${Uri.encodeComponent(query)}&language=zh-TW&key=$apiKey');
       
       final response = await http.get(url);
 
@@ -27,7 +27,7 @@ class GoogleMapSearchService implements IMapSearchService {
         final parsedData = jsonDecode(response.body);
 
         if (parsedData['status'] != 'OK' && parsedData['status'] != 'ZERO_RESULTS') {
-          print('[GoogleMapSearchService] API Error: \${parsedData["status"]} \${parsedData["error_message"]}');
+          print('[GoogleMapSearchService] API Error: ${parsedData["status"]} ${parsedData["error_message"]}');
           return [];
         }
 
@@ -54,16 +54,16 @@ class GoogleMapSearchService implements IMapSearchService {
         return [];
       }
     } catch (e) {
-      print('[GoogleMapSearchService] Error: \$e');
+      print('[GoogleMapSearchService] Error: $e');
       return [];
     }
   }
 }
 
-final mapSearchServiceProvider = Provider<IMapSearchService>((ref) {
-  final apiKey = ref.watch(aiConfigControllerProvider).googleMapApiKey;
+final mapSearchServiceProvider = Provider.autoDispose<IMapSearchService>((ref) {
+  final config = ref.watch(aiConfigControllerProvider);
   return GoogleMapSearchService(
-    apiKey: apiKey,
+    apiKey: config.googleMapApiKey,
     logger: MapSearchLogger(),
   );
 });

@@ -5,5 +5,5 @@ abstract class BaseException implements Exception {
   BaseException(this.message, this.code);
 
   @override
-  String toString() => '\$code: \$message';
+  String toString() => '$code: $message';
 }

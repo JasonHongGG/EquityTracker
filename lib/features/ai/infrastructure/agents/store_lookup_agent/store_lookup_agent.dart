@@ -62,6 +62,6 @@ class StoreLookupAgent extends BaseAgent<StoreLookupInput, StoreLookupResult> {
   }
 }
 
-final storeLookupAgentProvider = Provider<StoreLookupAgent>((ref) {
+final storeLookupAgentProvider = Provider.autoDispose<StoreLookupAgent>((ref) {
   return StoreLookupAgent(ref.watch(aiProviderProvider));
 });

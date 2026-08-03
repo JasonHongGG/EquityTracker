@@ -43,9 +43,7 @@ class GeminiFlowClient {
     return GeminiFlowChatResponse.fromJson(data);
   }
 
-  // NOTE: Dart's http package stream parsing can be complex for SSE, 
-  // but since we only need the unary `chat` call for our current Agents (execute),
-  // we leave the stream implementation abstract or basic.
+  // Processes Server-Sent Events (SSE) stream using http.Request and Stream transformers
   Stream<GeminiFlowStreamData> stream({
     required String prompt,
     String? systemPrompt,
@@ -55,6 +53,57 @@ class GeminiFlowClient {
     String? sessionId,
     bool saveImages = true,
   }) async* {
-    throw UnimplementedError('Streaming is not fully ported to Dart yet. Please use chat().');
+    final payload = GeminiFlowChatPayload(
+      prompt: prompt,
+      model: model,
+      language: language,
+      saveImages: saveImages,
+      systemPrompt: systemPrompt,
+      images: images,
+      sessionId: sessionId,
+    );
+
+    final url = Uri.parse('$_baseUrl/stream');
+    final request = http.Request('POST', url);
+    request.headers['Content-Type'] = 'application/json';
+    request.body = jsonEncode(payload.toJson());
+
+    final client = http.Client();
+    try {
+      final response = await client.send(request);
+
+      if (response.statusCode != 200) {
+        final errorText = await response.stream.bytesToString();
+        throw Exception('Stream failed: ${response.statusCode} - $errorText');
+      }
+
+      final stream = response.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter());
+
+      await for (final line in stream) {
+        final trimmed = line.trim();
+        if (trimmed.isEmpty) continue;
+        if (trimmed.startsWith("event:")) continue;
+        
+        if (trimmed.startsWith("data:")) {
+          final dataStr = trimmed.substring(5).trim();
+          try {
+            final data = jsonDecode(dataStr);
+            // Handle variations in text field name based on typical SSE backends
+            final textContent = data['text'] ?? data['chunk'] ?? data['response'] ?? data['content'] ?? '';
+            
+            yield GeminiFlowStreamData(
+              text: textContent,
+              images: data['images'] != null ? List<String>.from(data['images']) : null,
+            );
+          } catch (e) {
+            // ignore JSON parse error for incomplete chunks if any
+          }
+        }
+      }
+    } finally {
+      client.close();
+    }
   }
 }

@@ -12,7 +12,7 @@ class AIAgentLogger extends BaseFileLogger<Map<String, dynamic>> {
     final yyyymmdd = parts['yyyymmdd'];
     final hhmmss = parts['hhmmss'];
     final random = Random().nextInt(999999).toString().padLeft(6, '0');
-    return '\${yyyymmdd}_\${hhmmss}_\${agentName}_\$random.json';
+    return '${yyyymmdd}_${hhmmss}_${agentName}_$random.json';
   }
 
   void logInteraction(dynamic request, dynamic response, int startTime) {

@@ -48,6 +48,8 @@ class GeminiFlowProvider implements AIProvider {
       await for (final chunk in stream) {
         yield GenerateResponse(text: chunk.text);
       }
+    } on UnimplementedError {
+      rethrow;
     } catch (e) {
       throw AIConnectionError(name, e.toString());
     }

@@ -44,6 +44,6 @@ String buildUserPrompt(ValidationInput input) {
 
 【待審查的資料】
 <INPUT>
-\$recordJson
+$recordJson
 </INPUT>''';
 }

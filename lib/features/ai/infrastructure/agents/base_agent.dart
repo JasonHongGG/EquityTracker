@@ -16,7 +16,6 @@ abstract class BaseAgent<TInput, TOutput> {
 
   Stream<String> executeStreamPrompt(String prompt, String? systemPrompt) async* {
     final startTime = DateTime.now().millisecondsSinceEpoch;
-    
     final request = GenerateRequest(prompt: prompt, systemPrompt: systemPrompt);
     final stream = provider.generateStream(request);
 
@@ -27,9 +26,23 @@ abstract class BaseAgent<TInput, TOutput> {
         yield chunk.text;
       }
     } finally {
+      dynamic parsedResponse = fullResponse;
+      try {
+        String cleaned = fullResponse.replaceAll(RegExp(r'```json\s*'), '').replaceAll(RegExp(r'\s*```'), '').trim();
+        int startIdx = cleaned.indexOf('{');
+        if (startIdx == -1) startIdx = cleaned.indexOf('[');
+        if (startIdx != -1) {
+          int endIdx = cleaned.lastIndexOf('}');
+          if (endIdx == -1 || cleaned.lastIndexOf(']') > endIdx) endIdx = cleaned.lastIndexOf(']');
+          if (endIdx != -1 && endIdx >= startIdx) {
+            parsedResponse = jsonDecode(cleaned.substring(startIdx, endIdx + 1));
+          }
+        }
+      } catch (_) {}
+
       logger.logInteraction(
         {'prompt': prompt, 'systemPrompt': systemPrompt},
-        {'response': fullResponse},
+        {'response': parsedResponse},
         startTime,
       );
     }
@@ -50,7 +63,7 @@ abstract class BaseAgent<TInput, TOutput> {
     try {
       return jsonDecode(cleaned) as T;
     } catch (e) {
-      throw AIParsingError(name, '\$e: \$cleaned');
+      throw AIParsingError(name, '$e: $cleaned');
     }
   }
 }

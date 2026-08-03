@@ -5,29 +5,45 @@ import 'package:equity_tracker/features/transaction/data/transaction_model.dart'
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 
+enum ChatMessageType { user, ai, system, error }
+
+class ChatMessage {
+  final String id;
+  final String text;
+  final ChatMessageType type;
+  final DateTime timestamp;
+
+  ChatMessage({
+    required this.id,
+    required this.text,
+    required this.type,
+    DateTime? timestamp,
+  }) : timestamp = timestamp ?? DateTime.now();
+}
+
 class AISessionState {
   final TransactionSession? session;
-  final List<String> logs;
+  final List<ChatMessage> messages;
   final bool isProcessing;
   final UseCaseResult? pendingAction;
 
   AISessionState({
     this.session,
-    this.logs = const [],
+    this.messages = const [],
     this.isProcessing = false,
     this.pendingAction,
   });
 
   AISessionState copyWith({
     TransactionSession? session,
-    List<String>? logs,
+    List<ChatMessage>? messages,
     bool? isProcessing,
     UseCaseResult? pendingAction,
     bool clearPendingAction = false,
   }) {
     return AISessionState(
       session: session ?? this.session,
-      logs: logs ?? this.logs,
+      messages: messages ?? this.messages,
       isProcessing: isProcessing ?? this.isProcessing,
       pendingAction: clearPendingAction ? null : (pendingAction ?? this.pendingAction),
     );
@@ -40,21 +56,32 @@ class AISessionController extends Notifier<AISessionState> {
     return AISessionState();
   }
 
-  void _addLog(String msg) {
-    state = state.copyWith(logs: [...state.logs, msg]);
+  void _addMessage(String text, ChatMessageType type) {
+    final msg = ChatMessage(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      text: text,
+      type: type,
+    );
+    state = state.copyWith(messages: [...state.messages, msg]);
+  }
+
+  void _addProgress(String msg) {
+    _addMessage(msg, ChatMessageType.system);
   }
 
   Future<void> startSession(String input) async {
+    _addMessage(input, ChatMessageType.user);
+    
     final session = TransactionSession(input);
-    state = AISessionState(session: session, isProcessing: true);
+    state = state.copyWith(session: session, isProcessing: true);
 
     try {
       final useCase = ref.read(processExpenseUseCaseProvider);
-      final result = await useCase.execute(session, onProgress: _addLog);
+      final result = await useCase.execute(session, onProgress: _addProgress);
       
       _handleResult(result);
     } catch (e, st) {
-      _addLog('❌ 發生錯誤: \$e');
+      _addMessage('❌ 發生錯誤: $e', ChatMessageType.error);
       state = state.copyWith(isProcessing: false);
       print(st);
     }
@@ -65,7 +92,7 @@ class AISessionController extends Notifier<AISessionState> {
 
     final action = state.pendingAction!;
     state = state.copyWith(isProcessing: true, clearPendingAction: true);
-    _addLog('回答: \$answer');
+    _addMessage(answer, ChatMessageType.user);
 
     try {
       final useCase = ref.read(processExpenseUseCaseProvider);
@@ -81,12 +108,12 @@ class AISessionController extends Notifier<AISessionState> {
         state.session!, 
         recordIndex, 
         answer,
-        onProgress: _addLog
+        onProgress: _addProgress
       );
       
       _handleResult(result);
     } catch (e, st) {
-      _addLog('❌ 發生錯誤: \$e');
+      _addMessage('❌ 發生錯誤: $e', ChatMessageType.error);
       state = state.copyWith(isProcessing: false);
       print(st);
     }
@@ -107,34 +134,34 @@ class AISessionController extends Notifier<AISessionState> {
   Future<void> _saveRecordsToDatabase() async {
     final session = state.session;
     if (session == null || session.records.isEmpty) {
-      _addLog('❌ 沒有可儲存的紀錄。');
+      _addMessage('❌ 沒有可儲存的紀錄。', ChatMessageType.error);
       return;
     }
 
-    _addLog('💾 正在儲存 \${session.records.length} 筆資料...');
+    _addProgress('💾 正在儲存 ${session.records.length} 筆資料...');
     final transactionNotifier = ref.read(transactionNotifierProvider.notifier);
     
     int savedCount = 0;
     for (final record in session.records) {
       final data = record.data;
-      if (data.price == null || data.item == null) continue; // Safety check
+      if (data.price == null || data.item == null) continue;
 
       final noteSuffix = data.store ?? data.locationClue ?? 'Auto-generated';
       final tx = TransactionModel(
         title: data.item!,
         amount: data.price!,
-        categoryId: 'other', // Default category
+        categoryId: 'other',
         type: TransactionType.expense,
         date: DateTime.now(),
         createdAt: DateTime.now(),
-        note: 'AI: \$noteSuffix',
+        note: 'AI: $noteSuffix',
       );
       
       await transactionNotifier.addTransaction(tx);
       savedCount++;
     }
 
-    _addLog('🎉 成功新增 \$savedCount 筆帳務！');
+    _addMessage('🎉 成功新增 $savedCount 筆帳務！', ChatMessageType.ai);
   }
 }
 

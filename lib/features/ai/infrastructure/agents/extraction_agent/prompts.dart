@@ -32,6 +32,6 @@ String buildUserPrompt(String input) {
   return '''請解析以下輸入：
 
 <INPUT>
-\$input
+$input
 </INPUT>''';
 }

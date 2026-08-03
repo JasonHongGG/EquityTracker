@@ -7,7 +7,7 @@ class MapSearchLogger extends BaseFileLogger<Map<String, dynamic>> {
   @override
   String getFileName() {
     final parts = getTimestampParts();
-    return '\${parts["yyyymmdd"]}_\${parts["hhmmss"]}_map.json';
+    return '${parts["yyyymmdd"]}_${parts["hhmmss"]}_map.json';
   }
 
   void logSearch(String query, List<StoreSearchResult> results) {

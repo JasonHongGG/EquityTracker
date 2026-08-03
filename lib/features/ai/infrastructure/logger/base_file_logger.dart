@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import 'package:equity_tracker/features/ai/infrastructure/logger/i_logger.dart';
 
@@ -14,7 +13,7 @@ abstract class BaseFileLogger<T> implements ILogger<T> {
 
   Future<Directory> _initLogDir() async {
     final appDir = await getApplicationDocumentsDirectory();
-    final dir = Directory('\${appDir.path}/.runtime/log/\$subDirectory');
+    final dir = Directory('${appDir.path}/.runtime/log/$subDirectory');
     if (!await dir.exists()) {
       await dir.create(recursive: true);
     }
@@ -35,8 +34,8 @@ abstract class BaseFileLogger<T> implements ILogger<T> {
     final seconds = dt.second.toString().padLeft(2, '0');
 
     return {
-      'yyyymmdd': '\$year\$month\$day',
-      'hhmmss': '\$hours\$minutes\$seconds',
+      'yyyymmdd': '$year$month$day',
+      'hhmmss': '$hours$minutes$seconds',
     };
   }
 
@@ -47,10 +46,10 @@ abstract class BaseFileLogger<T> implements ILogger<T> {
     final fileName = getFileName();
     try {
       final logDir = await logDirFuture;
-      final file = File('\${logDir.path}/\$fileName');
+      final file = File('${logDir.path}/$fileName');
       await file.writeAsString(jsonEncode(data), mode: FileMode.write);
     } catch (e) {
-      print('[Logger] Failed to write log file \$fileName: \$e');
+      print('[Logger] Failed to write log file $fileName: $e');
     }
   }
 }

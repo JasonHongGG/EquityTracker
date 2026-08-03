@@ -71,8 +71,8 @@ class ProcessExpenseUseCase {
       if (status == RecordStatus.extracted) {
         if (record.requiresStoreLookup()) {
           final data = record.data;
-          onProgress?.call('\n處理第 \${i + 1} 筆商品: \${data.item}');
-          onProgress?.call('查詢店家名稱: \${data.store}...');
+          onProgress?.call('\n處理第 ${i + 1} 筆商品: ${data.item}');
+          onProgress?.call('查詢店家名稱: ${data.store}...');
 
           final queryParts = [data.locationClue, data.store, data.item]
               .where((s) => s != null && s.isNotEmpty)
@@ -82,6 +82,11 @@ class ProcessExpenseUseCase {
           List<StoreSearchResult> searchResults = [];
           if (queryStr.isNotEmpty) {
             searchResults = await mapSearchService.search(queryStr);
+            if (searchResults.isEmpty) {
+              onProgress?.call('(Google Map 查無結果，或未啟用，交由 AI 直接推斷)');
+            } else {
+              onProgress?.call('(Google Map 找到 ${searchResults.length} 筆可能店家，交由 AI 篩選)');
+            }
           }
 
           final lookupResponse = await storeLookupAgent.execute(
@@ -95,7 +100,7 @@ class ProcessExpenseUseCase {
           );
 
           if (lookupResponse.isCertain && lookupResponse.storeName != null && lookupResponse.storeName!.isNotEmpty) {
-            onProgress?.call('✅ 更新店家名稱為: \${lookupResponse.storeName}');
+            onProgress?.call('✅ 更新店家名稱為: ${lookupResponse.storeName}');
             record.updateStore(lookupResponse.storeName!);
             record.markValidating();
           } else {
@@ -103,7 +108,7 @@ class ProcessExpenseUseCase {
             return RequireStoreSelectionResult(
               recordIndex: i,
               options: lookupResponse.options ?? [],
-              message: '無法確定第 \${i + 1} 筆商品 (\${data.item}) 的店家名稱，請從地圖結果中選擇：',
+              message: '無法確定第 ${i + 1} 筆商品 (${data.item}) 的店家名稱，請從地圖結果中選擇：',
             );
           }
         } else {
@@ -146,7 +151,7 @@ class ProcessExpenseUseCase {
     final record = session.records[recordIndex];
 
     if (record.status == RecordStatus.needsStoreResolution) {
-      onProgress?.call('✅ 更新店家名稱為: \$userInput');
+      onProgress?.call('✅ 更新店家名稱為: $userInput');
       record.updateStore(userInput);
       record.markValidating();
     } else if (record.status == RecordStatus.needsHumanCorrection) {
@@ -162,7 +167,7 @@ class ProcessExpenseUseCase {
   }
 }
 
-final processExpenseUseCaseProvider = Provider<ProcessExpenseUseCase>((ref) {
+final processExpenseUseCaseProvider = Provider.autoDispose<ProcessExpenseUseCase>((ref) {
   return ProcessExpenseUseCase(
     extractionAgent: ref.watch(extractionAgentProvider),
     storeLookupAgent: ref.watch(storeLookupAgentProvider),

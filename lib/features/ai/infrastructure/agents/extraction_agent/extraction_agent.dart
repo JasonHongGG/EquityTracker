@@ -26,6 +26,6 @@ class ExtractionAgent extends BaseAgent<String, List<RecordData>> {
   }
 }
 
-final extractionAgentProvider = Provider<ExtractionAgent>((ref) {
+final extractionAgentProvider = Provider.autoDispose<ExtractionAgent>((ref) {
   return ExtractionAgent(ref.watch(aiProviderProvider));
 });

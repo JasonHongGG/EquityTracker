@@ -53,14 +53,14 @@ String buildUserPrompt(StoreLookupInput input) {
   return '''請推斷以下店家的標準名稱：
 
 <INPUT>
-原始輸入: "\${input.originalText}"
-提取出的店名: "\${input.hint ?? ''}"
-提取出的地點線索: "\${input.location ?? ''}"
-提取出的商品: "\${input.item ?? ''}"
+原始輸入: "${input.originalText}"
+提取出的店名: "${input.hint ?? ''}"
+提取出的地點線索: "${input.location ?? ''}"
+提取出的商品: "${input.item ?? ''}"
 </INPUT>
 
 <SEARCH_RESULTS>
 以下是地圖 API 查詢返回的真實店家清單（請優先參考）：
-\$searchResultsJson
+$searchResultsJson
 </SEARCH_RESULTS>''';
 }

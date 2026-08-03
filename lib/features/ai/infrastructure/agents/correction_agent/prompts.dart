@@ -30,10 +30,10 @@ String buildUserPrompt(CorrectionInput input) {
   return '''請根據使用者的回答更新以下資料：
 
 <RECORD>
-\$recordJson
+$recordJson
 </RECORD>
 
 <ANSWER>
-\${input.answer}
+${input.answer}
 </ANSWER>''';
 }

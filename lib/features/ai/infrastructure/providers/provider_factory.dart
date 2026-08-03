@@ -45,7 +45,7 @@ class ProviderFactory {
   }
 }
 
-final aiProviderProvider = Provider<AIProvider>((ref) {
+final aiProviderProvider = Provider.autoDispose<AIProvider>((ref) {
   final config = ref.watch(aiConfigControllerProvider);
   return ProviderFactory.createProvider(config);
 });
