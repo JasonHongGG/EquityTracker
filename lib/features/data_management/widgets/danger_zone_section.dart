@@ -24,7 +24,7 @@ class DangerZoneSection extends ConsumerWidget {
       // ignore: unused_result
       ref.refresh(transactionNotifierProvider);
       // ignore: unused_result
-      ref.refresh(recentTitlesProvider); 
+      ref.refresh(titleSuggestionServiceProvider);  
 
       if (context.mounted) {
         ToastService.showSuccess(context, 'All data cleared.');

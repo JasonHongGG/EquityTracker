@@ -81,7 +81,7 @@ class TransactionHeader extends ConsumerWidget {
           // Title Input (Compact with Suggestion Chips)
           Consumer(
             builder: (context, ref, child) {
-              final allOptions = ref.watch(recentTitlesProvider);
+              final suggestionService = ref.watch(titleSuggestionServiceProvider);
 
               return Column(
                 children: [
@@ -107,10 +107,7 @@ class TransactionHeader extends ConsumerWidget {
                   ValueListenableBuilder<TextEditingValue>(
                     valueListenable: titleController,
                     builder: (context, value, child) {
-                      final filteredOptions = allOptions.where((String option) {
-                        return option.toLowerCase().contains(value.text.toLowerCase());
-                      }).toList();
-                      final displayOptions = filteredOptions.take(10).toList();
+                      final displayOptions = suggestionService.getSuggestions(value.text);
 
                       if (titleFocusNode.hasFocus && displayOptions.isNotEmpty) {
                         return Container(
