@@ -24,7 +24,6 @@ class AiInputBottomSheet extends ConsumerStatefulWidget {
 class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  bool _isSessionStarted = false;
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -42,8 +41,9 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
 
-    if (!_isSessionStarted) {
-      _isSessionStarted = true;
+    final sessionState = ref.read(aiSessionControllerProvider);
+
+    if (sessionState.pendingAction == null) {
       ref.read(aiSessionControllerProvider.notifier).startSession(text);
     } else {
       ref.read(aiSessionControllerProvider.notifier).submitAnswer(text);
@@ -377,7 +377,8 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
   }
 
   Widget _buildInputArea(AISessionState sessionState, bool isDark) {
-    if (sessionState.pendingAction == null && !sessionState.isProcessing && _isSessionStarted) {
+    final hasSession = sessionState.session != null;
+    if (sessionState.pendingAction == null && !sessionState.isProcessing && hasSession) {
       return const SizedBox(height: 24);
     }
     
@@ -415,7 +416,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                           color: isDark ? Colors.white : Colors.black87,
                         ),
                         decoration: InputDecoration(
-                          hintText: _isSessionStarted ? '請輸入回答...' : '例如：午餐吃雞腿便當 100 元',
+                          hintText: sessionState.pendingAction != null ? '請輸入回答...' : '例如：午餐吃雞腿便當 100 元',
                           hintStyle: TextStyle(
                             color: isDark ? Colors.white30 : Colors.black38,
                           ),

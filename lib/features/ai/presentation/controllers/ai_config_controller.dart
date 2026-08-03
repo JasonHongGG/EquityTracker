@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:equity_tracker/features/ai/domain/models/ai_provider_config.dart';
 
+import 'package:equity_tracker/core/providers/shared_prefs_provider.dart';
+
 class AIConfigState {
   final AIProviderType providerType;
   final Map<AIProviderType, ProviderConfig> configs;
@@ -36,12 +38,8 @@ class AIConfigState {
 class AIConfigController extends Notifier<AIConfigState> {
   @override
   AIConfigState build() {
-    _loadConfig();
-    return AIConfigState();
-  }
-
-  Future<void> _loadConfig() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = ref.watch(sharedPreferencesProvider);
+    
     final typeStr = prefs.getString('ai_provider_type');
     final type = typeStr != null ? AIProviderType.values.byName(typeStr) : AIProviderType.geminiflow;
     
@@ -62,7 +60,7 @@ class AIConfigController extends Notifier<AIConfigState> {
 
     final googleMapApiKey = prefs.getString('google_map_api_key') ?? '';
 
-    state = AIConfigState(
+    return AIConfigState(
       providerType: type,
       configs: loadedConfigs,
       googleMapApiKey: googleMapApiKey,

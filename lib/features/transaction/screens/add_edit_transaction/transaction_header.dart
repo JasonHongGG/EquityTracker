@@ -81,12 +81,7 @@ class TransactionHeader extends ConsumerWidget {
           // Title Input (Compact with Suggestion Chips)
           Consumer(
             builder: (context, ref, child) {
-              final recentTitlesAsync = ref.watch(recentTitlesProvider);
-              final allOptions = recentTitlesAsync;
-              final filteredOptions = allOptions.where((String option) {
-                return option.toLowerCase().contains(titleController.text.toLowerCase());
-              }).toList();
-              final displayOptions = filteredOptions.take(10).toList();
+              final allOptions = ref.watch(recentTitlesProvider);
 
               return Column(
                 children: [
@@ -109,45 +104,57 @@ class TransactionHeader extends ConsumerWidget {
                     ),
                   ),
                   // Suggestion Chips
-                  if (titleFocusNode.hasFocus && displayOptions.isNotEmpty)
-                    Container(
-                      height: 40,
-                      margin: const EdgeInsets.only(top: 4),
-                      child: SingleChildScrollView(
-                        controller: suggestionsScrollController,
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: displayOptions.map((option) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8.0, bottom: 4.0),
-                              child: ActionChip(
-                                label: Text(option),
-                                backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
-                                padding: EdgeInsets.zero,
-                                labelStyle: TextStyle(
-                                  fontSize: 13,
-                                  color: isDark ? Colors.white70 : Colors.grey[700],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                elevation: 2,
-                                shadowColor: Colors.black.withValues(alpha: 0.1),
-                                side: BorderSide.none,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                onPressed: () {
-                                  titleController.text = option;
-                                  titleController.selection = TextSelection.fromPosition(
-                                    TextPosition(offset: option.length),
-                                  );
-                                  titleFocusNode.unfocus();
-                                },
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
+                  ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: titleController,
+                    builder: (context, value, child) {
+                      final filteredOptions = allOptions.where((String option) {
+                        return option.toLowerCase().contains(value.text.toLowerCase());
+                      }).toList();
+                      final displayOptions = filteredOptions.take(10).toList();
+
+                      if (titleFocusNode.hasFocus && displayOptions.isNotEmpty) {
+                        return Container(
+                          height: 40,
+                          margin: const EdgeInsets.only(top: 4),
+                          child: SingleChildScrollView(
+                            controller: suggestionsScrollController,
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: displayOptions.map((option) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 8.0, bottom: 4.0),
+                                  child: ActionChip(
+                                    label: Text(option),
+                                    backgroundColor: isDark ? AppColors.surfaceDark : Colors.white,
+                                    padding: EdgeInsets.zero,
+                                    labelStyle: TextStyle(
+                                      fontSize: 13,
+                                      color: isDark ? Colors.white70 : Colors.grey[700],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    elevation: 2,
+                                    shadowColor: Colors.black.withValues(alpha: 0.1),
+                                    side: BorderSide.none,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    onPressed: () {
+                                      titleController.text = option;
+                                      titleController.selection = TextSelection.fromPosition(
+                                        TextPosition(offset: option.length),
+                                      );
+                                      titleFocusNode.unfocus();
+                                    },
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
                 ],
               );
             },

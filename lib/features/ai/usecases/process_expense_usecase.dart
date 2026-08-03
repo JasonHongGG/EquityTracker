@@ -8,6 +8,7 @@ import 'package:equity_tracker/features/ai/infrastructure/agents/validation_agen
 import 'package:equity_tracker/features/ai/infrastructure/agents/correction_agent/correction_agent.dart';
 import 'package:equity_tracker/features/ai/infrastructure/map/i_map_search_service.dart';
 import 'package:equity_tracker/features/ai/infrastructure/map/google_map_search_service.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 abstract class UseCaseResult {}
 
@@ -222,11 +223,14 @@ class ProcessExpenseUseCase {
          ValidationStep(validationAgent, correctionAgent),
        ];
 
-  Future<UseCaseResult> execute(TransactionSession session, {void Function(String)? onProgress}) async {
+  Future<UseCaseResult> execute(TransactionSession session, List<CategoryModel> categories, {void Function(String)? onProgress}) async {
     // 1. Extraction Phase
     if (session.records.isEmpty) {
       onProgress?.call('🔍 正在提取花費資訊...');
-      final extractedData = await extractionAgent.execute(session.originalText);
+      final extractedData = await extractionAgent.execute(
+        session.originalText, 
+        categories: categories,
+      );
       final records = extractedData.map((data) => TransactionRecord(data)).toList();
       session.setRecords(records);
       session.markProcessingRecords();
@@ -258,7 +262,8 @@ class ProcessExpenseUseCase {
   Future<UseCaseResult> handleUserCorrection(
     TransactionSession session, 
     int recordIndex, 
-    String userInput, 
+    String userInput,
+    List<CategoryModel> categories,
     {void Function(String)? onProgress}
   ) async {
     final record = session.records[recordIndex];
@@ -269,7 +274,7 @@ class ProcessExpenseUseCase {
     }
 
     // 修正完畢後，再次啟動主 Pipeline 以繼續後續流程
-    return execute(session, onProgress: onProgress);
+    return execute(session, categories, onProgress: onProgress);
   }
 }
 

@@ -219,6 +219,17 @@ final dailyTotalProvider = Provider.family<AsyncValue<int>, DateTime>((ref, date
 
 final recentTitlesProvider = Provider<List<String>>((ref) {
   final transactions = ref.watch(transactionListProvider).value ?? [];
-  final titles = transactions.map((t) => t.title ?? '').where((t) => t.isNotEmpty).toSet().toList();
-  return titles.take(10).toList();
+  final Map<String, int> frequencyMap = {};
+  
+  for (final t in transactions) {
+    final title = t.title?.trim() ?? '';
+    if (title.isNotEmpty) {
+      frequencyMap[title] = (frequencyMap[title] ?? 0) + 1;
+    }
+  }
+  
+  final sortedTitles = frequencyMap.keys.toList()
+    ..sort((a, b) => frequencyMap[b]!.compareTo(frequencyMap[a]!));
+    
+  return sortedTitles.take(10).toList();
 });

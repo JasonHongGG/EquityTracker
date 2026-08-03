@@ -4,6 +4,7 @@ import 'package:equity_tracker/features/ai/usecases/process_expense_usecase.dart
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
+import 'package:equity_tracker/features/category/providers/category_notifier.dart';
 
 enum ChatMessageType { user, ai, system, error }
 
@@ -77,7 +78,8 @@ class AISessionController extends Notifier<AISessionState> {
 
     try {
       final useCase = ref.read(processExpenseUseCaseProvider);
-      final result = await useCase.execute(session, onProgress: _addProgress);
+      final categories = ref.read(categoryListProvider).value ?? [];
+      final result = await useCase.execute(session, categories, onProgress: _addProgress);
       
       _handleResult(result);
     } catch (e, st) {
@@ -104,10 +106,12 @@ class AISessionController extends Notifier<AISessionState> {
         recordIndex = action.recordIndex;
       }
 
+      final categories = ref.read(categoryListProvider).value ?? [];
       final result = await useCase.handleUserCorrection(
         state.session!, 
         recordIndex, 
         answer,
+        categories,
         onProgress: _addProgress
       );
       
@@ -146,15 +150,17 @@ class AISessionController extends Notifier<AISessionState> {
       final data = record.data;
       if (data.price == null || data.item == null) continue;
 
-      final noteSuffix = data.store ?? data.locationClue ?? 'Auto-generated';
+      final title = (data.store != null && data.store!.isNotEmpty) ? data.store! : data.item!;
+      final note = data.item!;
+      
       final tx = TransactionModel(
-        title: data.item!,
+        title: title,
         amount: data.price!,
-        categoryId: 'other',
+        categoryId: data.categoryId ?? 'other',
         type: TransactionType.expense,
         date: DateTime.now(),
         createdAt: DateTime.now(),
-        note: 'AI: $noteSuffix',
+        note: note,
       );
       
       await transactionNotifier.addTransaction(tx);

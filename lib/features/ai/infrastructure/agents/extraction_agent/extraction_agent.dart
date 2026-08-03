@@ -4,13 +4,18 @@ import 'package:equity_tracker/features/ai/infrastructure/agents/base_agent.dart
 import 'package:equity_tracker/features/ai/infrastructure/providers/provider_factory.dart';
 import 'package:equity_tracker/features/ai/infrastructure/providers/ai_provider.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/extraction_agent/prompts.dart';
+import 'package:equity_tracker/features/category/data/category_model.dart';
 
 class ExtractionAgent extends BaseAgent<String, List<RecordData>> {
   ExtractionAgent(AIProvider provider) : super('Extraction', provider);
 
   @override
-  Future<List<RecordData>> execute(String input, {void Function(String)? onChunk}) async {
-    final systemPrompt = buildSystemPrompt();
+  Future<List<RecordData>> execute(
+    String input, {
+    void Function(String)? onChunk,
+    List<CategoryModel> categories = const [],
+  }) async {
+    final systemPrompt = buildSystemPrompt(categories);
     final userPrompt = buildUserPrompt(input);
 
     String resultText = '';

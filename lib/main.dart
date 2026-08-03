@@ -4,8 +4,21 @@ import 'package:equity_tracker/features/settings/providers/settings_notifier.dar
 import 'package:equity_tracker/core/theme/app_theme.dart';
 import 'package:equity_tracker/core/router/app_router.dart';
 
-void main() {
-  runApp(const ProviderScope(child: MyApp()));
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:equity_tracker/core/providers/shared_prefs_provider.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final sharedPreferences = await SharedPreferences.getInstance();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends ConsumerWidget {
