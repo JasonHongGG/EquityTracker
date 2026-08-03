@@ -35,20 +35,192 @@ class RequireCorrectionResult extends UseCaseResult {
 
 class SuccessResult extends UseCaseResult {}
 
-class ProcessExpenseUseCase {
-  final ExtractionAgent extractionAgent;
+/// 定義花費紀錄的處理步驟介面 (Pipeline Step)
+abstract class RecordProcessingStep {
+  /// 執行此步驟，若需要中斷等待使用者輸入，則回傳 UseCaseResult
+  Future<UseCaseResult?> execute(
+    int recordIndex,
+    TransactionRecord record,
+    TransactionSession session,
+    {void Function(String)? onProgress}
+  );
+
+  /// 處理使用者的修正輸入，若處理完畢後仍需等待，可回傳 UseCaseResult
+  Future<UseCaseResult?> handleCorrection(
+    int recordIndex,
+    TransactionRecord record,
+    TransactionSession session,
+    String userInput,
+    {void Function(String)? onProgress}
+  );
+}
+
+/// 步驟一：店家名稱查詢與確認
+class StoreResolutionStep implements RecordProcessingStep {
   final StoreLookupAgent storeLookupAgent;
+  final IMapSearchService mapSearchService;
+
+  StoreResolutionStep(this.storeLookupAgent, this.mapSearchService);
+
+  @override
+  Future<UseCaseResult?> execute(
+    int recordIndex,
+    TransactionRecord record,
+    TransactionSession session,
+    {void Function(String)? onProgress}
+  ) async {
+    if (record.status != RecordStatus.extracted) return null;
+    if (!record.requiresStoreLookup()) {
+      record.markValidating();
+      return null;
+    }
+
+    final data = record.data;
+    onProgress?.call('處理第 ${recordIndex + 1} 筆商品: ${data.item}');
+    
+    // 友善顯示：如果 store 為 null，顯示提示而非 "null"
+    final hintDisplay = (data.store == null || data.store!.isEmpty) ? '可能的線索' : data.store;
+    onProgress?.call('查詢店家名稱: $hintDisplay...');
+
+    final queryParts = [data.locationClue, data.store, data.item]
+        .where((s) => s != null && s.isNotEmpty)
+        .toList();
+    final queryStr = queryParts.join(' ').trim();
+
+    List<StoreSearchResult> searchResults = [];
+    if (queryStr.isNotEmpty) {
+      searchResults = await mapSearchService.search(queryStr);
+      if (searchResults.isEmpty) {
+        onProgress?.call('(Google Map 查無結果，或未啟用，交由 AI 直接推斷)');
+      } else {
+        onProgress?.call('(Google Map 找到 ${searchResults.length} 筆可能店家，交由 AI 篩選)');
+      }
+    } else {
+      onProgress?.call('(無足夠線索查詢地圖，交由 AI 盲猜)');
+    }
+
+    final lookupResponse = await storeLookupAgent.execute(
+      StoreLookupInput(
+        originalText: session.originalText,
+        hint: data.store ?? '',
+        location: data.locationClue ?? '',
+        item: data.item ?? '',
+        searchResults: searchResults,
+      ),
+    );
+
+    if (lookupResponse.isCertain && lookupResponse.storeName != null && lookupResponse.storeName!.isNotEmpty) {
+      onProgress?.call('✅ 確認店家名稱為: ${lookupResponse.storeName}');
+      record.updateStore(lookupResponse.storeName!);
+      record.markValidating();
+      return null;
+    } else {
+      record.markNeedsStoreResolution();
+      
+      final options = lookupResponse.options ?? [];
+      String message;
+      if (options.isEmpty) {
+        message = '無法自動確認第 ${recordIndex + 1} 筆商品 (${data.item}) 的店家名稱，請手動輸入實際店家名稱：';
+      } else {
+        message = '無法確認第 ${recordIndex + 1} 筆商品 (${data.item}) 的店家名稱，請從地圖結果中選擇，或手動輸入：';
+      }
+
+      return RequireStoreSelectionResult(
+        recordIndex: recordIndex,
+        options: options,
+        message: message,
+      );
+    }
+  }
+
+  @override
+  Future<UseCaseResult?> handleCorrection(
+    int recordIndex,
+    TransactionRecord record,
+    TransactionSession session,
+    String userInput,
+    {void Function(String)? onProgress}
+  ) async {
+    if (record.status != RecordStatus.needsStoreResolution) return null;
+    
+    onProgress?.call('✅ 更新店家名稱為: $userInput');
+    record.updateStore(userInput);
+    record.markValidating();
+    return null;
+  }
+}
+
+/// 步驟二：資料完整性驗證
+class ValidationStep implements RecordProcessingStep {
   final ValidationAgent validationAgent;
   final CorrectionAgent correctionAgent;
-  final IMapSearchService mapSearchService;
+
+  ValidationStep(this.validationAgent, this.correctionAgent);
+
+  @override
+  Future<UseCaseResult?> execute(
+    int recordIndex,
+    TransactionRecord record,
+    TransactionSession session,
+    {void Function(String)? onProgress}
+  ) async {
+    if (record.status != RecordStatus.validating) return null;
+
+    onProgress?.call('驗證商品資訊...');
+    final validationResponse = await validationAgent.execute(
+      ValidationInput(record: record.data),
+    );
+
+    if (validationResponse.isValid) {
+      onProgress?.call('✅ 資訊確認無誤。');
+      record.markResolved();
+      return null;
+    } else {
+      final question = validationResponse.question ?? '請補充缺失的資訊。';
+      record.markNeedsHumanCorrection(question);
+      return RequireCorrectionResult(
+        recordIndex: recordIndex,
+        question: question,
+      );
+    }
+  }
+
+  @override
+  Future<UseCaseResult?> handleCorrection(
+    int recordIndex,
+    TransactionRecord record,
+    TransactionSession session,
+    String userInput,
+    {void Function(String)? onProgress}
+  ) async {
+    if (record.status != RecordStatus.needsHumanCorrection) return null;
+
+    onProgress?.call('處理您的補充資訊...');
+    final correctionResponse = await correctionAgent.execute(
+      CorrectionInput(record: record.data, answer: userInput),
+    );
+
+    record.updateData(correctionResponse.record);
+    record.markValidating(); // 修正後重設為 validating，讓管線重新驗證
+    return null; // 回傳 null 代表這一步的 correction 做完了，後續讓主迴圈繼續走
+  }
+}
+
+/// 統籌花費紀錄處理流程的 UseCase
+class ProcessExpenseUseCase {
+  final ExtractionAgent extractionAgent;
+  final List<RecordProcessingStep> pipeline;
 
   ProcessExpenseUseCase({
     required this.extractionAgent,
-    required this.storeLookupAgent,
-    required this.validationAgent,
-    required this.correctionAgent,
-    required this.mapSearchService,
-  });
+    required StoreLookupAgent storeLookupAgent,
+    required ValidationAgent validationAgent,
+    required CorrectionAgent correctionAgent,
+    required IMapSearchService mapSearchService,
+  }) : pipeline = [
+         StoreResolutionStep(storeLookupAgent, mapSearchService),
+         ValidationStep(validationAgent, correctionAgent),
+       ];
 
   Future<UseCaseResult> execute(TransactionSession session, {void Function(String)? onProgress}) async {
     // 1. Extraction Phase
@@ -60,84 +232,25 @@ class ProcessExpenseUseCase {
       session.markProcessingRecords();
     }
 
-    final records = session.records;
-
-    // 2. Processing Phase (Linear pipeline per record)
-    for (int i = 0; i < records.length; i++) {
-      final record = records[i];
-      var status = record.status;
-
-      // Step A: Store Resolution
-      if (status == RecordStatus.extracted) {
-        if (record.requiresStoreLookup()) {
-          final data = record.data;
-          onProgress?.call('\n處理第 ${i + 1} 筆商品: ${data.item}');
-          onProgress?.call('查詢店家名稱: ${data.store}...');
-
-          final queryParts = [data.locationClue, data.store, data.item]
-              .where((s) => s != null && s.isNotEmpty)
-              .toList();
-          final queryStr = queryParts.join(' ').trim();
-
-          List<StoreSearchResult> searchResults = [];
-          if (queryStr.isNotEmpty) {
-            searchResults = await mapSearchService.search(queryStr);
-            if (searchResults.isEmpty) {
-              onProgress?.call('(Google Map 查無結果，或未啟用，交由 AI 直接推斷)');
-            } else {
-              onProgress?.call('(Google Map 找到 ${searchResults.length} 筆可能店家，交由 AI 篩選)');
-            }
-          }
-
-          final lookupResponse = await storeLookupAgent.execute(
-            StoreLookupInput(
-              originalText: session.originalText,
-              hint: data.store ?? '',
-              location: data.locationClue ?? '',
-              item: data.item ?? '',
-              searchResults: searchResults,
-            ),
-          );
-
-          if (lookupResponse.isCertain && lookupResponse.storeName != null && lookupResponse.storeName!.isNotEmpty) {
-            onProgress?.call('✅ 更新店家名稱為: ${lookupResponse.storeName}');
-            record.updateStore(lookupResponse.storeName!);
-            record.markValidating();
-          } else {
-            record.markNeedsStoreResolution();
-            return RequireStoreSelectionResult(
-              recordIndex: i,
-              options: lookupResponse.options ?? [],
-              message: '無法確定第 ${i + 1} 筆商品 (${data.item}) 的店家名稱，請從地圖結果中選擇：',
-            );
-          }
-        } else {
-          record.markValidating();
+    // 2. Pipeline Processing Phase
+    for (int i = 0; i < session.records.length; i++) {
+      final record = session.records[i];
+      
+      // 將 record 依序餵給 Pipeline 中的每一個 Step
+      for (final step in pipeline) {
+        // 若 Record 已處理完成，則提早結束該 Record 的 Pipeline
+        if (record.status == RecordStatus.resolved) break;
+        
+        final result = await step.execute(i, record, session, onProgress: onProgress);
+        
+        // 若 Step 回傳了需要中斷並詢問使用者的 Result，則直接跳出 UseCase 執行
+        if (result != null) {
+          return result;
         }
-        status = record.status;
-      }
-
-      // Step B: Validation
-      if (status == RecordStatus.validating) {
-        onProgress?.call('驗證商品資訊...');
-        final validationResponse = await validationAgent.execute(
-          ValidationInput(record: record.data),
-        );
-
-        if (validationResponse.isValid) {
-          onProgress?.call('✅ 資訊確認無誤。');
-          record.markResolved();
-        } else {
-          record.markNeedsHumanCorrection(validationResponse.question ?? '請補充缺失的資訊。');
-          return RequireCorrectionResult(
-            recordIndex: i,
-            question: record.validationQuestion!,
-          );
-        }
-        status = record.status;
       }
     }
 
+    // 所有紀錄皆跑完 Pipeline 且無中斷，代表全部完成
     session.markCompleted();
     return SuccessResult();
   }
@@ -150,19 +263,12 @@ class ProcessExpenseUseCase {
   ) async {
     final record = session.records[recordIndex];
 
-    if (record.status == RecordStatus.needsStoreResolution) {
-      onProgress?.call('✅ 更新店家名稱為: $userInput');
-      record.updateStore(userInput);
-      record.markValidating();
-    } else if (record.status == RecordStatus.needsHumanCorrection) {
-      final correctionResponse = await correctionAgent.execute(
-        CorrectionInput(record: record.data, answer: userInput),
-      );
-
-      record.updateData(correctionResponse.record);
-      record.markValidating(); // Re-validate after correction
+    // 讓 Pipeline 中的每個 Step 都有機會處理使用者的修正
+    for (final step in pipeline) {
+      await step.handleCorrection(recordIndex, record, session, userInput, onProgress: onProgress);
     }
 
+    // 修正完畢後，再次啟動主 Pipeline 以繼續後續流程
     return execute(session, onProgress: onProgress);
   }
 }
