@@ -8,26 +8,26 @@ enum AIProviderType {
 
 class AIConfigState {
   final AIProviderType providerType;
-  final String apiKey;
+  final String baseUrl;
   final String modelName;
   final String googleMapApiKey;
 
   AIConfigState({
     this.providerType = AIProviderType.gemini,
-    this.apiKey = '',
+    this.baseUrl = 'http://127.0.0.1:8000',
     this.modelName = 'gemini-2.5-flash',
     this.googleMapApiKey = '',
   });
 
   AIConfigState copyWith({
     AIProviderType? providerType,
-    String? apiKey,
+    String? baseUrl,
     String? modelName,
     String? googleMapApiKey,
   }) {
     return AIConfigState(
       providerType: providerType ?? this.providerType,
-      apiKey: apiKey ?? this.apiKey,
+      baseUrl: baseUrl ?? this.baseUrl,
       modelName: modelName ?? this.modelName,
       googleMapApiKey: googleMapApiKey ?? this.googleMapApiKey,
     );
@@ -43,14 +43,15 @@ class AIConfigController extends Notifier<AIConfigState> {
 
   Future<void> _loadConfig() async {
     final prefs = await SharedPreferences.getInstance();
-    final providerIdx = prefs.getInt('ai_provider_type') ?? 0;
-    final apiKey = prefs.getString('ai_api_key') ?? '';
+    final typeStr = prefs.getString('ai_provider_type');
+    final type = typeStr != null ? AIProviderType.values.byName(typeStr) : AIProviderType.gemini;
+    final baseUrl = prefs.getString('ai_base_url') ?? 'http://127.0.0.1:8000';
     final modelName = prefs.getString('ai_model_name') ?? 'gemini-2.5-flash';
-    final googleMapApiKey = prefs.getString('ai_google_map_key') ?? '';
-    
-    state = state.copyWith(
-      providerType: AIProviderType.values[providerIdx],
-      apiKey: apiKey,
+    final googleMapApiKey = prefs.getString('google_map_api_key') ?? '';
+
+    state = AIConfigState(
+      providerType: type,
+      baseUrl: baseUrl,
       modelName: modelName,
       googleMapApiKey: googleMapApiKey,
     );
@@ -58,22 +59,22 @@ class AIConfigController extends Notifier<AIConfigState> {
 
   Future<void> saveConfig({
     required AIProviderType providerType,
-    required String apiKey,
+    required String baseUrl,
     required String modelName,
     required String googleMapApiKey,
   }) async {
     state = state.copyWith(
       providerType: providerType,
-      apiKey: apiKey,
+      baseUrl: baseUrl,
       modelName: modelName,
       googleMapApiKey: googleMapApiKey,
     );
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('ai_provider_type', providerType.index);
-    await prefs.setString('ai_api_key', apiKey.trim());
+    await prefs.setString('ai_base_url', baseUrl.trim());
     await prefs.setString('ai_model_name', modelName.trim());
-    await prefs.setString('ai_google_map_key', googleMapApiKey.trim());
+    await prefs.setString('google_map_api_key', googleMapApiKey.trim());
   }
 }
 

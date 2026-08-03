@@ -37,7 +37,7 @@ class AiSettingsScreen extends ConsumerWidget {
                     if (value != null) {
                       ref.read(aiConfigControllerProvider.notifier).saveConfig(
                             providerType: value,
-                            apiKey: config.apiKey,
+                            baseUrl: config.baseUrl,
                             modelName: config.modelName,
                             googleMapApiKey: config.googleMapApiKey,
                           );
@@ -56,7 +56,7 @@ class AiSettingsScreen extends ConsumerWidget {
                   config.modelName,
                   (newVal) => ref.read(aiConfigControllerProvider.notifier).saveConfig(
                         providerType: config.providerType,
-                        apiKey: config.apiKey,
+                        baseUrl: config.baseUrl,
                         modelName: newVal,
                         googleMapApiKey: config.googleMapApiKey,
                       ),
@@ -65,27 +65,25 @@ class AiSettingsScreen extends ConsumerWidget {
             ],
           ),
           SettingsSection(
-            title: 'API 金鑰',
+            title: '伺服器設定',
             children: [
               ListTile(
-                title: const Text('API Key'),
+                title: const Text('Base URL (API Server)'),
                 subtitle: Text(
-                  config.apiKey.isEmpty
-                      ? '尚未設定'
-                      : '••••••••\${config.apiKey.length > 4 ? config.apiKey.substring(config.apiKey.length - 4) : ''}',
+                  config.baseUrl.isEmpty ? 'http://127.0.0.1:8000' : config.baseUrl,
                   style: TextStyle(
-                    color: config.apiKey.isEmpty ? theme.colorScheme.error : theme.colorScheme.onSurfaceVariant,
+                    color: config.baseUrl.isEmpty ? theme.colorScheme.error : theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 trailing: const Icon(Icons.edit, size: 20),
                 onTap: () => _editConfig(
                   context,
                   ref,
-                  'API Key',
-                  config.apiKey,
+                  'Base URL',
+                  config.baseUrl,
                   (newVal) => ref.read(aiConfigControllerProvider.notifier).saveConfig(
                         providerType: config.providerType,
-                        apiKey: newVal,
+                        baseUrl: newVal,
                         modelName: config.modelName,
                         googleMapApiKey: config.googleMapApiKey,
                       ),
@@ -109,7 +107,7 @@ class AiSettingsScreen extends ConsumerWidget {
                   config.googleMapApiKey,
                   (newVal) => ref.read(aiConfigControllerProvider.notifier).saveConfig(
                         providerType: config.providerType,
-                        apiKey: config.apiKey,
+                        baseUrl: config.baseUrl,
                         modelName: config.modelName,
                         googleMapApiKey: newVal,
                       ),

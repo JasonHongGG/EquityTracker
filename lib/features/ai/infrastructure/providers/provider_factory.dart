@@ -1,17 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/ai/infrastructure/providers/ai_provider.dart';
-import 'package:equity_tracker/features/ai/infrastructure/providers/gemini/gemini_provider.dart';
+import 'package:equity_tracker/features/ai/infrastructure/providers/geminiflow/geminiflow_provider.dart';
 import 'package:equity_tracker/features/ai/presentation/controllers/ai_config_controller.dart';
 
 class ProviderFactory {
   static AIProvider createProvider(AIConfigState config) {
     switch (config.providerType) {
       case AIProviderType.gemini:
-        if (config.apiKey.isEmpty) {
-          throw Exception('Gemini API Key is empty. Please set it in Settings.');
+        if (config.baseUrl.isEmpty) {
+          throw Exception('Geminiflow Base URL is empty. Please set it in Settings.');
         }
-        return GeminiProvider(
-          apiKey: config.apiKey,
+        return GeminiFlowProvider(
+          baseUrl: config.baseUrl,
           modelName: config.modelName,
         );
       case AIProviderType.ollama:
