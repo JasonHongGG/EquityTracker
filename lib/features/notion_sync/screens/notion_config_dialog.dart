@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
+import 'package:equity_tracker/core/widgets/app_switch.dart';
 
 class NotionConfigDialog extends ConsumerStatefulWidget {
   const NotionConfigDialog({super.key});
@@ -110,10 +111,9 @@ class _NotionConfigDialogState extends ConsumerState<NotionConfigDialog> {
                   ),
                   Transform.scale(
                     scale: 0.9,
-                    child: Switch(
+                    child: AppSwitch(
                       value: state.isEnabled,
-                      activeThumbColor: Colors.white,
-                      activeTrackColor: Colors.green,
+                      activeColor: Colors.green,
                       onChanged: controller.toggleEnabled,
                     ),
                   ),

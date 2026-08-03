@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/ai/domain/models/ai_provider_config.dart';
 import 'package:equity_tracker/features/ai/presentation/controllers/ai_config_controller.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
+import 'package:equity_tracker/core/widgets/app_switch.dart';
 
 class AiSettingsScreen extends ConsumerStatefulWidget {
   const AiSettingsScreen({super.key});
@@ -372,19 +373,27 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
           decoration: _cardDecoration(isDark),
           child: Column(
             children: [
-              SwitchListTile(
-                title: Text(
-                  'Google Map API',
-                  style: TextStyle(
-                    fontFamily: 'Outfit',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Google Map API',
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    AppSwitch(
+                      value: state.isGoogleMapEnabled,
+                      onChanged: _onGoogleMapToggle,
+                      activeColor: Theme.of(context).primaryColor,
+                    ),
+                  ],
                 ),
-                value: state.isGoogleMapEnabled,
-                onChanged: _onGoogleMapToggle,
-                activeColor: Theme.of(context).primaryColor,
               ),
               _buildDivider(isDark),
               _buildSettingsTile(
@@ -434,19 +443,27 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
               decoration: _cardDecoration(isDark),
               child: Column(
                 children: [
-                  SwitchListTile(
-                    title: Text(
-                      'AI Agent',
-                      style: TextStyle(
-                        fontFamily: 'Outfit',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'AI Agent',
+                          style: TextStyle(
+                            fontFamily: 'Outfit',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        AppSwitch(
+                          value: state.isAIAgentEnabled,
+                          onChanged: _onAIAgentToggle,
+                          activeColor: Theme.of(context).primaryColor,
+                        ),
+                      ],
                     ),
-                    value: state.isAIAgentEnabled,
-                    onChanged: _onAIAgentToggle,
-                    activeColor: Theme.of(context).primaryColor,
                   ),
                   _buildDivider(isDark),
                   _buildSmartSelectorCard(state, isDark),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
+import 'package:equity_tracker/core/widgets/app_switch.dart';
 
 class PreferencesSection extends ConsumerWidget {
   const PreferencesSection({super.key});
@@ -19,7 +20,7 @@ class PreferencesSection extends ConsumerWidget {
           iconColor: Colors.purpleAccent,
           title: 'Dark Mode',
           trailing: themeModeAsync.when(
-            data: (settings) => Switch(
+            data: (settings) => AppSwitch(
               value: settings.themeMode == ThemeMode.dark,
               onChanged: (val) {
                 ref
@@ -43,7 +44,7 @@ class PreferencesSection extends ConsumerWidget {
           title: 'Privacy Mode',
           subtitle: 'Hide balance on dashboard',
           trailing: themeModeAsync.when(
-            data: (settings) => Switch(
+            data: (settings) => AppSwitch(
               value: settings.isPrivacyModeEnabled,
               onChanged: (val) {
                 ref.read(settingsNotifierProvider.notifier).setPrivacyMode(val);
