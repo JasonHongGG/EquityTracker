@@ -88,8 +88,11 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                 child: ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  itemCount: sessionState.messages.length,
+                  itemCount: sessionState.messages.length + (sessionState.isProcessing ? 1 : 0),
                   itemBuilder: (context, index) {
+                    if (index == sessionState.messages.length) {
+                      return _buildThinkingBubble(sessionState, isDark);
+                    }
                     return _buildChatBubble(sessionState.messages[index], isDark);
                   },
                 ),
@@ -98,9 +101,6 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
             
             if (sessionState.pendingAction != null)
               _buildActionCard(context, sessionState.pendingAction!, isDark),
-              
-            if (sessionState.isProcessing)
-              _buildThinkingBubble(sessionState, isDark),
 
             _buildInputArea(sessionState, isDark),
           ],
