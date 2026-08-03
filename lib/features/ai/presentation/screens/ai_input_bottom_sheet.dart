@@ -257,7 +257,6 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
               ),
             ),
           ),
-          if (isUser) const SizedBox(width: 40),
         ],
       ),
     );
@@ -290,7 +289,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
   Widget _buildActionCard(BuildContext context, UseCaseResult action, bool isDark) {
     if (action is RequireStoreSelectionResult) {
       return Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.only(top: 8, bottom: 16),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isDark ? AppColors.surfaceDark : Colors.white,
@@ -322,28 +321,34 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            if (action.options.isNotEmpty)
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: action.options.map((option) {
-                  return ActionChip(
-                    label: Text(option),
-                    labelStyle: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                    side: BorderSide.none,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    onPressed: () {
-                      _controller.text = option;
-                      _handleSubmit();
-                    },
-                  );
-                }).toList(),
+            if (action.options.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  children: action.options.map((option) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: ActionChip(
+                        label: Text(option),
+                        labelStyle: TextStyle(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                        side: BorderSide.none,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        onPressed: () {
+                          _controller.text = option;
+                          _handleSubmit();
+                        },
+                      ),
+                    );
+                  }).toList(),
+                ),
               ),
+            ],
           ],
         ),
       );

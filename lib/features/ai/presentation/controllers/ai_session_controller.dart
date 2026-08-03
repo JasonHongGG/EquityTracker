@@ -83,7 +83,7 @@ class AISessionController extends Notifier<AISessionState> {
       
       _handleResult(result);
     } catch (e, st) {
-      _addMessage('❌ 發生錯誤: $e', ChatMessageType.error);
+      _addMessage('發生錯誤: $e', ChatMessageType.error);
       state = state.copyWith(isProcessing: false);
       print(st);
     }
@@ -117,7 +117,7 @@ class AISessionController extends Notifier<AISessionState> {
       
       _handleResult(result);
     } catch (e, st) {
-      _addMessage('❌ 發生錯誤: $e', ChatMessageType.error);
+      _addMessage('發生錯誤: $e', ChatMessageType.error);
       state = state.copyWith(isProcessing: false);
       print(st);
     }
@@ -138,11 +138,11 @@ class AISessionController extends Notifier<AISessionState> {
   Future<void> _saveRecordsToDatabase() async {
     final session = state.session;
     if (session == null || session.records.isEmpty) {
-      _addMessage('❌ 沒有可儲存的紀錄。', ChatMessageType.error);
+      _addMessage('沒有可儲存的紀錄。', ChatMessageType.error);
       return;
     }
 
-    _addProgress('💾 正在儲存 ${session.records.length} 筆資料...');
+    _addProgress('正在儲存 ${session.records.length} 筆資料...');
     final transactionNotifier = ref.read(transactionNotifierProvider.notifier);
     
     int savedCount = 0;
@@ -167,7 +167,7 @@ class AISessionController extends Notifier<AISessionState> {
       savedCount++;
     }
 
-    _addMessage('🎉 成功新增 $savedCount 筆帳務！', ChatMessageType.ai);
+    _addMessage('成功新增 $savedCount 筆帳務！', ChatMessageType.ai);
   }
 }
 

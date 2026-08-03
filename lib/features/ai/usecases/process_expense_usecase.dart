@@ -121,9 +121,9 @@ class StoreResolutionStep implements RecordProcessingStep {
       final options = lookupResponse.options ?? [];
       String message;
       if (options.isEmpty) {
-        message = '無法自動確認第 ${recordIndex + 1} 筆商品 (${data.item}) 的店家名稱，請手動輸入實際店家名稱：';
+        message = '請問「${data.item}」是在哪家店消費的？請直接輸入：';
       } else {
-        message = '無法確認第 ${recordIndex + 1} 筆商品 (${data.item}) 的店家名稱，請從地圖結果中選擇，或手動輸入：';
+        message = '請問「${data.item}」是在哪家店消費的？';
       }
 
       return RequireStoreSelectionResult(
