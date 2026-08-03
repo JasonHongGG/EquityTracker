@@ -4,6 +4,7 @@ import 'package:equity_tracker/features/ai/presentation/controllers/ai_session_c
 import 'package:equity_tracker/features/ai/usecases/process_expense_usecase.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/ai_log_viewer_screen.dart';
+import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/ai/presentation/widgets/thinking_orb.dart';
 import 'dart:math' as math;
 
@@ -246,17 +247,95 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                   ),
                 ],
               ),
-              child: Text(
-                message.text,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: isUser 
-                      ? Colors.white 
-                      : (isError 
-                          ? Colors.red 
-                          : (isDark ? Colors.white : Colors.black87)),
-                ),
-              ),
+              child: (message.payload != null && message.payload is List) 
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          message.text,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: isUser 
+                                ? Colors.white 
+                                : (isError 
+                                    ? Colors.red 
+                                    : (isDark ? Colors.white : Colors.black87)),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        ...((message.payload as List).map((dynamic item) {
+                          if (item is! TransactionModel) return const SizedBox();
+                          final tx = item;
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isDark ? Colors.white12 : Colors.black12,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(Icons.receipt_long, size: 16, color: Theme.of(context).primaryColor),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        tx.title ?? '未命名',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? Colors.white : Colors.black87,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        tx.note ?? '',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: isDark ? Colors.white54 : Colors.black54,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  '\$${tx.amount.toInt()}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Outfit',
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        })),
+                      ],
+                    )
+                  : Text(
+                      message.text,
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: isUser 
+                            ? Colors.white 
+                            : (isError 
+                                ? Colors.red 
+                                : (isDark ? Colors.white : Colors.black87)),
+                      ),
+                    ),
             ),
           ),
         ],

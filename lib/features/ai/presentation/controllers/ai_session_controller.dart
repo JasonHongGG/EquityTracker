@@ -12,12 +12,14 @@ class ChatMessage {
   final String id;
   final String text;
   final ChatMessageType type;
+  final dynamic payload;
   final DateTime timestamp;
 
   ChatMessage({
     required this.id,
     required this.text,
     required this.type,
+    this.payload,
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 }
@@ -61,11 +63,12 @@ class AISessionController extends Notifier<AISessionState> {
     return AISessionState();
   }
 
-  void _addMessage(String text, ChatMessageType type) {
+  void _addMessage(String text, ChatMessageType type, {dynamic payload}) {
     final msg = ChatMessage(
       id: DateTime.now().microsecondsSinceEpoch.toString(),
       text: text,
       type: type,
+      payload: payload,
     );
     state = state.copyWith(messages: [...state.messages, msg]);
   }
@@ -158,6 +161,7 @@ class AISessionController extends Notifier<AISessionState> {
     final transactionNotifier = ref.read(transactionNotifierProvider.notifier);
     
     int savedCount = 0;
+    final savedTxs = <TransactionModel>[];
     for (final record in session.records) {
       final data = record.data;
       if (data.price == null || data.item == null) continue;
@@ -176,10 +180,11 @@ class AISessionController extends Notifier<AISessionState> {
       );
       
       await transactionNotifier.addTransaction(tx);
+      savedTxs.add(tx);
       savedCount++;
     }
 
-    _addMessage('成功新增 $savedCount 筆帳務！', ChatMessageType.ai);
+    _addMessage('成功新增 $savedCount 筆帳務！', ChatMessageType.ai, payload: savedTxs);
   }
 }
 
