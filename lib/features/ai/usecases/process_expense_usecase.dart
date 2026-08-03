@@ -8,6 +8,7 @@ import 'package:equity_tracker/features/ai/infrastructure/agents/validation_agen
 import 'package:equity_tracker/features/ai/infrastructure/agents/correction_agent/correction_agent.dart';
 import 'package:equity_tracker/features/ai/infrastructure/map/i_map_search_service.dart';
 import 'package:equity_tracker/features/ai/infrastructure/map/google_map_search_service.dart';
+import 'package:equity_tracker/features/ai/presentation/controllers/ai_config_controller.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 
 abstract class UseCaseResult {}
@@ -60,8 +61,9 @@ abstract class RecordProcessingStep {
 class StoreResolutionStep implements RecordProcessingStep {
   final StoreLookupAgent storeLookupAgent;
   final IMapSearchService mapSearchService;
+  final bool isGoogleMapEnabled;
 
-  StoreResolutionStep(this.storeLookupAgent, this.mapSearchService);
+  StoreResolutionStep(this.storeLookupAgent, this.mapSearchService, {required this.isGoogleMapEnabled});
 
   @override
   Future<UseCaseResult?> execute(
@@ -89,10 +91,12 @@ class StoreResolutionStep implements RecordProcessingStep {
     final queryStr = queryParts.join(' ').trim();
 
     List<StoreSearchResult> searchResults = [];
-    if (queryStr.isNotEmpty) {
+    if (!isGoogleMapEnabled) {
+      onProgress?.call('Google Map 查詢未啟用，交由 AI 直接推斷');
+    } else if (queryStr.isNotEmpty) {
       searchResults = await mapSearchService.search(queryStr);
       if (searchResults.isEmpty) {
-        onProgress?.call('Google Map 查無結果，或未啟用，交由 AI 直接推斷');
+        onProgress?.call('Google Map 查無結果，交由 AI 直接推斷');
       } else {
         onProgress?.call('Google Map 找到 ${searchResults.length} 筆可能店家，交由 AI 篩選');
       }
@@ -100,6 +104,7 @@ class StoreResolutionStep implements RecordProcessingStep {
       onProgress?.call('無足夠線索查詢地圖，交由 AI 推斷');
     }
 
+    onProgress?.call('AI 思考中 <ThinkingOrb state="solving" />');
     final lookupResponse = await storeLookupAgent.execute(
       StoreLookupInput(
         originalText: session.originalText,
@@ -155,9 +160,8 @@ class StoreResolutionStep implements RecordProcessingStep {
 /// 步驟二：資料完整性驗證
 class ValidationStep implements RecordProcessingStep {
   final ValidationAgent validationAgent;
-  final CorrectionAgent correctionAgent;
 
-  ValidationStep(this.validationAgent, this.correctionAgent);
+  ValidationStep(this.validationAgent);
 
   @override
   Future<UseCaseResult?> execute(
@@ -195,6 +199,33 @@ class ValidationStep implements RecordProcessingStep {
     String userInput,
     {void Function(String)? onProgress}
   ) async {
+    return null;
+  }
+}
+
+class CorrectionStep implements RecordProcessingStep {
+  final CorrectionAgent correctionAgent;
+
+  CorrectionStep(this.correctionAgent);
+
+  @override
+  Future<UseCaseResult?> execute(
+    int recordIndex,
+    TransactionRecord record,
+    TransactionSession session,
+    {void Function(String)? onProgress}
+  ) async {
+    return null;
+  }
+
+  @override
+  Future<UseCaseResult?> handleCorrection(
+    int recordIndex,
+    TransactionRecord record,
+    TransactionSession session,
+    String userInput,
+    {void Function(String)? onProgress}
+  ) async {
     if (record.status != RecordStatus.needsHumanCorrection) return null;
 
     onProgress?.call('處理您的補充資訊...');
@@ -203,26 +234,36 @@ class ValidationStep implements RecordProcessingStep {
     );
 
     record.updateData(correctionResponse.record);
-    record.markValidating(); // 修正後重設為 validating，讓管線重新驗證
-    return null; // 回傳 null 代表這一步的 correction 做完了，後續讓主迴圈繼續走
+    record.markValidating(); 
+    return null;
   }
 }
 
 /// 統籌花費紀錄處理流程的 UseCase
 class ProcessExpenseUseCase {
   final ExtractionAgent extractionAgent;
-  final List<RecordProcessingStep> pipeline;
+  final StoreLookupAgent storeLookupAgent;
+  final IMapSearchService mapSearchService;
+  final ValidationAgent validationAgent;
+  final CorrectionAgent correctionAgent;
+  final bool isGoogleMapEnabled;
+
+  late final List<RecordProcessingStep> pipeline;
 
   ProcessExpenseUseCase({
     required this.extractionAgent,
-    required StoreLookupAgent storeLookupAgent,
-    required ValidationAgent validationAgent,
-    required CorrectionAgent correctionAgent,
-    required IMapSearchService mapSearchService,
-  }) : pipeline = [
-         StoreResolutionStep(storeLookupAgent, mapSearchService),
-         ValidationStep(validationAgent, correctionAgent),
-       ];
+    required this.storeLookupAgent,
+    required this.mapSearchService,
+    required this.validationAgent,
+    required this.correctionAgent,
+    required this.isGoogleMapEnabled,
+  }) {
+    pipeline = [
+      StoreResolutionStep(storeLookupAgent, mapSearchService, isGoogleMapEnabled: isGoogleMapEnabled),
+      ValidationStep(validationAgent),
+      CorrectionStep(correctionAgent),
+    ];
+  }
 
   Future<UseCaseResult> execute(TransactionSession session, List<CategoryModel> categories, {void Function(String)? onProgress}) async {
     // 1. Extraction Phase
@@ -280,11 +321,19 @@ class ProcessExpenseUseCase {
 }
 
 final processExpenseUseCaseProvider = Provider.autoDispose<ProcessExpenseUseCase>((ref) {
+  final extractionAgent = ref.watch(extractionAgentProvider);
+  final storeLookupAgent = ref.watch(storeLookupAgentProvider);
+  final mapSearchService = ref.watch(mapSearchServiceProvider);
+  final validationAgent = ref.watch(validationAgentProvider);
+  final correctionAgent = ref.watch(correctionAgentProvider);
+  final isGoogleMapEnabled = ref.watch(aiConfigControllerProvider).isGoogleMapEnabled;
+
   return ProcessExpenseUseCase(
-    extractionAgent: ref.watch(extractionAgentProvider),
-    storeLookupAgent: ref.watch(storeLookupAgentProvider),
-    validationAgent: ref.watch(validationAgentProvider),
-    correctionAgent: ref.watch(correctionAgentProvider),
-    mapSearchService: ref.watch(mapSearchServiceProvider),
+    extractionAgent: extractionAgent,
+    storeLookupAgent: storeLookupAgent,
+    mapSearchService: mapSearchService,
+    validationAgent: validationAgent,
+    correctionAgent: correctionAgent,
+    isGoogleMapEnabled: isGoogleMapEnabled,
   );
 });

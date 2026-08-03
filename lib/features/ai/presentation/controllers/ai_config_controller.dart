@@ -9,11 +9,15 @@ class AIConfigState {
   final AIProviderType providerType;
   final Map<AIProviderType, ProviderConfig> configs;
   final String googleMapApiKey;
+  final bool isAIAgentEnabled;
+  final bool isGoogleMapEnabled;
 
   AIConfigState({
     this.providerType = AIProviderType.geminiflow,
     Map<AIProviderType, ProviderConfig>? configs,
     this.googleMapApiKey = '',
+    this.isAIAgentEnabled = false,
+    this.isGoogleMapEnabled = false,
   }) : configs = configs ?? {
          AIProviderType.geminiflow: const GeminiFlowConfig(),
          AIProviderType.ollama: const OllamaConfig(),
@@ -26,11 +30,15 @@ class AIConfigState {
     AIProviderType? providerType,
     Map<AIProviderType, ProviderConfig>? configs,
     String? googleMapApiKey,
+    bool? isAIAgentEnabled,
+    bool? isGoogleMapEnabled,
   }) {
     return AIConfigState(
       providerType: providerType ?? this.providerType,
       configs: configs ?? this.configs,
       googleMapApiKey: googleMapApiKey ?? this.googleMapApiKey,
+      isAIAgentEnabled: isAIAgentEnabled ?? this.isAIAgentEnabled,
+      isGoogleMapEnabled: isGoogleMapEnabled ?? this.isGoogleMapEnabled,
     );
   }
 }
@@ -59,11 +67,15 @@ class AIConfigController extends Notifier<AIConfigState> {
     if (vertexaiJson != null) loadedConfigs[AIProviderType.vertexai] = VertexAIConfig.fromJson(jsonDecode(vertexaiJson));
 
     final googleMapApiKey = prefs.getString('google_map_api_key') ?? '';
+    final isAIAgentEnabled = prefs.getBool('is_ai_agent_enabled') ?? false;
+    final isGoogleMapEnabled = prefs.getBool('is_google_map_enabled') ?? false;
 
     return AIConfigState(
       providerType: type,
       configs: loadedConfigs,
       googleMapApiKey: googleMapApiKey,
+      isAIAgentEnabled: isAIAgentEnabled,
+      isGoogleMapEnabled: isGoogleMapEnabled,
     );
   }
 
@@ -71,6 +83,8 @@ class AIConfigController extends Notifier<AIConfigState> {
     AIProviderType? providerType,
     ProviderConfig? activeProviderConfig,
     String? googleMapApiKey,
+    bool? isAIAgentEnabled,
+    bool? isGoogleMapEnabled,
   }) async {
     final newConfigs = Map<AIProviderType, ProviderConfig>.from(state.configs);
     
@@ -82,6 +96,8 @@ class AIConfigController extends Notifier<AIConfigState> {
       providerType: providerType,
       configs: newConfigs,
       googleMapApiKey: googleMapApiKey,
+      isAIAgentEnabled: isAIAgentEnabled,
+      isGoogleMapEnabled: isGoogleMapEnabled,
     );
 
     final prefs = await SharedPreferences.getInstance();
@@ -93,6 +109,14 @@ class AIConfigController extends Notifier<AIConfigState> {
     
     if (googleMapApiKey != null) {
       await prefs.setString('google_map_api_key', googleMapApiKey.trim());
+    }
+    
+    if (isAIAgentEnabled != null) {
+      await prefs.setBool('is_ai_agent_enabled', isAIAgentEnabled);
+    }
+    
+    if (isGoogleMapEnabled != null) {
+      await prefs.setBool('is_google_map_enabled', isGoogleMapEnabled);
     }
   }
 }

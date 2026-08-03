@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/ai/presentation/controllers/ai_session_controller.dart';
+import 'package:equity_tracker/features/ai/presentation/controllers/ai_config_controller.dart';
 import 'package:equity_tracker/features/ai/usecases/process_expense_usecase.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/ai_log_viewer_screen.dart';
@@ -58,6 +59,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final sessionState = ref.watch(aiSessionControllerProvider);
+    final aiConfig = ref.watch(aiConfigControllerProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -83,27 +85,76 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
         child: Column(
           children: [
             _buildHeader(isDark),
-            Expanded(
-              child: Container(
-                color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.5),
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                  itemCount: sessionState.messages.length + (sessionState.isProcessing ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == sessionState.messages.length) {
-                      return _buildThinkingBubble(sessionState, isDark);
-                    }
-                    return _buildChatBubble(sessionState.messages[index], isDark);
-                  },
+            if (!aiConfig.isAIAgentEnabled)
+              Expanded(child: _buildDisabledState(context, isDark))
+            else ...[
+              Expanded(
+                child: Container(
+                  color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.white.withValues(alpha: 0.5),
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    itemCount: sessionState.messages.length + (sessionState.isProcessing ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == sessionState.messages.length) {
+                        return _buildThinkingBubble(sessionState, isDark);
+                      }
+                      return _buildChatBubble(sessionState.messages[index], isDark);
+                    },
+                  ),
                 ),
               ),
-            ),
-            
-            if (sessionState.pendingAction != null)
-              _buildActionCard(context, sessionState.pendingAction!, isDark),
+              
+              if (sessionState.pendingAction != null)
+                _buildActionCard(context, sessionState.pendingAction!, isDark),
 
-            _buildInputArea(sessionState, isDark),
+              _buildInputArea(sessionState, isDark),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDisabledState(BuildContext context, bool isDark) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.power_off_rounded,
+                size: 64,
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.8),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'AI Feature Disabled',
+              style: TextStyle(
+                fontFamily: 'Outfit',
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'The AI Smart Accounting assistant is currently disabled. You can enable it in the configuration settings.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.white70 : Colors.black54,
+                height: 1.5,
+              ),
+            ),
           ],
         ),
       ),

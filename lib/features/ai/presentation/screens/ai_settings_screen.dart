@@ -104,6 +104,14 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
     });
   }
 
+  void _onAIAgentToggle(bool value) {
+    ref.read(aiConfigControllerProvider.notifier).saveConfig(isAIAgentEnabled: value);
+  }
+
+  void _onGoogleMapToggle(bool value) {
+    ref.read(aiConfigControllerProvider.notifier).saveConfig(isGoogleMapEnabled: value);
+  }
+
   IconData _getProviderIcon(AIProviderType type) {
     if (type == AIProviderType.geminiflow) return Icons.auto_awesome;
     if (type == AIProviderType.ollama) return Icons.memory_rounded;
@@ -215,75 +223,83 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
 
   Widget _buildSmartSelectorCard(AIConfigState state, bool isDark) {
     final type = state.providerType;
+    final isEnabled = state.isAIAgentEnabled;
     return GestureDetector(
-      onTap: () => _showProviderSelectorBottomSheet(state, isDark),
+      onTap: isEnabled ? () => _showProviderSelectorBottomSheet(state, isDark) : null,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        decoration: _cardDecoration(isDark),
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Icon(
-                _getProviderIcon(type),
-                color: Theme.of(context).primaryColor,
-                size: 22,
-              ),
-            ),
-            Expanded(
-              child: Text(
-                type.name.toUpperCase(),
-                style: TextStyle(
-                  fontFamily: 'Outfit',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white : Colors.black87,
-                  letterSpacing: 0.5,
+        color: Colors.transparent,
+        child: Opacity(
+          opacity: isEnabled ? 1.0 : 0.4,
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Icon(
+                  _getProviderIcon(type),
+                  color: Theme.of(context).primaryColor,
+                  size: 22,
                 ),
               ),
-            ),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: isDark ? Colors.white38 : Colors.black38,
-            ),
-            const SizedBox(width: 8),
-          ],
+              Expanded(
+                child: Text(
+                  type.name.toUpperCase(),
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black87,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: isDark ? Colors.white38 : Colors.black38,
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildSettingsTile(String hint, IconData icon, TextEditingController controller, bool isDark, {bool obscureText = false}) {
-    return TextFormField(
-      controller: controller,
-      onChanged: (_) => _onFieldChanged(),
-      obscureText: obscureText,
-      style: TextStyle(
-        fontFamily: 'Outfit',
-        fontSize: 16,
-        color: isDark ? Colors.white : Colors.black87,
-      ),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(
+  Widget _buildSettingsTile(String hint, IconData icon, TextEditingController controller, bool isDark, {bool obscureText = false, bool isEnabled = true}) {
+    return Opacity(
+      opacity: isEnabled ? 1.0 : 0.4,
+      child: TextFormField(
+        controller: controller,
+        onChanged: (_) => _onFieldChanged(),
+        obscureText: obscureText,
+        enabled: isEnabled,
+        style: TextStyle(
           fontFamily: 'Outfit',
-          color: isDark ? Colors.white30 : Colors.black38,
+          fontSize: 16,
+          color: isDark ? Colors.white : Colors.black87,
         ),
-        prefixIcon: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Icon(
-            icon,
-            color: Theme.of(context).primaryColor,
-            size: 22,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(
+            fontFamily: 'Outfit',
+            color: isDark ? Colors.white30 : Colors.black38,
           ),
+          prefixIcon: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Icon(
+              icon,
+              color: Theme.of(context).primaryColor,
+              size: 22,
+            ),
+          ),
+          prefixIconConstraints: const BoxConstraints(minWidth: 50, minHeight: 50),
+          filled: true,
+          fillColor: Colors.transparent,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          border: InputBorder.none,
+          enabledBorder: InputBorder.none,
+          focusedBorder: InputBorder.none,
         ),
-        prefixIconConstraints: const BoxConstraints(minWidth: 50, minHeight: 50),
-        filled: true,
-        fillColor: Colors.transparent,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        border: InputBorder.none,
-        enabledBorder: InputBorder.none,
-        focusedBorder: InputBorder.none,
       ),
     );
   }
@@ -301,19 +317,20 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
 
   List<Widget> _buildParameterFields(AIConfigState state, bool isDark) {
     final List<Widget> fields = [];
+    final isEnabled = state.isAIAgentEnabled;
     
-    fields.add(_buildSettingsTile('Model Name', Icons.smart_toy_rounded, _modelNameController, isDark));
+    fields.add(_buildSettingsTile('Model Name', Icons.smart_toy_rounded, _modelNameController, isDark, isEnabled: isEnabled));
     
     if (state.activeConfig is VertexAIConfig) {
       fields.add(_buildDivider(isDark));
-      fields.add(_buildSettingsTile('Project ID', Icons.business_rounded, _projectIdController, isDark));
+      fields.add(_buildSettingsTile('Project ID', Icons.business_rounded, _projectIdController, isDark, isEnabled: isEnabled));
       fields.add(_buildDivider(isDark));
-      fields.add(_buildSettingsTile('Region', Icons.public_rounded, _regionController, isDark));
+      fields.add(_buildSettingsTile('Region', Icons.public_rounded, _regionController, isDark, isEnabled: isEnabled));
       fields.add(_buildDivider(isDark));
-      fields.add(_buildSettingsTile('Access Token', Icons.key_rounded, _accessTokenController, isDark, obscureText: true));
+      fields.add(_buildSettingsTile('Access Token', Icons.key_rounded, _accessTokenController, isDark, obscureText: true, isEnabled: isEnabled));
     } else {
       fields.add(_buildDivider(isDark));
-      fields.add(_buildSettingsTile('Base URL', Icons.dns_rounded, _baseUrlController, isDark));
+      fields.add(_buildSettingsTile('Base URL', Icons.dns_rounded, _baseUrlController, isDark, isEnabled: isEnabled));
     }
     
     return fields;
@@ -355,14 +372,40 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
     );
   }
 
-  Widget _buildGlobalSettingsGroup(bool isDark) {
+  Widget _buildGlobalSettingsGroup(AIConfigState state, bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Global Integrations', isDark),
         Container(
           decoration: _cardDecoration(isDark),
-          child: _buildSettingsTile('Google Map API Key (Optional)', Icons.map_rounded, _googleMapApiController, isDark, obscureText: true),
+          child: Column(
+            children: [
+              SwitchListTile(
+                title: Text(
+                  'Enable Google Map API',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+                value: state.isGoogleMapEnabled,
+                onChanged: _onGoogleMapToggle,
+                activeColor: Theme.of(context).primaryColor,
+              ),
+              _buildDivider(isDark),
+              _buildSettingsTile(
+                'Google Map API Key (Optional)',
+                Icons.map_rounded,
+                _googleMapApiController,
+                isDark,
+                obscureText: true,
+                isEnabled: state.isGoogleMapEnabled,
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -392,12 +435,34 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildGlobalSettingsGroup(isDark),
+            _buildGlobalSettingsGroup(state, isDark),
             const SizedBox(height: 16),
             
             _buildSectionHeader('AI Engine', isDark),
-            _buildSmartSelectorCard(state, isDark),
-            const SizedBox(height: 8),
+            Container(
+              decoration: _cardDecoration(isDark),
+              child: Column(
+                children: [
+                  SwitchListTile(
+                    title: Text(
+                      'Enable AI Smart Accounting',
+                      style: TextStyle(
+                        fontFamily: 'Outfit',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                    value: state.isAIAgentEnabled,
+                    onChanged: _onAIAgentToggle,
+                    activeColor: Theme.of(context).primaryColor,
+                  ),
+                  _buildDivider(isDark),
+                  _buildSmartSelectorCard(state, isDark),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
             
             _buildAnimatedParametersGroup(state, isDark),
             
