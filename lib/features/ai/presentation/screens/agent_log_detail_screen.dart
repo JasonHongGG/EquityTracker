@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
+import 'package:equity_tracker/core/widgets/json_tree_viewer.dart';
 
 class AgentLogDetailScreen extends StatelessWidget {
   final Map<String, dynamic> logData;
@@ -8,46 +8,7 @@ class AgentLogDetailScreen extends StatelessWidget {
 
   const AgentLogDetailScreen({super.key, required this.logData, required this.fileName});
 
-  Widget _buildJsonBlock(String title, dynamic data, BuildContext context, bool isDark) {
-    final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 8, top: 16),
-          child: Text(
-            title.toUpperCase(),
-            style: TextStyle(
-              fontFamily: 'Outfit',
-              fontWeight: FontWeight.bold,
-              fontSize: 13,
-              letterSpacing: 1.2,
-              color: Theme.of(context).primaryColor,
-            ),
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
-          ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Text(
-              jsonStr,
-              style: TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 13,
-                color: isDark ? Colors.greenAccent : Colors.indigo,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +46,56 @@ class AgentLogDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             
-            _buildJsonBlock('Request', logData['request'], context, isDark),
-            _buildJsonBlock('Response', logData['response'], context, isDark),
+            if (logData['request'] != null) ...[
+              Padding(
+                padding: const EdgeInsets.only(left: 4, bottom: 8),
+                child: Text(
+                  'REQUEST',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    letterSpacing: 1.2,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
+                ),
+                child: JsonTreeViewer(data: logData['request'], isDark: isDark),
+              ),
+              const SizedBox(height: 24),
+            ],
+            
+            if (logData['response'] != null) ...[
+              Padding(
+                padding: const EdgeInsets.only(left: 4, bottom: 8),
+                child: Text(
+                  'RESPONSE',
+                  style: TextStyle(
+                    fontFamily: 'Outfit',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    letterSpacing: 1.2,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
+                ),
+                child: JsonTreeViewer(data: logData['response'], isDark: isDark),
+              ),
+            ],
             const SizedBox(height: 40),
           ],
         ),
