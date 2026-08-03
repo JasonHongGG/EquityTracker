@@ -38,7 +38,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
         slivers: [
           // 1. Scrollable Month Selector
           SliverAppBar(
-            floating: true,
+            floating: false,
             pinned: false,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             elevation: 0,
