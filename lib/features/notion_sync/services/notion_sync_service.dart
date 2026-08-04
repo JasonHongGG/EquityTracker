@@ -68,7 +68,7 @@ class NotionSyncService {
       await prefs.setString('notion_last_sync_time', DateTime.now().toIso8601String());
 
       // Silent reload instead of destructive refresh
-      await _ref.read(transactionNotifierProvider.notifier).silentReload();
+      await _ref.read(transactionNotifierProvider.notifier).refresh();
 
     } catch (e) {
       // Background sync errors can be logged or ignored silently
@@ -98,7 +98,7 @@ class NotionSyncService {
       await prefs.remove('notion_last_pull_ids');
       await prefs.remove('notion_prev_sync_time');
 
-      await _ref.read(transactionNotifierProvider.notifier).silentReload();
+      await _ref.read(transactionNotifierProvider.notifier).refresh();
     } catch (e) {
       debugPrint('Undo Failed: \$e');
     }
@@ -176,7 +176,7 @@ class NotionSyncService {
       }
       
       if (dataChanged) {
-        await _ref.read(transactionNotifierProvider.notifier).silentReload();
+        await _ref.read(transactionNotifierProvider.notifier).refresh();
       }
 
     } catch (e) {

@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:equity_tracker/core/database/database_helper.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
 
 import 'package:equity_tracker/core/enums/sync_status.dart';
 
@@ -28,6 +29,24 @@ class TransactionRepository {
       orderBy: 'date DESC, id DESC',
     );
     return List.generate(maps.length, (i) => TransactionModel.fromMap(maps[i]));
+  }
+
+  Future<List<TransactionModel>> getTransactionsByMonth(DateTime month) async {
+    final start = DateTime(month.year, month.month, 1);
+    final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
+    return getTransactionsByDateRange(start, end);
+  }
+
+  Future<int> getTotalAmountByType(TransactionType type) async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      "SELECT SUM(amount) as total FROM transactions WHERE type = ? AND syncStatus != ?",
+      [type.name, SyncStatus.pendingDelete.name]
+    );
+    if (result.isNotEmpty && result.first['total'] != null) {
+      return (result.first['total'] as num).toInt();
+    }
+    return 0;
   }
 
   Future<int> insertTransaction(TransactionModel transaction) async {
@@ -99,6 +118,15 @@ class TransactionRepository {
       limit: limit,
     );
     return maps.map((m) => m['title'] as String).where((t) => t.isNotEmpty).toSet().toList();
+  }
+
+  Future<List<String>> getFrequentTitles({int limit = 20}) async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery(
+      "SELECT title, COUNT(title) as count FROM transactions WHERE title IS NOT NULL AND title != '' GROUP BY title ORDER BY count DESC LIMIT ?",
+      [limit]
+    );
+    return maps.map((m) => m['title'] as String).toList();
   }
 
   Future<List<RecurringTransactionModel>> getAllRecurringTransactions() async {

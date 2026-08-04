@@ -111,6 +111,8 @@ class AddEditTransactionController extends Notifier<AddEditTransactionState> {
     required String amountText,
     required String noteText,
   }) async {
+    if (state.isSaving) return false;
+
     final parsed = int.tryParse(amountText);
     if (parsed == null || parsed <= 0) {
       state = state.copyWith(error: 'Amount must be > 0');
@@ -141,6 +143,7 @@ class AddEditTransactionController extends Notifier<AddEditTransactionState> {
       } else {
         await ref.read(transactionListProvider.notifier).updateTransaction(newTx);
       }
+      state = state.copyWith(isSaving: false);
       return true;
     } catch (e) {
       state = state.copyWith(isSaving: false, error: e.toString());

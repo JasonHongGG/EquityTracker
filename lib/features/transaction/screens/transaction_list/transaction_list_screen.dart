@@ -31,7 +31,8 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final isSearching = currentFilter.searchQuery != null && currentFilter.searchQuery!.isNotEmpty;
     final currencySymbol = settingsAsync.value?.currencySymbol ?? '\$';
         
-    final state = ref.watch(transactionListControllerProvider);
+    final stateAsync = ref.watch(transactionListControllerProvider);
+    final state = stateAsync.value ?? TransactionListState.initial();
 
     return Scaffold(
       body: CustomScrollView(

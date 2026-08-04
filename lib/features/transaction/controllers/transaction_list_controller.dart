@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
+import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 
@@ -38,37 +39,26 @@ class TransactionListState {
       );
 }
 
-final transactionListControllerProvider = Provider<TransactionListState>((ref) {
-  final allTransactionsAsync = ref.watch(transactionListProvider);
+final transactionListControllerProvider = FutureProvider<TransactionListState>((ref) async {
   final filteredTransactionsAsync = ref.watch(filteredTransactionsProvider);
   final groupedTransactionsAsync = ref.watch(groupedTransactionsProvider);
+  
+  // This watch ensures that when we add/delete, this provider invalidates and rebuilds
+  ref.watch(transactionListProvider);
 
-  if (allTransactionsAsync.isLoading || filteredTransactionsAsync.isLoading || groupedTransactionsAsync.isLoading) {
+  // We DO NOT return initial() on loading. This allows the UI to show the old state 
+  // while fetching new data, enabling seamless Optimistic Updates.
+  if (!filteredTransactionsAsync.hasValue && filteredTransactionsAsync.isLoading) {
     return TransactionListState.initial();
   }
 
-  if (allTransactionsAsync.hasError) {
-    return TransactionListState.initial()..copyWithError(allTransactionsAsync.error.toString());
-  }
+  // 1. Fetch All-Time Stats from SQLite directly (Extremely Fast, NO memory loops)
+  final repo = ref.watch(transactionRepositoryProvider);
+  final totalIncome = await repo.getTotalAmountByType(TransactionType.income);
+  final totalExpense = await repo.getTotalAmountByType(TransactionType.expense);
+  final totalBalance = totalIncome - totalExpense;
 
-  // 1. Calculate All-Time Stats
-  int totalBalance = 0;
-  int totalIncome = 0;
-  int totalExpense = 0;
-
-  if (allTransactionsAsync.hasValue) {
-    for (var t in allTransactionsAsync.value!) {
-      if (t.type == TransactionType.income) {
-        totalIncome += t.amount;
-        totalBalance += t.amount;
-      } else {
-        totalExpense += t.amount;
-        totalBalance -= t.amount;
-      }
-    }
-  }
-
-  // 2. Calculate Monthly Stats
+  // 2. Calculate Monthly Stats from memory (Only a few dozen items, extremely fast)
   int monthlyBalance = 0;
   int monthlyIncome = 0;
   int monthlyExpense = 0;
@@ -97,7 +87,7 @@ final transactionListControllerProvider = Provider<TransactionListState>((ref) {
   );
 });
 
-extension on TransactionListState {
+extension TransactionListStateExt on TransactionListState {
   TransactionListState copyWithError(String err) {
     return TransactionListState(
       totalBalance: totalBalance,
@@ -112,3 +102,4 @@ extension on TransactionListState {
     );
   }
 }
+

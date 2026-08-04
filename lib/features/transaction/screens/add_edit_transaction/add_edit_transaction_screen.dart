@@ -52,14 +52,14 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
     _titleController = TextEditingController(text: t?.title ?? '');
     _noteController = TextEditingController(text: t?.note ?? '');
 
-    _titleFocusNode.addListener(() {
-      setState(() {});
-    });
+    // Removed global setState on focus change to prevent lag
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(addEditTransactionControllerProvider.notifier).init(widget.transaction, widget.initialDate);
       if (widget.transaction == null) {
-        _showCalculatorSheet();
+        Future.delayed(const Duration(milliseconds: 350), () {
+          if (mounted) _showCalculatorSheet();
+        });
       }
     });
   }

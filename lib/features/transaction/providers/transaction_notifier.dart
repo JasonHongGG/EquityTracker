@@ -88,118 +88,118 @@ final selectedMonthProvider = NotifierProvider<SelectedMonthNotifier, DateTime>(
 class TransactionList extends AsyncNotifier<List<TransactionModel>> {
   @override
   Future<List<TransactionModel>> build() async {
-    return _fetchAll();
-  }
-
-  Future<List<TransactionModel>> _fetchAll() async {
-    return await ref.read(transactionRepositoryProvider).getAllTransactions();
-  }
-
-  Future<void> silentReload() async {
-    final newList = await _fetchAll();
-    state = AsyncData(newList);
+    // Only fetch for the currently selected month
+    final selectedMonth = ref.watch(selectedMonthProvider);
+    return await ref.read(transactionRepositoryProvider).getTransactionsByMonth(selectedMonth);
   }
 
   Future<void> addTransaction(TransactionModel transaction) async {
-    // Optimistic Update
     final config = ref.read(notionConfigControllerProvider);
     var toInsert = transaction;
     if (config.isEnabled) {
       toInsert = toInsert.copyWith(syncStatus: SyncStatus.pendingCreate);
     }
     
-    // Assign a temporary ID for UI if needed, though SQLite will give real ID.
-    // We update local state first
-    final currentList = state.value ?? [];
-    state = AsyncData([toInsert, ...currentList]);
+    // Optimistic update
+    if (state.hasValue) {
+      state = AsyncData([toInsert, ...state.value!]);
+    }
+    
+    try {
+      final repo = ref.read(transactionRepositoryProvider);
+      
+      // Wait for the repository to return the inserted transaction (with the DB-generated ID)
+      final insertedId = await repo.insertTransaction(toInsert);
+      final transactionWithId = toInsert.copyWith(id: insertedId);
 
-    // Background processing
-    Future.microtask(() async {
-      try {
-        await ref.read(transactionRepositoryProvider).insertTransaction(toInsert);
-        // Silent reload to get the real ID from DB
-        await silentReload();
-        
-        if (config.isEnabled) {
+      if (config.isEnabled) {
+        Future.microtask(() {
           ref.read(notionSyncServiceProvider).pushPendingChanges(silent: true);
-        }
-      } catch (e) {
-        debugPrint('Add Transaction Error: \$e');
-        // Rollback on failure
-        await silentReload();
+        });
       }
-    });
+      
+      // Quietly reload data for consistency, without invalidating the whole provider
+      final freshList = await repo.getTransactionsByMonth(ref.read(selectedMonthProvider));
+      state = AsyncData(freshList);
+    } catch (e) {
+      debugPrint('Add Transaction Error: $e');
+      rethrow; // Let the caller handle the error
+    }
   }
 
   Future<void> updateTransaction(TransactionModel transaction) async {
-    // Optimistic Update
     final config = ref.read(notionConfigControllerProvider);
     var toUpdate = transaction;
     if (config.isEnabled) {
       toUpdate = toUpdate.copyWith(syncStatus: SyncStatus.pendingUpdate);
     }
 
-    final currentList = state.value ?? [];
-    state = AsyncData([
-      for (final tx in currentList)
-        if (tx.id == toUpdate.id) toUpdate else tx
-    ]);
-
-    // Background processing
-    Future.microtask(() async {
-      try {
-        await ref.read(transactionRepositoryProvider).updateTransaction(toUpdate);
-        if (config.isEnabled) {
-          ref.read(notionSyncServiceProvider).pushPendingChanges(silent: true);
+    try {
+      // Optimistic update
+      if (state.hasValue) {
+        final currentList = state.value!;
+        final index = currentList.indexWhere((t) => t.id == transaction.id);
+        if (index != -1) {
+          final newList = List<TransactionModel>.from(currentList);
+          newList[index] = toUpdate;
+          state = AsyncData(newList);
         }
-      } catch (e) {
-        debugPrint('Update Transaction Error: \$e');
-        await silentReload();
       }
-    });
+
+      await ref.read(transactionRepositoryProvider).updateTransaction(toUpdate);
+      
+      if (config.isEnabled) {
+        Future.microtask(() {
+          ref.read(notionSyncServiceProvider).pushPendingChanges(silent: true);
+        });
+      }
+      
+      // Quietly reload data for consistency
+      final freshList = await ref.read(transactionRepositoryProvider).getTransactionsByMonth(ref.read(selectedMonthProvider));
+      state = AsyncData(freshList);
+    } catch (e) {
+      debugPrint('Update Transaction Error: \$e');
+      rethrow;
+    }
   }
 
   Future<void> deleteTransaction(int id, [String? notionId]) async {
-    // Optimistic Update
-    final currentList = state.value ?? [];
     final config = ref.read(notionConfigControllerProvider);
     
-    if (config.isEnabled && notionId != null && notionId.isNotEmpty) {
-      // For Notion sync, we just mark it as pendingDelete in memory
-      state = AsyncData([
-        for (final tx in currentList)
-          if (tx.id == id) tx.copyWith(syncStatus: SyncStatus.pendingDelete) else tx
-      ]);
-    } else {
-      // If no sync needed, remove it from UI immediately
-      state = AsyncData(currentList.where((tx) => tx.id != id).toList());
-    }
-
-    // Background processing
-    Future.microtask(() async {
-      try {
-        if (config.isEnabled && notionId != null && notionId.isNotEmpty) {
-          final db = await DatabaseHelper.instance.database;
-          await db.update(
-            'transactions', 
-            {'syncStatus': SyncStatus.pendingDelete.name},
-            where: 'id = ?', 
-            whereArgs: [id]
-          );
-          ref.read(notionSyncServiceProvider).pushPendingChanges(silent: true);
-        } else {
-          await ref.read(transactionRepositoryProvider).deleteTransaction(id);
-        }
-      } catch (e) {
-        debugPrint('Delete Transaction Error: \$e');
-        await silentReload();
+    try {
+      // Optimistic update
+      if (state.hasValue) {
+        final currentList = state.value!;
+        final newList = currentList.where((t) => t.id != id).toList();
+        state = AsyncData(newList);
       }
-    });
+
+      if (config.isEnabled && notionId != null && notionId.isNotEmpty) {
+        final db = await DatabaseHelper.instance.database;
+        await db.update(
+          'transactions', 
+          {'syncStatus': SyncStatus.pendingDelete.name},
+          where: 'id = ?', 
+          whereArgs: [id]
+        );
+        Future.microtask(() {
+          ref.read(notionSyncServiceProvider).pushPendingChanges(silent: true);
+        });
+      } else {
+        await ref.read(transactionRepositoryProvider).deleteTransaction(id);
+      }
+      
+      // Quietly reload data for consistency
+      final freshList = await ref.read(transactionRepositoryProvider).getTransactionsByMonth(ref.read(selectedMonthProvider));
+      state = AsyncData(freshList);
+    } catch (e) {
+      debugPrint('Delete Transaction Error: \$e');
+      rethrow;
+    }
   }
 
   Future<void> refresh() async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _fetchAll());
+    ref.invalidateSelf();
   }
 }
 
@@ -264,7 +264,8 @@ final dailyTotalProvider = Provider.family<AsyncValue<int>, DateTime>((ref, date
   });
 });
 
-final titleSuggestionServiceProvider = Provider<TitleSuggestionService>((ref) {
-  final transactions = ref.watch(transactionListProvider).value ?? [];
-  return TitleSuggestionService(transactions);
+final titleSuggestionServiceProvider = FutureProvider<TitleSuggestionService>((ref) async {
+  final repo = ref.watch(transactionRepositoryProvider);
+  final titles = await repo.getFrequentTitles(limit: 20);
+  return TitleSuggestionService(titles);
 });
