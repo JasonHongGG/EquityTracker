@@ -587,6 +587,7 @@ class _AddEditRecurringTransactionModelScreenState
           .updateRecurringTransaction(newTx);
     }
 
+    ref.read(notificationControllerProvider.notifier).showSuccess('Recurring rule saved');
     Navigator.pop(context);
   }
 
@@ -626,6 +627,7 @@ class _AddEditRecurringTransactionModelScreenState
           .read(recurringTransactionListProvider.notifier)
           .deleteRecurringTransaction(widget.transaction!.id!);
       if (mounted) {
+        ref.read(notificationControllerProvider.notifier).showSuccess('Recurring rule deleted');
         Navigator.pop(context);
         Navigator.pop(context);
       }

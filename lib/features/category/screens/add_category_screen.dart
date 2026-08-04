@@ -43,6 +43,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
   Future<void> _save() async {
     final success = await ref.read(addCategoryControllerProvider.notifier).saveCategory(_nameController.text);
     if (success && mounted) {
+      ref.read(notificationControllerProvider.notifier).showSuccess('Category saved');
       Navigator.pop(context);
     } else if (mounted) {
       final error = ref.read(addCategoryControllerProvider).error;

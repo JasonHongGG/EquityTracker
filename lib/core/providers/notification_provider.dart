@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:equity_tracker/core/router/global_navigator.dart';
+import 'package:equity_tracker/core/widgets/premium_toast_widget.dart';
 
 enum NotificationType { success, error, info, warning }
 
@@ -18,10 +20,54 @@ class NotificationModel {
   });
 }
 
-class NotificationController extends Notifier<List<NotificationModel>> {
+class NotificationController extends Notifier<void> {
+  OverlayEntry? _overlayEntry;
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  final List<NotificationModel> _notifications = [];
+
   @override
-  List<NotificationModel> build() {
-    return [];
+  void build() {
+    // No state exposed
+  }
+
+  void _ensureOverlayInitialized() {
+    if (_overlayEntry != null) return;
+    
+    final context = globalNavigatorKey.currentContext;
+    if (context == null) return;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return Positioned(
+          top: MediaQuery.of(context).padding.top + 16,
+          left: 16,
+          right: 16,
+          child: Material(
+            color: Colors.transparent,
+            elevation: 0,
+            child: AnimatedList(
+              key: _listKey,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              initialItemCount: _notifications.length,
+              itemBuilder: (context, index, animation) {
+                return _buildItem(_notifications[index], animation);
+              },
+            ),
+          ),
+        );
+      },
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  Widget _buildItem(NotificationModel notification, Animation<double> animation) {
+    return PremiumToastWidget(
+      notification: notification,
+      animation: animation,
+      onDismiss: () => remove(notification.id),
+    );
   }
 
   void show(
@@ -30,6 +76,8 @@ class NotificationController extends Notifier<List<NotificationModel>> {
     String? title,
     Duration duration = const Duration(seconds: 4),
   }) {
+    _ensureOverlayInitialized();
+
     final id = DateTime.now().millisecondsSinceEpoch.toString();
     final notification = NotificationModel(
       id: id,
@@ -38,8 +86,9 @@ class NotificationController extends Notifier<List<NotificationModel>> {
       title: title,
     );
 
-    // Add to the beginning of the list
-    state = [notification, ...state];
+    // Insert at the top (index 0)
+    _notifications.insert(0, notification);
+    _listKey.currentState?.insertItem(0, duration: const Duration(milliseconds: 400));
 
     // Auto dismiss
     Timer(duration, () {
@@ -53,10 +102,21 @@ class NotificationController extends Notifier<List<NotificationModel>> {
   void showWarning(String message, {String? title}) => show(message, type: NotificationType.warning, title: title);
 
   void remove(String id) {
-    state = state.where((n) => n.id != id).toList();
+    final index = _notifications.indexWhere((n) => n.id == id);
+    if (index != -1) {
+      final removedItem = _notifications.removeAt(index);
+      _listKey.currentState?.removeItem(
+        index,
+        (context, animation) => _buildItem(removedItem, animation),
+        duration: const Duration(milliseconds: 300),
+      );
+    }
+    
+    // Optional: if list is empty, we could remove the overlay to free resources
+    // But keeping it around is fine too since it's transparent and shrink-wrapped to 0 height.
   }
 }
 
-final notificationControllerProvider = NotifierProvider<NotificationController, List<NotificationModel>>(() {
+final notificationControllerProvider = NotifierProvider<NotificationController, void>(() {
   return NotificationController();
 });

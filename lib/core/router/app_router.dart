@@ -8,7 +8,7 @@ import 'package:equity_tracker/features/transaction/screens/recurring_transactio
 import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction/add_edit_recurring_transaction_screen.dart';
 import 'package:equity_tracker/features/category/screens/category_management_screen.dart';
 import 'package:equity_tracker/features/category/screens/add_category_screen.dart';
-
+import 'package:equity_tracker/core/router/global_navigator.dart';
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
@@ -18,6 +18,7 @@ import 'package:equity_tracker/features/transaction/data/recurring_transaction_m
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
+    navigatorKey: globalNavigatorKey,
     initialLocation: '/',
     routes: [
       GoRoute(

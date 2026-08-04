@@ -115,6 +115,7 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
     );
 
     if (success && mounted) {
+      ref.read(notificationControllerProvider.notifier).showSuccess('Transaction saved');
       Navigator.pop(context);
     } else if (mounted) {
       final error = ref.read(addEditTransactionControllerProvider).error;
@@ -127,6 +128,7 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
   void _deleteTransaction() async {
     await ref.read(addEditTransactionControllerProvider.notifier).deleteTransaction();
     if (mounted) {
+      ref.read(notificationControllerProvider.notifier).showSuccess('Transaction deleted');
       Navigator.pop(context);
     }
   }
