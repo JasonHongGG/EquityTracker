@@ -5,20 +5,27 @@ class PremiumConfigHeader extends StatelessWidget {
   final String title;
   final String subtitle;
   final Widget? trailing;
+  final bool isBehindAppBar;
 
   const PremiumConfigHeader({
     super.key,
     required this.title,
     required this.subtitle,
     this.trailing,
+    this.isBehindAppBar = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    // Calculate dynamic top padding if it sits behind an immersive AppBar
+    final double extraTopPadding = isBehindAppBar 
+        ? MediaQuery.of(context).padding.top + kToolbarHeight 
+        : 0;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+      padding: EdgeInsets.fromLTRB(24, 12 + extraTopPadding, 24, 32),
       child: Stack(
         clipBehavior: Clip.none,
         children: [

@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:equity_tracker/core/widgets/premium_config_header.dart';
 
 import 'package:equity_tracker/features/settings/screens/settings_screen/preferences_section.dart';
 import 'package:equity_tracker/features/data_management/widgets/data_management_section.dart';
@@ -19,19 +21,32 @@ class SettingsScreen extends ConsumerWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: isDark ? const Color(0xFF0F111A) : const Color(0xFFF5F7FA),
       appBar: AppBar(
-        title: const Text(
-          'Settings',
-          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.bold),
-        ),
+        backgroundColor: isDark ? Colors.black.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.5),
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         elevation: 0,
-        backgroundColor: Colors.transparent,
-        centerTitle: true,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 20),
         children: [
+          const PremiumConfigHeader(
+            title: 'Settings',
+            subtitle: 'PREFERENCES & SYSTEM CONFIG',
+            isBehindAppBar: true,
+          ),
           const PreferencesSection(),
           SettingsSection(
             title: 'AI ASSISTANT',

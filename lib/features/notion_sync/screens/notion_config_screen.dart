@@ -69,10 +69,19 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
     final isDark = theme.brightness == Brightness.dark;
     
     return Scaffold(
+      extendBodyBehindAppBar: true,
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDark ? Colors.black.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.5),
+        surfaceTintColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         elevation: 0,
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Container(color: Colors.transparent),
+          ),
+        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black),
           onPressed: () => Navigator.pop(context),
@@ -85,6 +94,7 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
             PremiumConfigHeader(
               title: 'Notion\nIntegration',
               subtitle: 'AI Cross-Referencing Engine'.toUpperCase(),
+              isBehindAppBar: true,
               trailing: AppSwitch(
                 value: state.isEnabled,
                 onChanged: (val) {
