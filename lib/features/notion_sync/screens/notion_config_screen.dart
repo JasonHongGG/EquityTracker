@@ -2,9 +2,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:equity_tracker/core/widgets/toast_notification.dart';
+import 'package:flutter/services.dart';
 import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
+import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/core/widgets/app_switch.dart';
+import 'package:equity_tracker/core/widgets/premium_config_card.dart';
+import 'package:equity_tracker/core/widgets/premium_config_header.dart';
+import 'package:equity_tracker/core/widgets/toast_notification.dart';
 
 class NotionConfigScreen extends ConsumerStatefulWidget {
   const NotionConfigScreen({super.key});
@@ -61,220 +65,144 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
       }
     });
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF111116) : const Color(0xFFF7F7FA),
-      extendBodyBehindAppBar: true,
+      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: isDark ? Colors.white : Colors.black),
+          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Stack(
-        children: [
-          // Background Glow Effect
-          if (state.isEnabled)
-            AnimatedBuilder(
-              animation: _glowController,
-              builder: (context, child) {
-                return Positioned(
-                  top: -100,
-                  right: -50,
-                  child: Container(
-                    width: 300,
-                    height: 300,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: isDark 
-                          ? Colors.white.withValues(alpha: 0.05 + (_glowController.value * 0.02))
-                          : Colors.black.withValues(alpha: 0.02 + (_glowController.value * 0.01)),
-                    ),
-                  ),
-                );
-              },
-            ),
-          
-          if (state.isEnabled)
-            Positioned(
-              top: -100,
-              right: -50,
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-                child: Container(
-                  width: 300,
-                  height: 300,
-                  color: Colors.transparent,
-                ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            PremiumConfigHeader(
+              title: 'Notion\nIntegration',
+              subtitle: 'AI Cross-Referencing Engine'.toUpperCase(),
+              trailing: AppSwitch(
+                value: state.isEnabled,
+                onChanged: (val) {
+                  ref.read(notionConfigControllerProvider.notifier).toggleEnabled(val);
+                  HapticFeedback.lightImpact();
+                },
+                activeColor: theme.primaryColor,
               ),
             ),
-
-          // Main Content
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Title Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 16),
+                  if (state.isEnabled) ...[
+                    PremiumConfigCard(
+                      child: Column(
                         children: [
-                          Text(
-                            'Notion \nIntegration',
-                            style: TextStyle(
-                              fontFamily: 'Outfit',
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              height: 1.1,
-                              color: isDark ? Colors.white : Colors.black87,
-                            ),
+                          _buildGlassTextField(
+                            controller: _tokenController,
+                            hint: 'Integration Token',
+                            icon: Icons.key_rounded,
+                            isDark: isDark,
+                            obscureText: true,
                           ),
-                          const SizedBox(height: 8),
+                          Divider(height: 1, thickness: 1, color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05), indent: 56),
+                          _buildGlassTextField(
+                            controller: _dbIdController,
+                            hint: 'Database ID',
+                            icon: Icons.table_chart_rounded,
+                            isDark: isDark,
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4, top: 12),
+                      child: Row(
+                        children: [
+                          Icon(Icons.info_outline_rounded, size: 14, color: isDark ? Colors.white38 : Colors.black38),
+                          const SizedBox(width: 6),
                           Text(
-                            'AI Cross-Referencing Engine',
+                            'Required Columns: "名稱", "金額", "類別", "時間"',
                             style: TextStyle(
                               fontFamily: 'Outfit',
-                              fontSize: 14,
+                              fontSize: 12,
                               color: isDark ? Colors.white38 : Colors.black38,
-                              letterSpacing: 1.2,
                             ),
                           ),
                         ],
                       ),
-                      AppSwitch(
-                        value: state.isEnabled,
-                        activeColor: Colors.blue,
-                        onChanged: controller.toggleEnabled,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Token Input
-                  _buildSectionHeader('API TOKEN', isDark),
-                  const SizedBox(height: 12),
-                  _buildGlassTextField(
-                    controller: _tokenController,
-                    hint: 'secret_XXXXXXXX',
-                    icon: Icons.key_rounded,
-                    isDark: isDark,
-                    enabled: state.isEnabled,
-                    obscure: true,
-                  ),
-                  const SizedBox(height: 24),
-
-                  // DB ID Input
-                  _buildSectionHeader('DATABASE ID', isDark),
-                  const SizedBox(height: 12),
-                  _buildGlassTextField(
-                    controller: _dbIdController,
-                    hint: '32 character ID',
-                    icon: Icons.dataset_rounded,
-                    isDark: isDark,
-                    enabled: state.isEnabled,
-                    obscure: false,
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4, top: 8),
-                    child: Row(
-                      children: [
-                        Icon(Icons.info_outline_rounded, size: 14, color: isDark ? Colors.white38 : Colors.black38),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Required Columns: "名稱", "金額", "類別", "時間"',
-                          style: TextStyle(
-                            fontFamily: 'Outfit',
-                            fontSize: 12,
-                            color: isDark ? Colors.white38 : Colors.black38,
-                          ),
-                        ),
-                      ],
                     ),
-                  ),
 
-                  const SizedBox(height: 40),
+                    const SizedBox(height: 40),
 
-                  // Save & Verify Button
-                  if (state.isEnabled)
+                    // Save & Verify Button
                     SizedBox(
                       width: double.infinity,
                       height: 56,
-                      child: ElevatedButton(
-                        onPressed: state.isVerifying
-                            ? null
-                            : () {
-                                controller.saveAndVerify(_tokenController.text, _dbIdController.text);
-                              },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: state.connectionSuccess 
-                              ? (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05))
-                              : (isDark ? Colors.white : Colors.black),
-                          foregroundColor: state.connectionSuccess
-                              ? (isDark ? Colors.white54 : Colors.black54)
-                              : (isDark ? Colors.black : Colors.white),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        child: ElevatedButton(
+                          onPressed: state.isVerifying || state.isLoading
+                              ? null
+                              : () {
+                                  controller.saveAndVerify(_tokenController.text, _dbIdController.text);
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: state.connectionSuccess 
+                                ? (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05))
+                                : (isDark ? Colors.white : Colors.black),
+                            foregroundColor: state.connectionSuccess
+                                ? (isDark ? Colors.white54 : Colors.black54)
+                                : (isDark ? Colors.black : Colors.white),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
                           ),
-                        ),
-                        child: state.isVerifying
-                            ? SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: isDark ? Colors.black : Colors.white,
-                                ),
-                              )
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (state.connectionSuccess) ...[
-                                    const Icon(Icons.check_circle_outline_rounded, size: 20),
-                                    const SizedBox(width: 8),
-                                  ],
-                                  Text(
-                                    state.connectionSuccess ? 'Verified & Linked' : 'Verify & Save',
-                                    style: const TextStyle(
-                                      fontFamily: 'Outfit',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.1,
-                                    ),
+                          child: state.isVerifying
+                              ? SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: isDark ? Colors.black : Colors.white,
                                   ),
-                                ],
-                              ),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (state.connectionSuccess) ...[
+                                      const Icon(Icons.check_circle_outline_rounded, size: 20),
+                                      const SizedBox(width: 8),
+                                    ],
+                                    Text(
+                                      state.connectionSuccess ? 'Verified & Linked' : 'Verify & Save',
+                                      style: const TextStyle(
+                                        fontFamily: 'Outfit',
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1.1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
                       ),
                     ),
-
+                  ],
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title, bool isDark) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontFamily: 'Outfit',
-        fontSize: 12,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 1.5,
-        color: isDark ? Colors.white38 : Colors.black38,
+          ],
+        ),
       ),
     );
   }
@@ -284,49 +212,32 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
     required String hint,
     required IconData icon,
     required bool isDark,
-    required bool enabled,
-    required bool obscure,
+    bool obscureText = false,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
-        ),
-        boxShadow: isDark
-            ? []
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      style: TextStyle(
+        fontFamily: 'Outfit',
+        color: isDark ? Colors.white : Colors.black,
+        fontSize: 16,
       ),
-      child: TextField(
-        controller: controller,
-        enabled: enabled,
-        obscureText: obscure,
-        style: TextStyle(
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: TextStyle(
+          color: isDark ? Colors.white30 : Colors.black38,
           fontFamily: 'Outfit',
-          color: enabled
-              ? (isDark ? Colors.white : Colors.black)
-              : (isDark ? Colors.white24 : Colors.black26),
         ),
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(
-            color: isDark ? Colors.white24 : Colors.black26,
-            fontFamily: 'Outfit',
-          ),
-          prefixIcon: Icon(icon, color: isDark ? Colors.white54 : Colors.black54, size: 20),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        prefixIcon: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Icon(icon, color: isDark ? Colors.white54 : Colors.black54, size: 22),
         ),
+        prefixIconConstraints: const BoxConstraints(minWidth: 50, minHeight: 50),
+        border: InputBorder.none,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        filled: true,
+        fillColor: Colors.transparent,
       ),
     );
   }
-
-
 }

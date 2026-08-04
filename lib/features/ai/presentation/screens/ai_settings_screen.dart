@@ -5,6 +5,8 @@ import 'package:equity_tracker/features/ai/domain/models/ai_provider_config.dart
 import 'package:equity_tracker/features/ai/presentation/controllers/ai_config_controller.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/core/widgets/app_switch.dart';
+import 'package:equity_tracker/core/widgets/premium_config_card.dart';
+import 'package:equity_tracker/core/widgets/premium_config_header.dart';
 
 class AiSettingsScreen extends ConsumerStatefulWidget {
   const AiSettingsScreen({super.key});
@@ -119,20 +121,7 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
     return Icons.cloud_done_rounded;
   }
 
-  BoxDecoration _cardDecoration(bool isDark) {
-    return BoxDecoration(
-      color: isDark ? AppColors.surfaceDark : Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: [
-        if (!isDark)
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-      ],
-    );
-  }
+
 
   Widget _buildSectionHeader(String title, bool isDark) {
     return Padding(
@@ -369,8 +358,7 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildSectionHeader('Global Integrations', isDark),
-        Container(
-          decoration: _cardDecoration(isDark),
+        PremiumConfigCard(
           child: Column(
             children: [
               Padding(
@@ -422,25 +410,31 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
     return Scaffold(
       backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text(
-          'AI Configuration',
-          style: TextStyle(fontFamily: 'Outfit', fontWeight: FontWeight.bold),
-        ),
-        elevation: 0,
         backgroundColor: Colors.transparent,
-        centerTitle: true,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildGlobalSettingsGroup(state, isDark),
-            const SizedBox(height: 16),
-            
-            _buildSectionHeader('AI Engine', isDark),
-            Container(
-              decoration: _cardDecoration(isDark),
+            PremiumConfigHeader(
+              title: 'AI Engine\nConfiguration',
+              subtitle: 'SMART CATEGORIZATION & INSIGHTS',
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildGlobalSettingsGroup(state, isDark),
+                  const SizedBox(height: 24),
+                  
+                  _buildSectionHeader('AI Engine', isDark),
+                  PremiumConfigCard(
               child: Column(
                 children: [
                   Padding(
@@ -471,8 +465,10 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
                 ],
               ),
             ),
-            
             const SizedBox(height: 60),
+                ],
+              ),
+            ),
           ],
         ),
       ),
