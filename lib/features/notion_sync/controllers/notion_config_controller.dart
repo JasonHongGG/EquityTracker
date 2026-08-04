@@ -6,6 +6,7 @@ import 'package:equity_tracker/features/transaction/data/transaction_model.dart'
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 import 'package:equity_tracker/core/enums/sync_status.dart';
+import 'package:equity_tracker/features/notion_sync/services/notion_sync_service.dart';
 
 class NotionConfigState {
   final String token;
@@ -67,8 +68,8 @@ class NotionConfigController extends Notifier<NotionConfigState> {
     state = state.copyWith(token: token, dbId: dbId, isEnabled: isEnabled, connectionSuccess: connectionSuccess);
 
     if (connectionSuccess) {
-      // Auto-sync on startup
-      syncFromNotion(silent: true);
+      // Auto-sync on startup via service
+      Future.microtask(() => ref.read(notionSyncServiceProvider).syncFromNotion(silent: true));
     }
   }
 
@@ -88,206 +89,7 @@ class NotionConfigController extends Notifier<NotionConfigState> {
     state = state.copyWith(message: null, isError: false, connectionSuccess: false);
   }
 
-  Future<void> syncFromNotion({bool silent = false}) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!silent) {
-      state = state.copyWith(isLoading: true, message: 'Syncing from Notion...', isError: false);
-    } else {
-      state = state.copyWith(isLoading: true, isError: false);
-    }
 
-    // First push local changes
-    await pushPendingChanges(silent: true);
-
-    try {
-      final lastSyncStr = prefs.getString('notion_last_sync_time');
-      final DateTime? lastSync = lastSyncStr != null ? DateTime.parse(lastSyncStr) : null;
-
-      final categories = List<CategoryModel>.from(await ref.read(categoryRepositoryProvider).getCategories());
-      final transactions = await ref.read(notionApiClientProvider).fetchTransactions(
-        state.token.trim(),
-        state.dbId.trim(),
-        categories,
-        since: lastSync,
-      );
-
-      if (transactions.isEmpty) {
-        if (!silent) state = state.copyWith(isLoading: false, message: 'No new transactions found.', isError: false);
-        else state = state.copyWith(isLoading: false);
-        return;
-      }
-
-      final repo = ref.read(transactionRepositoryProvider);
-      final List<int> insertedIds = [];
-
-      for (final tx in transactions) {
-        if (tx.notionId == null || tx.notionId!.isEmpty) continue;
-
-        final existing = await repo.getTransactionByNotionId(tx.notionId!);
-        if (existing != null) {
-          // Update local record to match Notion (Notion is source of truth here)
-          final updated = existing.copyWith(
-            title: tx.title,
-            amount: tx.amount,
-            date: tx.date,
-            categoryId: tx.categoryId,
-            type: tx.type,
-            syncStatus: SyncStatus.synced,
-          );
-          await repo.updateTransaction(updated);
-        } else {
-          // Insert new record from Notion
-          final id = await repo.insertTransaction(tx);
-          insertedIds.add(id);
-        }
-      }
-
-      // ignore: unused_result
-      ref.refresh(transactionNotifierProvider);
-
-      await prefs.setStringList(
-        'notion_last_pull_ids',
-        insertedIds.map((e) => e.toString()).toList(),
-      );
-      if (lastSyncStr != null) {
-        await prefs.setString('notion_prev_sync_time', lastSyncStr);
-      } else {
-        await prefs.remove('notion_prev_sync_time');
-      }
-
-      await prefs.setString(
-        'notion_last_sync_time',
-        DateTime.now().toIso8601String(),
-      );
-
-      if (!silent) {
-        state = state.copyWith(isLoading: false, message: 'Synced \${insertedIds.length} items from Notion.', isError: false);
-      } else {
-        state = state.copyWith(isLoading: false);
-      }
-    } catch (e) {
-      if (!silent) state = state.copyWith(isLoading: false, message: 'Sync Error: \$e', isError: true);
-      else state = state.copyWith(isLoading: false);
-    }
-  }
-
-  Future<void> undoNotionSync() async {
-    final prefs = await SharedPreferences.getInstance();
-    final idsStr = prefs.getStringList('notion_last_pull_ids');
-    if (idsStr == null || idsStr.isEmpty) return;
-
-    try {
-      final ids = idsStr.map((e) => int.parse(e)).toList();
-
-      for (final id in ids) {
-        await ref.read(transactionRepositoryProvider).deleteTransaction(id);
-      }
-
-      final prevTime = prefs.getString('notion_prev_sync_time');
-      if (prevTime != null) {
-        await prefs.setString('notion_last_sync_time', prevTime);
-      } else {
-        await prefs.remove('notion_last_sync_time');
-      }
-
-      await prefs.remove('notion_last_pull_ids');
-      await prefs.remove('notion_prev_sync_time');
-
-      // ignore: unused_result
-      ref.refresh(transactionNotifierProvider);
-
-      state = state.copyWith(message: 'Last Notion Sync Reverted.', isError: false);
-    } catch (e) {
-      state = state.copyWith(message: 'Undo Failed: \$e', isError: true);
-    }
-  }
-
-  Future<void> pushPendingChanges({bool silent = false}) async {
-    if (!state.isEnabled || state.token.isEmpty || state.dbId.isEmpty) return;
-
-    final pending = await ref.read(transactionRepositoryProvider).getPendingTransactions();
-    if (pending.isEmpty) return;
-
-    if (!silent) {
-      state = state.copyWith(isLoading: true, message: 'Pushing changes...', isError: false);
-    } else {
-      state = state.copyWith(isLoading: true, isError: false);
-    }
-
-    try {
-      final categories = await ref.read(categoryRepositoryProvider).getCategories();
-      final apiClient = ref.read(notionApiClientProvider);
-      final repo = ref.read(transactionRepositoryProvider);
-
-      for (var tx in pending) {
-        final category = categories.firstWhere(
-          (c) => c.id == tx.categoryId,
-          orElse: () => categories.first,
-        );
-
-        if (tx.syncStatus == SyncStatus.pendingCreate) {
-          final newId = await apiClient.createTransaction(
-            state.token,
-            state.dbId,
-            tx,
-            category.name,
-          );
-          if (newId != null) {
-            final updatedTx = tx.copyWith(notionId: newId, syncStatus: SyncStatus.synced);
-            await repo.updateTransaction(updatedTx);
-          }
-        } else if (tx.syncStatus == SyncStatus.pendingUpdate) {
-          if (tx.notionId == null || tx.notionId!.isEmpty) {
-            // Treat as create if notionId is missing
-            final newId = await apiClient.createTransaction(
-              state.token,
-              state.dbId,
-              tx,
-              category.name,
-            );
-            if (newId != null) {
-              final updatedTx = tx.copyWith(notionId: newId, syncStatus: SyncStatus.synced);
-              await repo.updateTransaction(updatedTx);
-            }
-          } else {
-            final success = await apiClient.updateTransaction(
-              state.token,
-              tx.notionId!,
-              tx,
-              category.name,
-            );
-            if (success) {
-              final updatedTx = tx.copyWith(syncStatus: SyncStatus.synced);
-              await repo.updateTransaction(updatedTx);
-            }
-          }
-        } else if (tx.syncStatus == SyncStatus.pendingDelete) {
-          if (tx.notionId != null && tx.notionId!.isNotEmpty) {
-            final success = await apiClient.deleteTransaction(state.token, tx.notionId!);
-            if (success && tx.id != null) {
-              await repo.deleteTransaction(tx.id!);
-            }
-          } else if (tx.id != null) {
-            // Delete locally directly since it's not in Notion
-            await repo.deleteTransaction(tx.id!);
-          }
-        }
-      }
-      
-      // ignore: unused_result
-      ref.refresh(transactionNotifierProvider);
-
-      if (!silent) {
-        state = state.copyWith(isLoading: false, message: 'Push successful.', isError: false);
-      } else {
-        state = state.copyWith(isLoading: false);
-      }
-    } catch (e) {
-      if (!silent) {
-        state = state.copyWith(isLoading: false, message: 'Push Error: \$e', isError: true);
-      }
-    }
-  }
 
   Future<void> saveAndVerify(String token, String dbId) async {
     state = state.copyWith(isVerifying: true, token: token, dbId: dbId);
@@ -311,7 +113,7 @@ class NotionConfigController extends Notifier<NotionConfigState> {
         state = state.copyWith(isVerifying: false, message: 'Connected Successfully.', isError: false, connectionSuccess: true);
         
         // After verifying successfully, automatically push any pending changes silently
-        pushPendingChanges(silent: true);
+        Future.microtask(() => ref.read(notionSyncServiceProvider).pushPendingChanges(silent: true));
       } else {
         state = state.copyWith(isVerifying: false, message: 'Connection Failed.', isError: true, connectionSuccess: false);
       }
