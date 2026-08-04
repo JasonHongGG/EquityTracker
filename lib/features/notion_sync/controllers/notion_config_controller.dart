@@ -63,7 +63,13 @@ class NotionConfigController extends Notifier<NotionConfigState> {
     final token = prefs.getString('notion_token') ?? '';
     final dbId = prefs.getString('notion_database_id') ?? '';
     final isEnabled = prefs.getBool('notion_enabled') ?? false;
-    state = state.copyWith(token: token, dbId: dbId, isEnabled: isEnabled);
+    final connectionSuccess = isEnabled && token.isNotEmpty && dbId.isNotEmpty;
+    state = state.copyWith(token: token, dbId: dbId, isEnabled: isEnabled, connectionSuccess: connectionSuccess);
+
+    if (connectionSuccess) {
+      // Auto-sync on startup
+      syncFromNotion(silent: true);
+    }
   }
 
   void updateToken(String token) {
@@ -82,9 +88,13 @@ class NotionConfigController extends Notifier<NotionConfigState> {
     state = state.copyWith(message: null, isError: false, connectionSuccess: false);
   }
 
-  Future<void> syncFromNotion() async {
+  Future<void> syncFromNotion({bool silent = false}) async {
     final prefs = await SharedPreferences.getInstance();
-    state = state.copyWith(isLoading: true, message: 'Syncing from Notion... ⏳', isError: false);
+    if (!silent) {
+      state = state.copyWith(isLoading: true, message: 'Syncing from Notion...', isError: false);
+    } else {
+      state = state.copyWith(isLoading: true, isError: false);
+    }
 
     // First push local changes
     await pushPendingChanges(silent: true);
@@ -102,36 +112,34 @@ class NotionConfigController extends Notifier<NotionConfigState> {
       );
 
       if (transactions.isEmpty) {
-        state = state.copyWith(isLoading: false, message: 'No new transactions found.', isError: false);
+        if (!silent) state = state.copyWith(isLoading: false, message: 'No new transactions found.', isError: false);
+        else state = state.copyWith(isLoading: false);
         return;
       }
 
-      final currentTx = ref.read(transactionNotifierProvider).value ?? [];
-      final List<TransactionModel> toInsert = [];
+      final repo = ref.read(transactionRepositoryProvider);
+      final List<int> insertedIds = [];
 
       for (final tx in transactions) {
-        final exists = currentTx.any(
-          (existing) =>
-              existing.amount == tx.amount &&
-              existing.title == tx.title &&
-              DateUtils.isSameDay(existing.date, tx.date) &&
-              existing.type == tx.type,
-        );
+        if (tx.notionId == null || tx.notionId!.isEmpty) continue;
 
-        if (!exists) {
-          toInsert.add(tx);
+        final existing = await repo.getTransactionByNotionId(tx.notionId!);
+        if (existing != null) {
+          // Update local record to match Notion (Notion is source of truth here)
+          final updated = existing.copyWith(
+            title: tx.title,
+            amount: tx.amount,
+            date: tx.date,
+            categoryId: tx.categoryId,
+            type: tx.type,
+            syncStatus: SyncStatus.synced,
+          );
+          await repo.updateTransaction(updated);
+        } else {
+          // Insert new record from Notion
+          final id = await repo.insertTransaction(tx);
+          insertedIds.add(id);
         }
-      }
-
-      if (toInsert.isEmpty) {
-        state = state.copyWith(isLoading: false, message: 'All items were duplicates. Skipped.', isError: false);
-        return;
-      }
-
-      final List<int> insertedIds = [];
-      for (final tx in toInsert) {
-        final id = await ref.read(transactionRepositoryProvider).insertTransaction(tx);
-        insertedIds.add(id);
       }
 
       // ignore: unused_result
@@ -152,9 +160,14 @@ class NotionConfigController extends Notifier<NotionConfigState> {
         DateTime.now().toIso8601String(),
       );
 
-      state = state.copyWith(isLoading: false, message: 'Synced \${insertedIds.length} items from Notion! 🎉', isError: false);
+      if (!silent) {
+        state = state.copyWith(isLoading: false, message: 'Synced \${insertedIds.length} items from Notion.', isError: false);
+      } else {
+        state = state.copyWith(isLoading: false);
+      }
     } catch (e) {
-      state = state.copyWith(isLoading: false, message: 'Sync Error: \$e', isError: true);
+      if (!silent) state = state.copyWith(isLoading: false, message: 'Sync Error: \$e', isError: true);
+      else state = state.copyWith(isLoading: false);
     }
   }
 
@@ -183,7 +196,7 @@ class NotionConfigController extends Notifier<NotionConfigState> {
       // ignore: unused_result
       ref.refresh(transactionNotifierProvider);
 
-      state = state.copyWith(message: 'Last Notion Sync Reverted ↩️', isError: false);
+      state = state.copyWith(message: 'Last Notion Sync Reverted.', isError: false);
     } catch (e) {
       state = state.copyWith(message: 'Undo Failed: \$e', isError: true);
     }
@@ -196,7 +209,9 @@ class NotionConfigController extends Notifier<NotionConfigState> {
     if (pending.isEmpty) return;
 
     if (!silent) {
-      state = state.copyWith(isLoading: true, message: 'Pushing changes... ⏳', isError: false);
+      state = state.copyWith(isLoading: true, message: 'Pushing changes...', isError: false);
+    } else {
+      state = state.copyWith(isLoading: true, isError: false);
     }
 
     try {
@@ -263,7 +278,9 @@ class NotionConfigController extends Notifier<NotionConfigState> {
       ref.refresh(transactionNotifierProvider);
 
       if (!silent) {
-        state = state.copyWith(isLoading: false, message: 'Push successful! ✅', isError: false);
+        state = state.copyWith(isLoading: false, message: 'Push successful.', isError: false);
+      } else {
+        state = state.copyWith(isLoading: false);
       }
     } catch (e) {
       if (!silent) {
@@ -282,12 +299,24 @@ class NotionConfigController extends Notifier<NotionConfigState> {
     if (state.isEnabled) {
       final success = await ref.read(notionApiClientProvider).testConnection(token.trim(), dbId.trim());
       if (success) {
-        state = state.copyWith(isVerifying: false, message: 'Connected Successfully! ✅', isError: false, connectionSuccess: true);
+        // Initial bulk mark: find all local transactions without notionId and mark them to push
+        final repo = ref.read(transactionRepositoryProvider);
+        final unsynced = await repo.getTransactionsWithoutNotionId();
+        for (var tx in unsynced) {
+          if (tx.syncStatus == SyncStatus.synced) {
+            await repo.updateTransaction(tx.copyWith(syncStatus: SyncStatus.pendingCreate));
+          }
+        }
+        
+        state = state.copyWith(isVerifying: false, message: 'Connected Successfully.', isError: false, connectionSuccess: true);
+        
+        // After verifying successfully, automatically push any pending changes silently
+        pushPendingChanges(silent: true);
       } else {
-        state = state.copyWith(isVerifying: false, message: 'Connection Failed ❌\\nCheck Token/ID', isError: true, connectionSuccess: false);
+        state = state.copyWith(isVerifying: false, message: 'Connection Failed.', isError: true, connectionSuccess: false);
       }
     } else {
-      state = state.copyWith(isVerifying: false, message: 'Notion Sync Disabled', isError: false, connectionSuccess: true);
+      state = state.copyWith(isVerifying: false, message: 'Notion Sync Disabled.', isError: false, connectionSuccess: true);
     }
   }
 }

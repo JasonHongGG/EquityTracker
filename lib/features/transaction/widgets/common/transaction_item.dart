@@ -9,6 +9,8 @@ import 'package:equity_tracker/features/category/providers/category_notifier.dar
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
 import 'package:equity_tracker/core/utils/currency_formatter.dart';
+import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
+import 'package:equity_tracker/core/enums/sync_status.dart';
 
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
@@ -31,6 +33,8 @@ class TransactionItem extends ConsumerWidget {
     final categoriesAsync = ref.watch(categoryListProvider);
     final settingsAsync = ref.watch(settingsNotifierProvider);
     final currencySymbol = settingsAsync.value?.currencySymbol ?? '\$';
+    final notionState = ref.watch(notionConfigControllerProvider);
+    final syncEnabled = notionState.isEnabled && notionState.connectionSuccess;
 
     final category = categoriesAsync.asData?.value.firstWhere(
       (c) => c.id == transaction.categoryId,
@@ -111,19 +115,50 @@ class TransactionItem extends ConsumerWidget {
               ),
             ),
 
-            // Amount
-            Text(
-              '${transaction.type == TransactionType.income ? '+' : '-'}${CurrencyFormatter.format(transaction.amount, currencySymbol)}',
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                fontFamily: 'Outfit',
-              ),
+            // Amount & Sync Status
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (syncEnabled) ...[
+                  _buildSyncIcon(transaction.syncStatus),
+                  const SizedBox(width: 8),
+                ],
+                Text(
+                  '${transaction.type == TransactionType.income ? '+' : '-'}${CurrencyFormatter.format(transaction.amount, currencySymbol)}',
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    fontFamily: 'Outfit',
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSyncIcon(SyncStatus status) {
+    IconData icon;
+    Color color;
+    switch (status) {
+      case SyncStatus.synced:
+        icon = Icons.cloud_done_outlined;
+        color = Colors.green.withValues(alpha: 0.4);
+        break;
+      case SyncStatus.pendingCreate:
+      case SyncStatus.pendingUpdate:
+      case SyncStatus.pendingDelete:
+        icon = Icons.cloud_upload_outlined;
+        color = Colors.orange.withValues(alpha: 0.6);
+        break;
+    }
+    return Tooltip(
+      message: status == SyncStatus.synced ? 'Synced to Notion' : 'Sync pending...',
+      child: Icon(icon, size: 14, color: color),
     );
   }
 }

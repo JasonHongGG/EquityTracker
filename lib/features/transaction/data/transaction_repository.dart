@@ -45,6 +45,26 @@ class TransactionRepository {
     return List.generate(maps.length, (i) => TransactionModel.fromMap(maps[i]));
   }
 
+  Future<TransactionModel?> getTransactionByNotionId(String notionId) async {
+    final db = await _dbHelper.database;
+    final maps = await db.query(
+      'transactions',
+      where: 'notionId = ?',
+      whereArgs: [notionId],
+    );
+    if (maps.isEmpty) return null;
+    return TransactionModel.fromMap(maps.first);
+  }
+
+  Future<List<TransactionModel>> getTransactionsWithoutNotionId() async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'transactions',
+      where: 'notionId IS NULL OR notionId = ""',
+    );
+    return List.generate(maps.length, (i) => TransactionModel.fromMap(maps[i]));
+  }
+
   Future<int> updateTransaction(TransactionModel transaction) async {
     final db = await _dbHelper.database;
     return await db.update('transactions', transaction.toMap(), where: 'id = ?', whereArgs: [transaction.id]);

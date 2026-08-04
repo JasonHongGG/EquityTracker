@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
-import 'package:equity_tracker/features/notion_sync/screens/notion_config_dialog.dart';
+import 'package:equity_tracker/features/notion_sync/screens/notion_config_screen.dart';
 
 class ExperimentalSection extends ConsumerWidget {
   const ExperimentalSection({super.key});
 
   void _showNotionConfig(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => const NotionConfigDialog(),
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (ctx) => const NotionConfigScreen()),
     );
   }
 
