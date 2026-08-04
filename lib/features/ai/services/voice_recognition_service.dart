@@ -31,6 +31,7 @@ class VoiceRecognitionService {
         onResult(result.recognizedWords);
       },
       localeId: 'zh_TW', // Default to traditional Chinese
+      pauseFor: const Duration(seconds: 5), // Allow longer pauses before auto-stopping
     );
   }
 
