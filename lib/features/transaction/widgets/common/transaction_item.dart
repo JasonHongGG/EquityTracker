@@ -77,13 +77,24 @@ class TransactionItem extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    transaction.title?.isNotEmpty == true
-                        ? transaction.title!
-                        : (category?.name ?? 'Unknown'),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          transaction.title?.isNotEmpty == true
+                              ? transaction.title!
+                              : (category?.name ?? 'Unknown'),
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (syncEnabled) ...[
+                        const SizedBox(width: 6),
+                        _buildSyncIcon(transaction.syncStatus),
+                      ],
+                    ],
                   ),
                   if (showDate || transaction.title?.isNotEmpty == true)
                     Text(
@@ -115,25 +126,15 @@ class TransactionItem extends ConsumerWidget {
               ),
             ),
 
-            // Amount & Sync Status
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (syncEnabled) ...[
-                  _buildSyncIcon(transaction.syncStatus),
-                  const SizedBox(width: 8),
-                ],
-                Text(
-                  '${transaction.type == TransactionType.income ? '+' : '-'}${CurrencyFormatter.format(transaction.amount, currencySymbol)}',
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    fontFamily: 'Outfit',
-                  ),
-                ),
-              ],
+            // Amount
+            Text(
+              '${transaction.type == TransactionType.income ? '+' : '-'}${CurrencyFormatter.format(transaction.amount, currencySymbol)}',
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                fontFamily: 'Outfit',
+              ),
             ),
           ],
         ),
@@ -147,13 +148,13 @@ class TransactionItem extends ConsumerWidget {
     switch (status) {
       case SyncStatus.synced:
         icon = Icons.cloud_done_outlined;
-        color = Colors.green.withValues(alpha: 0.4);
+        color = Colors.grey.withValues(alpha: 0.6);
         break;
       case SyncStatus.pendingCreate:
       case SyncStatus.pendingUpdate:
       case SyncStatus.pendingDelete:
         icon = Icons.cloud_upload_outlined;
-        color = Colors.orange.withValues(alpha: 0.6);
+        color = Colors.grey.withValues(alpha: 0.8);
         break;
     }
     return Tooltip(

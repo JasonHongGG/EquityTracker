@@ -89,11 +89,9 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
                     height: 300,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: state.isVerifying || state.isLoading
-                          ? Colors.orange.withValues(alpha: 0.15 + (_glowController.value * 0.1))
-                          : state.connectionSuccess 
-                              ? Colors.green.withValues(alpha: 0.1 + (_glowController.value * 0.1))
-                              : Colors.blue.withValues(alpha: 0.1 + (_glowController.value * 0.05)),
+                      color: isDark 
+                          ? Colors.white.withValues(alpha: 0.05 + (_glowController.value * 0.02))
+                          : Colors.black.withValues(alpha: 0.02 + (_glowController.value * 0.01)),
                     ),
                   ),
                 );
@@ -186,28 +184,18 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
                   
                   const SizedBox(height: 16),
                   
-                  // DB requirement tip
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.03),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
-                      ),
-                    ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, top: 8),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline_rounded, size: 16, color: isDark ? Colors.white54 : Colors.black54),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Required Columns: "名稱", "金額", "類別", "時間"',
-                            style: TextStyle(
-                              fontFamily: 'Outfit',
-                              fontSize: 12,
-                              color: isDark ? Colors.white54 : Colors.black54,
-                            ),
+                        Icon(Icons.info_outline_rounded, size: 14, color: isDark ? Colors.white38 : Colors.black38),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Required Columns: "名稱", "金額", "類別", "時間"',
+                          style: TextStyle(
+                            fontFamily: 'Outfit',
+                            fontSize: 12,
+                            color: isDark ? Colors.white38 : Colors.black38,
                           ),
                         ),
                       ],
@@ -228,84 +216,47 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
                                 controller.saveAndVerify(_tokenController.text, _dbIdController.text);
                               },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: state.connectionSuccess ? Colors.green : Colors.blue,
-                          foregroundColor: Colors.white,
+                          backgroundColor: state.connectionSuccess 
+                              ? (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05))
+                              : (isDark ? Colors.white : Colors.black),
+                          foregroundColor: state.connectionSuccess
+                              ? (isDark ? Colors.white54 : Colors.black54)
+                              : (isDark ? Colors.black : Colors.white),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
                         child: state.isVerifying
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 24,
                                 height: 24,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
-                                  color: Colors.white,
+                                  color: isDark ? Colors.black : Colors.white,
                                 ),
                               )
-                            : Text(
-                                state.connectionSuccess ? 'Verified & Linked' : 'Verify & Save',
-                                style: const TextStyle(
-                                  fontFamily: 'Outfit',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 1.1,
-                                ),
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (state.connectionSuccess) ...[
+                                    const Icon(Icons.check_circle_outline_rounded, size: 20),
+                                    const SizedBox(width: 8),
+                                  ],
+                                  Text(
+                                    state.connectionSuccess ? 'Verified & Linked' : 'Verify & Save',
+                                    style: const TextStyle(
+                                      fontFamily: 'Outfit',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 1.1,
+                                    ),
+                                  ),
+                                ],
                               ),
                       ),
                     ),
 
-                  // Data Sync Actions
-                  if (state.isEnabled && state.connectionSuccess) ...[
-                    const SizedBox(height: 48),
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.green.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.cloud_sync_outlined, color: Colors.green, size: 28),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Automated Sync Active",
-                                  style: TextStyle(
-                                    fontFamily: 'Outfit',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "Transactions are seamlessly synced in the background.",
-                                  style: TextStyle(
-                                    fontFamily: 'Outfit',
-                                    fontSize: 13,
-                                    color: isDark ? Colors.white60 : Colors.black54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
