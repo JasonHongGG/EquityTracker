@@ -104,7 +104,6 @@ class StoreResolutionStep implements RecordProcessingStep {
       onProgress?.call('無足夠線索查詢地圖，交由 AI 推斷');
     }
 
-    onProgress?.call('AI 思考中 <ThinkingOrb state="solving" />');
     final lookupResponse = await storeLookupAgent.execute(
       StoreLookupInput(
         originalText: session.originalText,

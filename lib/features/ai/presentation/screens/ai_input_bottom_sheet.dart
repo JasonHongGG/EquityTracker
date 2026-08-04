@@ -74,7 +74,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    ref.listen(aiSessionControllerProvider.select((s) => s.messages.length), (_, __) => _scrollToBottom());
+    ref.listen<AISessionState>(aiSessionControllerProvider, (_, __) => _scrollToBottom());
     
     ref.listen<AiVoiceState>(aiVoiceControllerProvider, (previous, next) {
       if (next.recognizedText != previous?.recognizedText && next.recognizedText.isNotEmpty) {
