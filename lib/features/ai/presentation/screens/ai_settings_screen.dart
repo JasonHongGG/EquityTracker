@@ -217,13 +217,14 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
     return GestureDetector(
       onTap: isEnabled ? () => _showProviderSelectorBottomSheet(state, isDark) : null,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         color: Colors.transparent,
         child: Opacity(
           opacity: isEnabled ? 1.0 : 0.4,
           child: Row(
             children: [
-              Padding(
+              Container(
+                constraints: const BoxConstraints(minWidth: 50),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Icon(
                   _getProviderIcon(type),
@@ -243,11 +244,13 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
                   ),
                 ),
               ),
-              Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: isDark ? Colors.white38 : Colors.black38,
+              Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  color: isDark ? Colors.white38 : Colors.black38,
+                ),
               ),
-              const SizedBox(width: 8),
             ],
           ),
         ),
@@ -309,6 +312,7 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
     final List<Widget> fields = [];
     final isEnabled = state.isAIAgentEnabled;
     
+    fields.add(_buildDivider(isDark));
     fields.add(_buildSettingsTile('Model Name', Icons.smart_toy_rounded, _modelNameController, isDark, isEnabled: isEnabled));
     
     if (state.activeConfig is VertexAIConfig) {
