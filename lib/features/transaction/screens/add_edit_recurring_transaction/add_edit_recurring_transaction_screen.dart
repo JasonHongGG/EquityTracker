@@ -17,7 +17,7 @@ import 'package:go_router/go_router.dart';
 import 'package:equity_tracker/core/widgets/toast_notification.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction/frequency_selector.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction/recurring_transaction_delete_dialog.dart';
+import 'package:equity_tracker/core/widgets/inline_delete_button.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction/recurring_transaction_footer.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction/recurring_transaction_header.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction/trigger_date_time_selector.dart';
@@ -390,12 +390,8 @@ class _AddEditRecurringTransactionModelScreenState
                           },
                         ),
                         if (widget.transaction != null)
-                          IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: AppColors.expense,
-                            ),
-                            onPressed: _deleteTransaction,
+                          InlineDeleteButton(
+                            onDelete: _deleteTransaction,
                           ),
                       ],
                     ),
@@ -625,8 +621,7 @@ class _AddEditRecurringTransactionModelScreenState
   }
 
   void _deleteTransaction() async {
-    final shouldDelete = await RecurringTransactionDeleteDialog.show(context);
-    if (shouldDelete && widget.transaction?.id != null) {
+    if (widget.transaction?.id != null) {
       ref
           .read(recurringTransactionListProvider.notifier)
           .deleteRecurringTransaction(widget.transaction!.id!);

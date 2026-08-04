@@ -13,7 +13,7 @@ import 'package:equity_tracker/features/transaction/screens/add_edit_transaction
 import 'package:equity_tracker/features/transaction/screens/add_edit_transaction/transaction_date_selector.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_transaction/transaction_footer.dart';
-import 'package:equity_tracker/features/transaction/screens/add_edit_transaction/transaction_delete_dialog.dart';
+import 'package:equity_tracker/core/widgets/inline_delete_button.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/transaction/controllers/add_edit_transaction_controller.dart';
 
@@ -125,12 +125,9 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
   }
 
   void _deleteTransaction() async {
-    final shouldDelete = await TransactionDeleteDialog.show(context);
-    if (shouldDelete) {
-      await ref.read(addEditTransactionControllerProvider.notifier).deleteTransaction();
-      if (mounted) {
-        Navigator.pop(context);
-      }
+    await ref.read(addEditTransactionControllerProvider.notifier).deleteTransaction();
+    if (mounted) {
+      Navigator.pop(context);
     }
   }
 
@@ -168,12 +165,8 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
                       onPressed: () => Navigator.pop(context),
                     ),
                     if (widget.transaction != null)
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, color: AppColors.expense),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        visualDensity: VisualDensity.compact,
-                        onPressed: _deleteTransaction,
+                      InlineDeleteButton(
+                        onDelete: _deleteTransaction,
                       )
                     else
                       const SizedBox(width: 48),
