@@ -29,8 +29,8 @@ class NotificationController extends Notifier<void> {
     String? title,
     Duration duration = const Duration(seconds: 4),
   }) {
-    final messenger = scaffoldMessengerKey.currentState;
-    if (messenger == null) return;
+    final overlay = globalNavigatorKey.currentState?.overlay;
+    if (overlay == null) return;
 
     final id = DateTime.now().millisecondsSinceEpoch.toString();
     final notification = NotificationModel(
@@ -40,37 +40,47 @@ class NotificationController extends Notifier<void> {
       title: title,
     );
 
-    // Remove current snackbar to avoid queue delays
-    messenger.hideCurrentSnackBar();
+    OverlayEntry? entry;
+    
+    void removeEntry() {
+      if (entry != null && entry!.mounted) {
+        entry!.remove();
+        entry = null;
+      }
+    }
 
-    messenger.showSnackBar(
-      SnackBar(
-        content: TweenAnimationBuilder<double>(
-          duration: const Duration(milliseconds: 400),
-          curve: Curves.easeOutCubic,
-          tween: Tween(begin: 0.0, end: 1.0),
-          builder: (context, value, child) {
-            // Using internal PremiumToastWidget but providing static animation value
-            // since SnackBar handles its own slide animation, we can just use the widget's appearance
-            return PremiumToastWidget(
-              notification: notification,
-              animation: const AlwaysStoppedAnimation(1.0),
-              onDismiss: () {
-                scaffoldMessengerKey.currentState?.hideCurrentSnackBar();
+    entry = OverlayEntry(
+      builder: (context) {
+        return Positioned(
+          top: MediaQuery.of(context).padding.top + 16,
+          left: 16,
+          right: 16,
+          child: Material(
+            color: Colors.transparent,
+            elevation: 0,
+            child: TweenAnimationBuilder<double>(
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeOutCubic,
+              tween: Tween(begin: 0.0, end: 1.0),
+              builder: (context, value, child) {
+                return PremiumToastWidget(
+                  notification: notification,
+                  animation: AlwaysStoppedAnimation(value),
+                  onDismiss: removeEntry,
+                );
               },
-            );
-          },
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        margin: const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 0),
-        behavior: SnackBarBehavior.floating,
-        padding: EdgeInsets.zero,
-        duration: duration,
-        // Make it appear at top
-        dismissDirection: DismissDirection.up,
-      ),
+            ),
+          ),
+        );
+      },
     );
+
+    overlay.insert(entry!);
+
+    // Auto dismiss
+    Future.delayed(duration, () {
+      removeEntry();
+    });
   }
 
   void showSuccess(String message, {String? title}) => show(message, type: NotificationType.success, title: title);
