@@ -4,6 +4,7 @@ import 'package:equity_tracker/features/settings/providers/settings_notifier.dar
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
 import 'package:equity_tracker/core/widgets/app_switch.dart';
+import 'package:equity_tracker/features/settings/widgets/premium_currency_picker.dart';
 
 class PreferencesSection extends ConsumerWidget {
   const PreferencesSection({super.key});
@@ -74,26 +75,10 @@ class PreferencesSection extends ConsumerWidget {
   }
 
   void _showCurrencyDialog(BuildContext context, WidgetRef ref, String currentSymbol) {
-    final symbols = ['\$', 'NT\$', '€', '£', '¥', '₩'];
-    
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Select Currency', style: TextStyle(fontFamily: 'Outfit')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: symbols.map((sym) {
-            return ListTile(
-              title: Text(sym, style: const TextStyle(fontSize: 18)),
-              trailing: currentSymbol == sym ? const Icon(Icons.check, color: Colors.blue) : null,
-              onTap: () {
-                ref.read(settingsNotifierProvider.notifier).setCurrencySymbol(sym);
-                Navigator.pop(ctx);
-              },
-            );
-          }).toList(),
-        ),
-      ),
+    PremiumCurrencyPicker.show(
+      context, 
+      currentSymbol, 
+      (sym) => ref.read(settingsNotifierProvider.notifier).setCurrencySymbol(sym),
     );
   }
 }
