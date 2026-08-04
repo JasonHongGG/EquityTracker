@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
@@ -169,7 +170,7 @@ class RecurringTransactionItem extends ConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          "Next: \${DateFormat('MM/dd').format(transaction.nextDueDate)}",
+                          "Next: ${DateFormat('MM/dd').format(transaction.nextDueDate)}",
                           style: TextStyle(
                             fontSize: 12,
                             color: isDueSoon
@@ -187,18 +188,23 @@ class RecurringTransactionItem extends ConsumerWidget {
               ),
 
               // Amount
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    "\${isExpense ? '-' : '+'}\$\${transaction.amount}",
-                    style: TextStyle(
-                      color: isExpense ? AppColors.expense : AppColors.income,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      fontFamily: 'Outfit',
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 120),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        "${isExpense ? '-' : '+'}\$${transaction.amount}",
+                        style: TextStyle(
+                          color: isExpense ? AppColors.expense : AppColors.income,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          fontFamily: 'Outfit',
+                        ),
+                      ),
                     ),
-                  ),
                   if (!transaction.isEnabled)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
@@ -213,7 +219,8 @@ class RecurringTransactionItem extends ConsumerWidget {
                     ),
                 ],
               ),
-            ],
+            ),
+          ],
           ),
         ),
       ),
