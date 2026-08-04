@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
-import 'package:equity_tracker/core/widgets/toast_notification.dart';
+import 'package:equity_tracker/core/providers/notification_provider.dart';
 import 'package:equity_tracker/features/category/screens/add_category_screen/category_type_selector.dart';
 import 'package:equity_tracker/features/category/screens/add_category_screen/category_color_picker.dart';
 import 'package:equity_tracker/features/category/screens/add_category_screen/category_icon_picker.dart';
@@ -47,7 +47,7 @@ class _AddCategoryScreenState extends ConsumerState<AddCategoryScreen> {
     } else if (mounted) {
       final error = ref.read(addCategoryControllerProvider).error;
       if (error != null) {
-        ToastService.showError(context, error);
+        ref.read(notificationControllerProvider.notifier).showError(error);
       }
     }
   }

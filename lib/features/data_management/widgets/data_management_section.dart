@@ -6,7 +6,7 @@ import 'package:equity_tracker/core/services/native_backup_service.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
-import 'package:equity_tracker/core/widgets/toast_notification.dart';
+import 'package:equity_tracker/core/providers/notification_provider.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
 import 'package:go_router/go_router.dart';
@@ -69,16 +69,16 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
       if (mounted) {
         Navigator.of(context).pop();
         setState(() => _isLoading = false);
-        ToastService.showSuccess(context, 'Backup saved to: $filename');
       }
+      ref.read(notificationControllerProvider.notifier).showSuccess('Backup saved to: $filename');
     } catch (e) {
       if (mounted) {
         if (_isLoading) {
           Navigator.of(context).pop();
           setState(() => _isLoading = false);
         }
-        ToastService.showError(context, 'Export failed: $e');
       }
+      ref.read(notificationControllerProvider.notifier).showError('Export failed: $e');
     }
   }
 
@@ -119,11 +119,10 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
           Navigator.of(context).pop();
           setState(() => _isLoading = false);
           _checkSnapshot();
-          ToastService.showSuccess(
-            context,
-            'Restored: ${report.categoriesImported} Categories, ${report.transactionsImported} Transactions, ${report.recurringTransactionsImported} Recurring',
-          );
         }
+        ref.read(notificationControllerProvider.notifier).showSuccess(
+          'Restored: ${report.categoriesImported} Categories, ${report.transactionsImported} Transactions, ${report.recurringTransactionsImported} Recurring',
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -131,8 +130,8 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
           Navigator.of(context).pop();
           setState(() => _isLoading = false);
         }
-        ToastService.showError(context, 'Restore failed: $e');
       }
+      ref.read(notificationControllerProvider.notifier).showError('Restore failed: $e');
     }
   }
 
@@ -159,16 +158,16 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
         Navigator.of(context).pop();
         setState(() => _isLoading = false);
         _checkSnapshot();
-        ToastService.showSuccess(context, 'Restore reverted successfully.');
       }
+      ref.read(notificationControllerProvider.notifier).showSuccess('Restore reverted successfully.');
     } catch (e) {
       if (mounted) {
         if (_isLoading) {
           Navigator.of(context).pop();
           setState(() => _isLoading = false);
         }
-        ToastService.showError(context, 'Undo failed: $e');
       }
+      ref.read(notificationControllerProvider.notifier).showError('Undo failed: $e');
     }
   }
 

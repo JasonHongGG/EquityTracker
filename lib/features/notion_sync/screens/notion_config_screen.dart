@@ -8,7 +8,7 @@ import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/core/widgets/app_switch.dart';
 import 'package:equity_tracker/core/widgets/premium_config_card.dart';
 import 'package:equity_tracker/core/widgets/premium_config_header.dart';
-import 'package:equity_tracker/core/widgets/toast_notification.dart';
+import 'package:equity_tracker/core/providers/notification_provider.dart';
 
 class NotionConfigScreen extends ConsumerStatefulWidget {
   const NotionConfigScreen({super.key});
@@ -56,9 +56,9 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
     ref.listen<NotionConfigState>(notionConfigControllerProvider, (previous, next) {
       if (next.message != null && (previous?.message != next.message)) {
         if (next.isError) {
-          ToastService.showError(context, next.message!);
+          ref.read(notificationControllerProvider.notifier).showError(next.message!);
         } else {
-          ToastService.showSuccess(context, next.message!);
+          ref.read(notificationControllerProvider.notifier).showSuccess(next.message!);
         }
         
         Future.microtask(() => controller.clearMessage());

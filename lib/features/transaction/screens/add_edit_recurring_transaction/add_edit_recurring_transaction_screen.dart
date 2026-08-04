@@ -14,7 +14,7 @@ import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart'
 import 'package:equity_tracker/core/widgets/pickers/premium_calendar_picker.dart';
 import 'package:equity_tracker/core/widgets/pickers/string_wheel_picker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:equity_tracker/core/widgets/toast_notification.dart';
+import 'package:equity_tracker/core/providers/notification_provider.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_recurring_transaction/frequency_selector.dart';
 import 'package:equity_tracker/core/widgets/inline_delete_button.dart';
@@ -545,17 +545,17 @@ class _AddEditRecurringTransactionModelScreenState
     final val = _amountController.text;
     final parsed = int.tryParse(val);
     if (parsed == null) {
-      ToastService.showError(context, 'Invalid Amount');
+      ref.read(notificationControllerProvider.notifier).showError('Invalid Amount');
       return;
     }
     finalAmount = parsed;
 
     if (finalAmount <= 0) {
-      ToastService.showError(context, 'Amount must be > 0');
+      ref.read(notificationControllerProvider.notifier).showError('Amount must be > 0');
       return;
     }
     if (_selectedCategoryId == null) {
-      ToastService.showError(context, 'Please select a category');
+      ref.read(notificationControllerProvider.notifier).showError('Please select a category');
       return;
     }
 

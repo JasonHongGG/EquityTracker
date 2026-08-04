@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
-import 'package:equity_tracker/core/widgets/toast_notification.dart';
+import 'package:equity_tracker/core/providers/notification_provider.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
@@ -26,13 +26,9 @@ class DangerZoneSection extends ConsumerWidget {
       // ignore: unused_result
       ref.refresh(titleSuggestionServiceProvider);  
 
-      if (context.mounted) {
-        ToastService.showSuccess(context, 'All data cleared.');
-      }
+      ref.read(notificationControllerProvider.notifier).showSuccess('All data cleared.');
     } catch (e) {
-      if (context.mounted) {
-        ToastService.showError(context, 'Failed to clear data: $e');
-      }
+      ref.read(notificationControllerProvider.notifier).showError('Failed to clear data: $e');
     }
   }
 

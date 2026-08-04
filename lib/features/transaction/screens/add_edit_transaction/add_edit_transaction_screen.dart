@@ -8,7 +8,7 @@ import 'package:equity_tracker/core/widgets/calculator_pad.dart';
 import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
 import 'package:equity_tracker/core/widgets/pickers/premium_calendar_picker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:equity_tracker/core/widgets/toast_notification.dart';
+import 'package:equity_tracker/core/providers/notification_provider.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_transaction/transaction_header.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_transaction/transaction_date_selector.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
@@ -119,7 +119,7 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
     } else if (mounted) {
       final error = ref.read(addEditTransactionControllerProvider).error;
       if (error != null) {
-        ToastService.showError(context, error);
+        ref.read(notificationControllerProvider.notifier).showError(error);
       }
     }
   }
