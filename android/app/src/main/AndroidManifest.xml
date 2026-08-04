@@ -9,6 +9,9 @@
     <!-- Install packages permission (Android 8.0+) -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     
+    <!-- Audio recording permission for voice input -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    
     <application
         android:label="EquityTracker"
         android:name="${applicationName}"

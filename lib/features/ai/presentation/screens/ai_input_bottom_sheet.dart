@@ -7,6 +7,7 @@ import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/ai_log_viewer_screen.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/ai/presentation/widgets/thinking_orb.dart';
+import 'package:equity_tracker/features/ai/presentation/controllers/ai_voice_controller.dart';
 import 'dart:math' as math;
 
 void showAiInputBottomSheet(BuildContext context) {
@@ -28,6 +29,15 @@ class AiInputBottomSheet extends ConsumerStatefulWidget {
 class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize speech engine early
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(aiVoiceControllerProvider.notifier).initialize();
+    });
+  }
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -60,10 +70,22 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
   Widget build(BuildContext context) {
     final sessionState = ref.watch(aiSessionControllerProvider);
     final aiConfig = ref.watch(aiConfigControllerProvider);
+    final voiceState = ref.watch(aiVoiceControllerProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
     ref.listen(aiSessionControllerProvider.select((s) => s.messages.length), (_, __) => _scrollToBottom());
+    
+    ref.listen<AiVoiceState>(aiVoiceControllerProvider, (previous, next) {
+      if (next.recognizedText != previous?.recognizedText && next.recognizedText.isNotEmpty) {
+        _controller.text = next.recognizedText;
+      }
+      if (next.hasError && !(previous?.hasError ?? false)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('無法啟動語音辨識，請確認麥克風權限或系統是否支援。')),
+        );
+      }
+    });
 
     return Padding(
       padding: EdgeInsets.only(
@@ -108,7 +130,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
               if (sessionState.pendingAction != null)
                 _buildActionCard(context, sessionState.pendingAction!, isDark),
 
-              _buildInputArea(sessionState, isDark),
+              _buildInputArea(sessionState, voiceState, isDark),
             ],
           ],
         ),
@@ -572,7 +594,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
     return const SizedBox();
   }
 
-  Widget _buildInputArea(AISessionState sessionState, bool isDark) {
+  Widget _buildInputArea(AISessionState sessionState, AiVoiceState voiceState, bool isDark) {
     
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
@@ -608,13 +630,48 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                           color: isDark ? Colors.white : Colors.black87,
                         ),
                         decoration: InputDecoration(
-                          hintText: sessionState.pendingAction != null ? '請輸入回答...' : '例如：午餐吃雞腿便當 100 元',
+                          hintText: voiceState.isListening 
+                              ? '聆聽中...' 
+                              : (sessionState.pendingAction != null ? '請輸入回答...' : '例如：午餐吃雞腿便當 100 元'),
                           hintStyle: TextStyle(
-                            color: isDark ? Colors.white30 : Colors.black38,
+                            color: voiceState.isListening ? Theme.of(context).primaryColor : (isDark ? Colors.white30 : Colors.black38),
                           ),
                           border: InputBorder.none,
                         ),
                         onSubmitted: (_) => _handleSubmit(),
+                      ),
+                    ),
+                    if (voiceState.isListening)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: ThinkingOrb(isDark: isDark, size: 24),
+                      ),
+                    GestureDetector(
+                      onLongPress: () {
+                        if (!voiceState.isListening) {
+                          _controller.text = '';
+                          ref.read(aiVoiceControllerProvider.notifier).toggleListening();
+                        }
+                      },
+                      onLongPressUp: () {
+                        ref.read(aiVoiceControllerProvider.notifier).stopListening();
+                      },
+                      onTap: () {
+                        if (!voiceState.isListening) {
+                          _controller.text = '';
+                        }
+                        ref.read(aiVoiceControllerProvider.notifier).toggleListening();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: voiceState.isListening ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : Colors.transparent,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          voiceState.isListening ? Icons.mic : Icons.mic_none,
+                          color: voiceState.isListening ? Theme.of(context).primaryColor : (isDark ? Colors.white54 : Colors.black54),
+                        ),
                       ),
                     ),
                     IconButton(
