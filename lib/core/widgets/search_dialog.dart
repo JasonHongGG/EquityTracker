@@ -167,7 +167,7 @@ class _SearchDialogState extends ConsumerState<SearchDialog> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 physics: const BouncingScrollPhysics(),

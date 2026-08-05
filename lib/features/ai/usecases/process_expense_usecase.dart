@@ -272,7 +272,23 @@ class ProcessExpenseUseCase {
         session.originalText, 
         categories: categories,
       );
-      final records = extractedData.map((data) => TransactionRecord(data)).toList();
+
+      // 驗證與防呆: 確保 AI 回傳的 categoryId 真實存在於資料庫中。
+      // 若因幻覺給出不存在的 ID (如 "food")，強制 fallback 回真實的「其他」分類。
+      final validCategoryIds = categories.map((c) => c.id).toSet();
+      final otherCategoryId = categories.firstWhere(
+        (c) => c.name == '其他', 
+        orElse: () => categories.isNotEmpty ? categories.first : throw Exception('No categories available')
+      ).id;
+
+      final records = extractedData.map((data) {
+        String safeCategoryId = data.categoryId ?? otherCategoryId;
+        if (!validCategoryIds.contains(safeCategoryId)) {
+          safeCategoryId = otherCategoryId;
+        }
+        return TransactionRecord(data.copyWith(categoryId: safeCategoryId));
+      }).toList();
+
       session.setRecords(records);
       session.markProcessingRecords();
     }

@@ -5,6 +5,7 @@ import 'package:equity_tracker/features/ai/infrastructure/providers/provider_fac
 import 'package:equity_tracker/features/ai/infrastructure/providers/ai_provider.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/extraction_agent/prompts.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
+import 'package:equity_tracker/core/enums/transaction_type.dart';
 
 class ExtractionAgent extends BaseAgent<String, List<RecordData>> {
   ExtractionAgent(AIProvider provider) : super('Extraction', provider);
@@ -15,7 +16,22 @@ class ExtractionAgent extends BaseAgent<String, List<RecordData>> {
     void Function(String)? onChunk,
     List<CategoryModel> categories = const [],
   }) async {
-    final systemPrompt = buildSystemPrompt(categories);
+    // 找出「其他」類別的 ID 作為 Fallback (優先找支出類別，若無則隨意挑一個，最糟 fallback 'unknown')
+    final otherCategory = categories.firstWhere(
+      (c) => c.name == '其他',
+      orElse: () => CategoryModel(
+        id: 'unknown',
+        name: 'Unknown',
+        iconCodePoint: 0,
+        colorValue: 0,
+        type: TransactionType.expense,
+        isSystem: false,
+        isEnabled: true,
+      ),
+    );
+    final fallbackCategoryId = otherCategory.id;
+
+    final systemPrompt = buildSystemPrompt(categories, fallbackCategoryId);
     final userPrompt = buildUserPrompt(input);
 
     String resultText = '';

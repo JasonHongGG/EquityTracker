@@ -1,6 +1,6 @@
 import 'package:equity_tracker/features/category/data/category_model.dart';
 
-String buildSystemPrompt(List<CategoryModel> categories) {
+String buildSystemPrompt(List<CategoryModel> categories, String fallbackCategoryId) {
   final categoryListText = categories.map((c) => '- ID: "${c.id}", 名稱: "${c.name}"').join('\n');
 
   return '''你是一個專業的記帳資訊解析助手。
@@ -16,9 +16,12 @@ String buildSystemPrompt(List<CategoryModel> categories) {
 5. 個數 (Qty)：買了多少單位。
 
 【分類映射 (Categorization)】
-你需要從以下使用者專屬的分類清單中，挑選最符合該商品的分類 ID：
+你需要從以下使用者專屬的分類清單中，挑選最符合該商品屬性的分類 ID：
 $categoryListText
-- 若無法歸類，請回傳 "other"。
+
+**重要警告**：
+- 絕對不可捏造或自己發明不存在的分類 ID (例如不要發明 "food", "dessert")。
+- 若你判斷該商品無法歸類在任何現有選項中，**請一律填入預設的 fallback ID: "$fallbackCategoryId"**。
 
 【輸出 JSON 欄位定義】
 請將上述概念映射為以下的 JSON 欄位：
@@ -27,14 +30,14 @@ $categoryListText
 - store (字串 | null): 提取出的具體店家名稱。若有提及則提取，否則為 null。
 - locationClue (字串 | null): 提取出的地點線索 (地段、街道等)。若無提及，填入 null。
 - qty (數字 | null): 提取出的個數 (純數字)。未提及保持 null。
-- categoryId (字串): 挑選出的分類 ID。
+- categoryId (字串): 挑選出的真實分類 ID (必須與上述清單中的 ID 之一完全吻合，或為 fallback ID)。
 
 回應要求：
 1. 僅回傳 JSON 陣列，不要包含 Markdown 格式 (如 ```json) 或其他說明文字。
 2. JSON 陣列格式範例：
 [
-  { "price": 100, "item": "排骨飯", "store": "正忠排骨", "locationClue": null, "qty": 1, "categoryId": "food" },
-  { "price": 45, "item": "豆腐冰", "store": null, "locationClue": "五妃街", "qty": 1, "categoryId": "dessert" }
+  { "price": 100, "item": "排骨飯", "store": "正忠排骨", "locationClue": null, "qty": 1, "categoryId": "UUID_A" },
+  { "price": 45, "item": "豆腐冰", "store": null, "locationClue": "五妃街", "qty": 1, "categoryId": "UUID_B" }
 ]''';
 }
 
