@@ -160,6 +160,7 @@ class _PremiumHeaderContentState extends State<_PremiumHeaderContent> {
                 padding: EdgeInsets.fromLTRB(sideMargin, topMargin, sideMargin, bottomMargin),
                 child: Container(
                   decoration: BoxDecoration(
+                    color: Theme.of(context).scaffoldBackgroundColor, // Blocks shadow bleed-through
                     borderRadius: BorderRadius.circular(radius),
                     boxShadow: [
                       BoxShadow(
@@ -169,6 +170,13 @@ class _PremiumHeaderContentState extends State<_PremiumHeaderContent> {
                       ),
                     ],
                   ),
+                  foregroundDecoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(radius),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: isDarkTheme ? 0.1 : 0.4),
+                      width: lerpDouble(1.0, 0.0, progress)!,
+                    ),
+                  ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(radius),
                     child: BackdropFilter(
@@ -176,10 +184,6 @@ class _PremiumHeaderContentState extends State<_PremiumHeaderContent> {
                       child: Container(
                         decoration: BoxDecoration(
                           color: cardColor,
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: isDarkTheme ? 0.1 : 0.4),
-                            width: lerpDouble(1.0, 0.0, progress)!,
-                          ),
                         ),
                         child: Stack(
                           fit: StackFit.expand,

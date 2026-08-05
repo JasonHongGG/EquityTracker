@@ -85,8 +85,8 @@ class _PremiumAuraPainter extends CustomPainter {
       ..shader = RadialGradient(
         colors: [
           isDark 
-              ? const Color(0xFF8B5CF6).withValues(alpha: 0.12) 
-              : const Color(0xFF8B5CF6).withValues(alpha: 0.06),
+              ? const Color(0xFFF43F5E).withValues(alpha: 0.12) 
+              : const Color(0xFFF43F5E).withValues(alpha: 0.06),
           Colors.transparent,
         ],
         radius: 0.9,
