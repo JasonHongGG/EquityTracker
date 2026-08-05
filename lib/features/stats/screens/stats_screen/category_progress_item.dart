@@ -26,12 +26,19 @@ class CategoryProgressItem extends StatelessWidget {
         child: Icon(category.iconData, color: category.color, size: 20),
       ),
       title: Text(category.name),
-      subtitle: LinearProgressIndicator(
-        value: percent,
-        backgroundColor: Colors.grey.withValues(alpha: 0.1),
-        color: category.color,
-        minHeight: 4,
-        borderRadius: BorderRadius.circular(2),
+      subtitle: TweenAnimationBuilder<double>(
+        tween: Tween<double>(begin: 0.0, end: percent),
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeOutCubic,
+        builder: (context, value, child) {
+          return LinearProgressIndicator(
+            value: value,
+            backgroundColor: Colors.grey.withValues(alpha: 0.1),
+            color: category.color,
+            minHeight: 4,
+            borderRadius: BorderRadius.circular(2),
+          );
+        },
       ),
       trailing: Text(
         CurrencyFormatter.format(amount, currencySymbol),

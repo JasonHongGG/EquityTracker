@@ -55,7 +55,7 @@ class _CategoryAnalysisTabState extends ConsumerState<CategoryAnalysisTab> {
       children: [
         // 1. Swipeable Chart Area (Fixed at Top)
         SizedBox(
-          height: 250,
+          height: 320, // Increased to accommodate the legend
           child: PageView(
             controller: _pageController,
             onPageChanged: (index) {
@@ -76,38 +76,7 @@ class _CategoryAnalysisTabState extends ConsumerState<CategoryAnalysisTab> {
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Column(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.chevron_left, 
-                    color: currentType == TransactionType.income ? (isDark ? Colors.white54 : Colors.black54) : Colors.transparent,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    transitionBuilder: (Widget child, Animation<double> animation) {
-                      return FadeTransition(opacity: animation, child: child);
-                    },
-                    child: Text(
-                      currentType == TransactionType.expense ? 'Expense' : 'Income',
-                      key: ValueKey(currentType),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.chevron_right, 
-                    color: currentType == TransactionType.expense ? (isDark ? Colors.white54 : Colors.black54) : Colors.transparent,
-                    size: 20,
-                  ),
-                ],
-              ),
+              // Title removed (now inside PieChart)
               const SizedBox(height: 8),
               // Page Dots Indicator
               Row(
@@ -164,13 +133,25 @@ class _CategoryAnalysisTabState extends ConsumerState<CategoryAnalysisTab> {
     return statsAsync.when(
       data: (stats) {
         final totalAmount = stats.fold<int>(0, (sum, stat) => sum + stat.totalAmount);
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-          child: CategoryPieChart(
-            stats: stats,
-            totalAmount: totalAmount,
-            currencySymbol: currencySymbol,
-          ),
+        return Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                child: CategoryPieChart(
+                  stats: stats,
+                  totalAmount: totalAmount,
+                  currencySymbol: currencySymbol,
+                  type: type,
+                ),
+              ),
+            ),
+            if (stats.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                child: CategoryLegend(stats: stats),
+              ),
+          ],
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -208,16 +189,10 @@ class _CategoryAnalysisList extends ConsumerWidget {
 
         return ListView.builder(
           padding: const EdgeInsets.only(bottom: 80),
-          itemCount: stats.length + 1, // +1 for the legend at the top
+          itemCount: stats.length,
           itemBuilder: (context, index) {
-            if (index == 0) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
-                child: CategoryLegend(stats: stats),
-              );
-            }
-            final stat = stats[index - 1];
-            return CategoryProgressItem(
+            final stat = stats[index];
+            final item = CategoryProgressItem(
               category: stat.category,
               amount: stat.totalAmount,
               percent: stat.percentage,
@@ -226,11 +201,61 @@ class _CategoryAnalysisList extends ConsumerWidget {
                 CategoryDetailsModal.show(context, stat.category, transactions);
               },
             );
+            
+            return StaggeredEntryItem(
+              index: index,
+              child: item,
+            );
           },
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),
+    );
+  }
+}
+
+// ============================================================================
+// STAGGERED ENTRY ANIMATION WRAPPER
+// ============================================================================
+class StaggeredEntryItem extends StatefulWidget {
+  final Widget child;
+  final int index;
+
+  const StaggeredEntryItem({super.key, required this.child, required this.index});
+
+  @override
+  State<StaggeredEntryItem> createState() => _StaggeredEntryItemState();
+}
+
+class _StaggeredEntryItemState extends State<StaggeredEntryItem> {
+  bool _isVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Stagger delay: 50ms per index
+    Future.delayed(Duration(milliseconds: widget.index * 50), () {
+      if (mounted) {
+        setState(() {
+          _isVisible = true;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSlide(
+      offset: _isVisible ? Offset.zero : const Offset(0, 0.2), // Slide up slightly
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      child: AnimatedOpacity(
+        opacity: _isVisible ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+        child: widget.child,
+      ),
     );
   }
 }
