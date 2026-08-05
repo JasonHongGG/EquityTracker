@@ -5,7 +5,7 @@ import 'package:equity_tracker/core/widgets/search_dialog.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/transaction/controllers/transaction_list_controller.dart';
 import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
-import 'package:equity_tracker/features/transaction/screens/transaction_list/dashboard_header_delegate.dart';
+import 'package:equity_tracker/features/transaction/widgets/premium_dashboard_header/premium_header_delegate.dart';
 import 'package:equity_tracker/core/widgets/month_selector_title.dart';
 import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
 import 'package:equity_tracker/features/transaction/widgets/transaction_list_screen/daily_transaction_card.dart';
@@ -132,10 +132,10 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
             ],
           ),
 
-          // 2. AppBar & Dashboard
+          // 2. AppBar & Dashboard (The Premium Native SliverAppBar)
           SliverPersistentHeader(
             pinned: true,
-            delegate: DashboardHeaderDelegate(
+            delegate: PremiumHeaderDelegate(
               totalBalance: state.totalBalance,
               totalIncome: state.totalIncome,
               totalExpense: state.totalExpense,
