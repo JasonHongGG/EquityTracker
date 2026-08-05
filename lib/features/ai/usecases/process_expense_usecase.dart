@@ -229,7 +229,11 @@ class CorrectionStep implements RecordProcessingStep {
 
     onProgress?.call('處理您的補充資訊...');
     final correctionResponse = await correctionAgent.execute(
-      CorrectionInput(record: record.data, answer: userInput),
+      CorrectionInput(
+        record: record.data, 
+        answer: userInput,
+        question: record.validationQuestion,
+      ),
     );
 
     record.updateData(correctionResponse.record);

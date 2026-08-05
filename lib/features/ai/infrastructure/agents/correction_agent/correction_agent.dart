@@ -8,10 +8,12 @@ import 'package:equity_tracker/features/ai/infrastructure/agents/correction_agen
 class CorrectionInput {
   final RecordData record;
   final String answer;
+  final String? question;
 
   CorrectionInput({
     required this.record,
     required this.answer,
+    this.question,
   });
 }
 

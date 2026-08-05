@@ -8,6 +8,7 @@ import 'package:equity_tracker/features/ai/presentation/screens/ai_log_viewer_sc
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/ai/presentation/widgets/thinking_orb.dart';
 import 'package:equity_tracker/features/ai/presentation/controllers/ai_voice_controller.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:math' as math;
 
 void showAiInputBottomSheet(BuildContext context) {
@@ -339,16 +340,26 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                         ...((message.payload as List).map((dynamic item) {
                           if (item is! TransactionModel) return const SizedBox();
                           final tx = item;
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: isDark ? Colors.white12 : Colors.black12,
-                              ),
-                            ),
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: () {
+                                  // Close bottom sheet if necessary, or just push. Let's close it first so it doesn't linger
+                                  Navigator.of(context).pop();
+                                  context.push('/add-transaction', extra: {'transaction': tx});
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isDark ? Colors.white12 : Colors.black12,
+                                    ),
+                                  ),
                             child: Row(
                               children: [
                                 Container(
@@ -394,8 +405,11 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                                 ),
                               ],
                             ),
-                          );
-                        })),
+                          ),
+                        ),
+                      ),
+                    );
+                  })),
                       ],
                     )
                   : Text(

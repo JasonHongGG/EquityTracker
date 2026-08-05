@@ -77,6 +77,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false, // Prevent the bottom nav bar from jumping up when keyboard appears
       extendBody: true, // Important for floating nav bar
       body: Container(
         decoration: BoxDecoration(
