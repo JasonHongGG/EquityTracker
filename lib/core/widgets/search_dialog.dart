@@ -88,7 +88,7 @@ class _SearchDialogState extends ConsumerState<SearchDialog> {
         insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         alignment: Alignment.topCenter,
         child: Padding(
-          padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.1),
+          padding: EdgeInsets.only(top: MediaQuery.sizeOf(context).height * 0.1),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

@@ -51,7 +51,7 @@ class _PremiumCurrencyPickerState extends State<PremiumCurrencyPicker> {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).padding.bottom + 32,
+        bottom: MediaQuery.paddingOf(context).bottom + 32,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -158,7 +158,7 @@ class _CurrencyChip extends StatelessWidget {
     
     // Width calculated to fit 3 items per row with 16px spacing and 24px horizontal padding
     // Screen width - 48 (padding) - 32 (spacing) = remaining space / 3
-    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenWidth = MediaQuery.sizeOf(context).width;
     final double chipWidth = (screenWidth - 48 - 32) / 3;
 
     return GestureDetector(

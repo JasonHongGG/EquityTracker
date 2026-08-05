@@ -52,7 +52,7 @@ class NotificationController extends Notifier<void> {
     entry = OverlayEntry(
       builder: (context) {
         return Positioned(
-          top: MediaQuery.of(context).padding.top + 16,
+          top: MediaQuery.paddingOf(context).top + 16,
           left: 16,
           right: 16,
           child: Material(

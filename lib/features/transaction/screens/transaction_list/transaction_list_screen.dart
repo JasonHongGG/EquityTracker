@@ -149,7 +149,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
                   _isMonthlyView = !_isMonthlyView;
                 });
               },
-              topPadding: MediaQuery.of(context).padding.top,
+              topPadding: MediaQuery.paddingOf(context).top,
               selectedDate: selectedMonth,
               onPreviousMonth: () {
                 ref

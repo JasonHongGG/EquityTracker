@@ -100,7 +100,7 @@ class CalculatorPad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final rowHeight = MediaQuery.of(context).size.height < 700 ? 55.0 : 65.0;
+    final rowHeight = MediaQuery.sizeOf(context).height < 700 ? 55.0 : 65.0;
 
     final backgroundColor = isDark
         ? AppColors.surfaceDark

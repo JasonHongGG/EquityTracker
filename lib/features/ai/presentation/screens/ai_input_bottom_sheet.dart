@@ -88,12 +88,14 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
       }
     });
 
+    final keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
+    
     return Padding(
       padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
+        bottom: keyboardHeight,
       ),
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.85,
+        height: math.max(0.0, (MediaQuery.sizeOf(context).height * 0.85) - keyboardHeight),
         decoration: BoxDecoration(
           color: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
