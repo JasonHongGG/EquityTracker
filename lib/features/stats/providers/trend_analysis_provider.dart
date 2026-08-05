@@ -6,13 +6,15 @@ final calculateMonthlyTrendUseCaseProvider = Provider<CalculateMonthlyTrendUseCa
   return CalculateMonthlyTrendUseCase();
 });
 
-final monthlyTrendProvider = FutureProvider<MonthlyTrendResult>((ref) async {
+final monthlyTrendProvider = Provider<AsyncValue<MonthlyTrendResult>>((ref) {
   final transactionsAsync = ref.watch(filteredTransactionsProvider);
   final month = ref.watch(selectedMonthProvider);
   final useCase = ref.watch(calculateMonthlyTrendUseCaseProvider);
 
-  return useCase.execute(
-    transactions: transactionsAsync.value ?? [],
-    month: month,
-  );
+  return transactionsAsync.whenData((transactions) {
+    return useCase.execute(
+      transactions: transactions,
+      month: month,
+    );
+  });
 });

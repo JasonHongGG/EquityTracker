@@ -22,15 +22,25 @@ final categoryAnalysisTypeProvider = NotifierProvider<CategoryAnalysisTypeNotifi
   CategoryAnalysisTypeNotifier.new,
 );
 
-final categoryStatsProvider = FutureProvider<List<CategoryStat>>((ref) async {
+final categoryStatsProvider = Provider<AsyncValue<List<CategoryStat>>>((ref) {
   final transactionsAsync = ref.watch(filteredTransactionsProvider);
   final categoriesAsync = ref.watch(categoryListProvider);
   final useCase = ref.watch(calculateCategoryStatsUseCaseProvider);
   final type = ref.watch(categoryAnalysisTypeProvider);
 
-  return useCase.execute(
+  if (transactionsAsync is AsyncLoading || categoriesAsync is AsyncLoading) {
+    return const AsyncLoading();
+  }
+  if (transactionsAsync is AsyncError) {
+    return AsyncError(transactionsAsync.error!, transactionsAsync.stackTrace!);
+  }
+  if (categoriesAsync is AsyncError) {
+    return AsyncError(categoriesAsync.error!, categoriesAsync.stackTrace!);
+  }
+
+  return AsyncData(useCase.execute(
     transactions: transactionsAsync.value ?? [],
     allCategories: categoriesAsync.value ?? [],
     type: type,
-  );
+  ));
 });
