@@ -127,6 +127,7 @@ class AISessionController extends Notifier<AISessionState> {
         recordIndex, 
         answer,
         categories,
+        action,
         onProgress: _addProgress
       );
       

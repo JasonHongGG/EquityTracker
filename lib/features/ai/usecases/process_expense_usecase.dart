@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/ai/domain/enums/record_status.dart';
 import 'package:equity_tracker/features/ai/domain/models/transaction_record.dart';
 import 'package:equity_tracker/features/ai/domain/models/transaction_session.dart';
 import 'package:equity_tracker/features/ai/infrastructure/agents/extraction_agent/extraction_agent.dart';
@@ -37,58 +36,60 @@ class RequireCorrectionResult extends UseCaseResult {
 
 class SuccessResult extends UseCaseResult {}
 
-/// 定義花費紀錄的處理步驟介面 (Pipeline Step)
-abstract class RecordProcessingStep {
-  /// 執行此步驟，若需要中斷等待使用者輸入，則回傳 UseCaseResult
-  Future<UseCaseResult?> execute(
-    int recordIndex,
-    TransactionRecord record,
-    TransactionSession session,
-    {void Function(String)? onProgress}
-  );
+/// 黑板模式 (Blackboard Pattern) 的自治專家介面
+abstract class IAgenticWorker {
+  /// 評估是否需要處理此筆紀錄
+  Future<bool> requiresProcessing(TransactionRecord record);
 
-  /// 處理使用者的修正輸入，若處理完畢後仍需等待，可回傳 UseCaseResult
-  Future<UseCaseResult?> handleCorrection(
+  /// 處理紀錄，並修改 record 的資料。若需要等待使用者輸入，回傳 UseCaseResult
+  Future<UseCaseResult?> process(
     int recordIndex,
     TransactionRecord record,
     TransactionSession session,
-    String userInput,
-    List<CategoryModel> categories,
     {void Function(String)? onProgress}
   );
 }
 
-/// 步驟一：店家名稱查詢與確認
-class StoreResolutionStep implements RecordProcessingStep {
+/// 專家一：店家名稱查詢與確認
+class StoreLookupWorker implements IAgenticWorker {
   final StoreLookupAgent storeLookupAgent;
   final IMapSearchService mapSearchService;
   final bool isGoogleMapEnabled;
 
-  StoreResolutionStep(this.storeLookupAgent, this.mapSearchService, {required this.isGoogleMapEnabled});
+  StoreLookupWorker(this.storeLookupAgent, this.mapSearchService, {required this.isGoogleMapEnabled});
 
   @override
-  Future<UseCaseResult?> execute(
+  Future<bool> requiresProcessing(TransactionRecord record) async {
+    final data = record.data;
+    
+    // 如果沒有店名也沒有地點，則不需要查地圖
+    if ((data.store == null || data.store!.isEmpty) && 
+        (data.locationClue == null || data.locationClue!.isEmpty)) {
+      return false;
+    }
+
+    // 取得當前的查詢關鍵字組合
+    final currentQueryStr = [data.locationClue, data.store].join('|');
+    
+    // 檢查黑板記憶：如果跟上次查詢的字串一樣，代表已經查過了，不要再查 (避免無窮迴圈)
+    final lastQueryStr = record.metadata['StoreLookupWorker_LastQuery'] as String?;
+    if (currentQueryStr == lastQueryStr) {
+      return false;
+    }
+
+    return true; // 資料有變，且有線索，需要處理！
+  }
+
+  @override
+  Future<UseCaseResult?> process(
     int recordIndex,
     TransactionRecord record,
     TransactionSession session,
     {void Function(String)? onProgress}
   ) async {
-    if (record.isStoreLookupCompleted) {
-      if (record.status == RecordStatus.extracted) {
-        record.markValidating();
-      }
-      return null;
-    }
-    if (!record.requiresStoreLookup()) {
-      record.markStoreLookupCompleted();
-      record.markValidating();
-      return null;
-    }
-
     final data = record.data;
     onProgress?.call('處理第 ${recordIndex + 1} 筆商品: ${data.item}');
     
-    // 友善顯示：如果 store 為 null，顯示提示而非 "null"
     final hintDisplay = (data.store == null || data.store!.isEmpty) ? '可能的線索' : data.store;
     onProgress?.call('查詢店家名稱: $hintDisplay...');
 
@@ -121,15 +122,17 @@ class StoreResolutionStep implements RecordProcessingStep {
       ),
     );
 
+    // 紀錄這次查詢的關鍵字，寫入黑板記憶
+    record.metadata['StoreLookupWorker_LastQuery'] = [data.locationClue, data.store].join('|');
+
     if (lookupResponse.isCertain && lookupResponse.storeName != null && lookupResponse.storeName!.isNotEmpty) {
       onProgress?.call('確認店家名稱為: ${lookupResponse.storeName}');
       record.updateStore(lookupResponse.storeName!);
-      record.markStoreLookupCompleted();
-      record.markValidating();
+      // 因為 updateStore 改變了 store 名字，這會導致 requiresProcessing 再度回傳 true，
+      // 所以我們必須同時更新 metadata 的 LastQuery，防止下一次迴圈再次執行！
+      record.metadata['StoreLookupWorker_LastQuery'] = [data.locationClue, lookupResponse.storeName].join('|');
       return null;
     } else {
-      record.markNeedsStoreResolution();
-      
       final options = lookupResponse.options ?? [];
       String message;
       if (options.isEmpty) {
@@ -145,99 +148,83 @@ class StoreResolutionStep implements RecordProcessingStep {
       );
     }
   }
-
-  Future<UseCaseResult?> handleCorrection(
-    int recordIndex,
-    TransactionRecord record,
-    TransactionSession session,
-    String userInput,
-    List<CategoryModel> categories,
-    {void Function(String)? onProgress}
-  ) async {
-    if (record.status != RecordStatus.needsStoreResolution) return null;
-    
-    onProgress?.call('收到輸入「$userInput」，準備重新驗證...');
-    record.updateStore(userInput);
-    
-    // 退回提取狀態，讓外層迴圈再次觸發 execute，進行資料驅動驗證
-    record.markExtracted();
-    return null;
-  }
 }
 
-/// 步驟二：資料完整性驗證
-class ValidationStep implements RecordProcessingStep {
+/// 專家二：資料完整性驗證
+class ValidationWorker implements IAgenticWorker {
   final ValidationAgent validationAgent;
 
-  ValidationStep(this.validationAgent);
+  ValidationWorker(this.validationAgent);
 
   @override
-  Future<UseCaseResult?> execute(
+  Future<bool> requiresProcessing(TransactionRecord record) async {
+    // 如果這筆紀錄已經被 Orchestrator 標記為 resolved，或者已經問過同一個問題且資料沒變，就不用處理
+    if (record.isResolved) return false;
+
+    // 將整包資料轉為 JSON string 作為 Hash
+    final currentDataHash = record.data.toMap().toString();
+    final lastValidatedHash = record.metadata['ValidationWorker_LastHash'] as String?;
+    
+    // 如果這筆資料狀態已經被驗證過且要求人類修正，就不該一直重複驗證並卡死迴圈
+    if (currentDataHash == lastValidatedHash) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @override
+  Future<UseCaseResult?> process(
     int recordIndex,
     TransactionRecord record,
     TransactionSession session,
     {void Function(String)? onProgress}
   ) async {
-    if (record.status != RecordStatus.validating) return null;
-
     onProgress?.call('驗證商品資訊...');
     final validationResponse = await validationAgent.execute(
       ValidationInput(record: record.data),
     );
 
+    // 記住這次驗證的資料狀態
+    record.metadata['ValidationWorker_LastHash'] = record.data.toMap().toString();
+
     if (validationResponse.isValid) {
       onProgress?.call('資訊確認無誤。');
-      record.markResolved();
-      return null;
+      return null; 
     } else {
       final question = validationResponse.question ?? '請補充缺失的資訊。';
-      record.markNeedsHumanCorrection(question);
+      record.setValidationQuestion(question);
       return RequireCorrectionResult(
         recordIndex: recordIndex,
         question: question,
       );
     }
   }
-
-  @override
-  Future<UseCaseResult?> handleCorrection(
-    int recordIndex,
-    TransactionRecord record,
-    TransactionSession session,
-    String userInput,
-    List<CategoryModel> categories,
-    {void Function(String)? onProgress}
-  ) async {
-    return null;
-  }
 }
 
-class CorrectionStep implements RecordProcessingStep {
+/// 專家三：人類修正與動態分類處理
+class CorrectionWorker implements IAgenticWorker {
   final CorrectionAgent correctionAgent;
 
-  CorrectionStep(this.correctionAgent);
+  CorrectionWorker(this.correctionAgent);
 
   @override
-  Future<UseCaseResult?> execute(
-    int recordIndex,
-    TransactionRecord record,
-    TransactionSession session,
-    {void Function(String)? onProgress}
-  ) async {
-    return null;
+  Future<bool> requiresProcessing(TransactionRecord record) async {
+    // 只要黑板上出現了使用者的輸入，且指定交給 CorrectionWorker 處理，就舉手！
+    return record.metadata.containsKey('CorrectionWorker_Input');
   }
 
   @override
-  Future<UseCaseResult?> handleCorrection(
+  Future<UseCaseResult?> process(
     int recordIndex,
     TransactionRecord record,
     TransactionSession session,
-    String userInput,
-    List<CategoryModel> categories,
     {void Function(String)? onProgress}
   ) async {
-    if (record.status != RecordStatus.needsHumanCorrection) return null;
-
+    // 消耗黑板上的輸入 (拿取並移除)
+    final userInput = record.metadata.remove('CorrectionWorker_Input') as String;
+    final categories = record.metadata.remove('CorrectionWorker_Categories') as List<CategoryModel>;
+    
     onProgress?.call('處理您的補充資訊...');
     final correctionResponse = await correctionAgent.execute(
       CorrectionInput(
@@ -247,38 +234,31 @@ class CorrectionStep implements RecordProcessingStep {
         categories: categories,
       ),
     );
-
+    
+    // 更新黑板上的資料
     record.updateData(correctionResponse.record);
-    record.markExtracted(); 
-    return null;
+    
+    return null; // 處理完畢，讓迴圈繼續讓其他專家檢視新資料
   }
 }
 
-/// 統籌花費紀錄處理流程的 UseCase
+/// 統籌中心 (The Orchestrator) - 採用黑板模式 (Blackboard Pattern)
 class ProcessExpenseUseCase {
   final ExtractionAgent extractionAgent;
-  final StoreLookupAgent storeLookupAgent;
-  final IMapSearchService mapSearchService;
-  final ValidationAgent validationAgent;
-  final CorrectionAgent correctionAgent;
-  final bool isGoogleMapEnabled;
-
-  late final List<RecordProcessingStep> pipeline;
+  final List<IAgenticWorker> workers;
 
   ProcessExpenseUseCase({
     required this.extractionAgent,
-    required this.storeLookupAgent,
-    required this.mapSearchService,
-    required this.validationAgent,
-    required this.correctionAgent,
-    required this.isGoogleMapEnabled,
-  }) {
-    pipeline = [
-      StoreResolutionStep(storeLookupAgent, mapSearchService, isGoogleMapEnabled: isGoogleMapEnabled),
-      ValidationStep(validationAgent),
-      CorrectionStep(correctionAgent),
-    ];
-  }
+    required StoreLookupAgent storeLookupAgent,
+    required IMapSearchService mapSearchService,
+    required ValidationAgent validationAgent,
+    required CorrectionAgent correctionAgent,
+    required bool isGoogleMapEnabled,
+  }) : workers = [
+         StoreLookupWorker(storeLookupAgent, mapSearchService, isGoogleMapEnabled: isGoogleMapEnabled),
+         ValidationWorker(validationAgent),
+         CorrectionWorker(correctionAgent),
+       ];
 
   Future<UseCaseResult> execute(TransactionSession session, List<CategoryModel> categories, {void Function(String)? onProgress}) async {
     // 1. Extraction Phase
@@ -289,8 +269,6 @@ class ProcessExpenseUseCase {
         categories: categories,
       );
 
-      // 驗證與防呆: 確保 AI 回傳的 categoryId 真實存在於資料庫中。
-      // 若因幻覺給出不存在的 ID (如 "food")，強制 fallback 回真實的「其他」分類。
       final validCategoryIds = categories.map((c) => c.id).toSet();
       final otherCategoryId = categories.firstWhere(
         (c) => c.name == '其他', 
@@ -309,44 +287,65 @@ class ProcessExpenseUseCase {
       session.markProcessingRecords();
     }
 
-    // 2. Pipeline Processing Phase
+    // 2. Blackboard Orchestration Phase (黑板調度迴圈)
     for (int i = 0; i < session.records.length; i++) {
       final record = session.records[i];
-      
-      // 將 record 依序餵給 Pipeline 中的每一個 Step
-      for (final step in pipeline) {
-        // 若 Record 已處理完成，則提早結束該 Record 的 Pipeline
-        if (record.status == RecordStatus.resolved) break;
+      if (record.isResolved) continue;
+
+      bool changed = true;
+      while (changed && !record.isResolved) {
+        changed = false;
         
-        final result = await step.execute(i, record, session, onProgress: onProgress);
-        
-        // 若 Step 回傳了需要中斷並詢問使用者的 Result，則直接跳出 UseCase 執行
-        if (result != null) {
-          return result;
+        // 讓每位專家檢視黑板上的資料
+        for (final worker in workers) {
+          if (await worker.requiresProcessing(record)) {
+            final result = await worker.process(i, record, session, onProgress: onProgress);
+            
+            // 如果專家需要人類協助，直接中斷回傳給 UI
+            if (result != null) {
+              return result;
+            }
+            
+            // 專家處理完畢，資料可能已改變。重新開始迴圈讓所有人再次檢視新資料！
+            changed = true;
+            break; 
+          }
         }
+      }
+      
+      // 當所有專家都不再需要處理這筆資料，代表它完美過關了！
+      if (!changed) {
+        record.markResolved();
       }
     }
 
-    // 所有紀錄皆跑完 Pipeline 且無中斷，代表全部完成
     session.markCompleted();
     return SuccessResult();
   }
 
+  /// 處理人類修正的回覆。此方法與業務邏輯完全解耦，僅做為資料寫入器。
   Future<UseCaseResult> handleUserCorrection(
     TransactionSession session, 
     int recordIndex, 
     String userInput,
     List<CategoryModel> categories,
+    UseCaseResult pendingAction,
     {void Function(String)? onProgress}
   ) async {
     final record = session.records[recordIndex];
 
-    // 讓 Pipeline 中的每個 Step 都有機會處理使用者的修正
-    for (final step in pipeline) {
-      await step.handleCorrection(recordIndex, record, session, userInput, categories, onProgress: onProgress);
+    if (pendingAction is RequireStoreSelectionResult) {
+      onProgress?.call('收到輸入「$userInput」，準備更新店家名稱...');
+      // 這種最簡單的修改不需要 AI，直接更新黑板即可。更新完後，其他專家 (如 ValidationWorker) 會自動接手。
+      record.updateStore(userInput);
+    } 
+    else if (pendingAction is RequireCorrectionResult) {
+      // 複雜的語義修正，將使用者的輸入寫在黑板上，交給 CorrectionWorker 去處理
+      record.metadata['CorrectionWorker_Input'] = userInput;
+      record.metadata['CorrectionWorker_Categories'] = categories;
     }
 
-    // 修正完畢後，再次啟動主 Pipeline 以繼續後續流程
+    // 資料/狀態 更新完畢後，直接把黑板重新丟回 Orchestrator 進行新一輪的檢視！
     return execute(session, categories, onProgress: onProgress);
   }
 }
