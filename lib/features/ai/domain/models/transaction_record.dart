@@ -5,6 +5,7 @@ class TransactionRecord {
   RecordData _data;
   RecordStatus _status;
   String? _validationQuestion;
+  bool _isStoreLookupCompleted = false;
 
   TransactionRecord(RecordData initialData)
       : _data = initialData.copyWith(),
@@ -13,6 +14,7 @@ class TransactionRecord {
   RecordData get data => _data.copyWith();
   RecordStatus get status => _status;
   String? get validationQuestion => _validationQuestion;
+  bool get isStoreLookupCompleted => _isStoreLookupCompleted;
 
   void markExtracted() {
     _status = RecordStatus.extracted;
@@ -36,12 +38,26 @@ class TransactionRecord {
     _status = RecordStatus.resolved;
   }
 
+  void markStoreLookupCompleted() {
+    _isStoreLookupCompleted = true;
+  }
+
   void updateStore(String storeName) {
+    if (_data.store != storeName) {
+      _isStoreLookupCompleted = false;
+    }
     _data = _data.copyWith(store: storeName);
   }
 
   void updateData(RecordData newData) {
-    _data = newData.copyWith();
+    if (_data.store != newData.store || _data.locationClue != newData.locationClue) {
+      _isStoreLookupCompleted = false;
+    }
+    
+    // 安全合併：如果 CorrectionAgent 因為某些原因回傳了 null 的 categoryId，我們保留舊的
+    _data = newData.copyWith(
+      categoryId: newData.categoryId ?? _data.categoryId,
+    );
   }
 
   bool requiresStoreLookup() {

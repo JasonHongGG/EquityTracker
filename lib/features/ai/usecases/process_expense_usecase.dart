@@ -53,6 +53,7 @@ abstract class RecordProcessingStep {
     TransactionRecord record,
     TransactionSession session,
     String userInput,
+    List<CategoryModel> categories,
     {void Function(String)? onProgress}
   );
 }
@@ -72,8 +73,14 @@ class StoreResolutionStep implements RecordProcessingStep {
     TransactionSession session,
     {void Function(String)? onProgress}
   ) async {
-    if (record.status != RecordStatus.extracted) return null;
+    if (record.isStoreLookupCompleted) {
+      if (record.status == RecordStatus.extracted) {
+        record.markValidating();
+      }
+      return null;
+    }
     if (!record.requiresStoreLookup()) {
+      record.markStoreLookupCompleted();
       record.markValidating();
       return null;
     }
@@ -117,6 +124,7 @@ class StoreResolutionStep implements RecordProcessingStep {
     if (lookupResponse.isCertain && lookupResponse.storeName != null && lookupResponse.storeName!.isNotEmpty) {
       onProgress?.call('確認店家名稱為: ${lookupResponse.storeName}');
       record.updateStore(lookupResponse.storeName!);
+      record.markStoreLookupCompleted();
       record.markValidating();
       return null;
     } else {
@@ -125,9 +133,9 @@ class StoreResolutionStep implements RecordProcessingStep {
       final options = lookupResponse.options ?? [];
       String message;
       if (options.isEmpty) {
-        message = '請問「${data.item}」是在哪家店消費的？請直接輸入：';
+        message = '請問「${data.item ?? data.store ?? '未知項目'}」是在哪家店消費的？請直接輸入：';
       } else {
-        message = '請問「${data.item}」是在哪家店消費的？';
+        message = '請問「${data.item ?? data.store ?? '未知項目'}」是在哪家店消費的？';
       }
 
       return RequireStoreSelectionResult(
@@ -143,16 +151,17 @@ class StoreResolutionStep implements RecordProcessingStep {
     TransactionRecord record,
     TransactionSession session,
     String userInput,
+    List<CategoryModel> categories,
     {void Function(String)? onProgress}
   ) async {
     if (record.status != RecordStatus.needsStoreResolution) return null;
     
-    onProgress?.call('根據輸入「$userInput」重新查詢店家...');
+    onProgress?.call('收到輸入「$userInput」，準備重新驗證...');
     record.updateStore(userInput);
-    record.markExtracted();
     
-    // 遞迴呼叫 execute 進行二次地圖驗證
-    return await execute(recordIndex, record, session, onProgress: onProgress);
+    // 退回提取狀態，讓外層迴圈再次觸發 execute，進行資料驅動驗證
+    record.markExtracted();
+    return null;
   }
 }
 
@@ -196,6 +205,7 @@ class ValidationStep implements RecordProcessingStep {
     TransactionRecord record,
     TransactionSession session,
     String userInput,
+    List<CategoryModel> categories,
     {void Function(String)? onProgress}
   ) async {
     return null;
@@ -223,6 +233,7 @@ class CorrectionStep implements RecordProcessingStep {
     TransactionRecord record,
     TransactionSession session,
     String userInput,
+    List<CategoryModel> categories,
     {void Function(String)? onProgress}
   ) async {
     if (record.status != RecordStatus.needsHumanCorrection) return null;
@@ -233,11 +244,12 @@ class CorrectionStep implements RecordProcessingStep {
         record: record.data, 
         answer: userInput,
         question: record.validationQuestion,
+        categories: categories,
       ),
     );
 
     record.updateData(correctionResponse.record);
-    record.markValidating(); 
+    record.markExtracted(); 
     return null;
   }
 }
@@ -331,7 +343,7 @@ class ProcessExpenseUseCase {
 
     // 讓 Pipeline 中的每個 Step 都有機會處理使用者的修正
     for (final step in pipeline) {
-      await step.handleCorrection(recordIndex, record, session, userInput, onProgress: onProgress);
+      await step.handleCorrection(recordIndex, record, session, userInput, categories, onProgress: onProgress);
     }
 
     // 修正完畢後，再次啟動主 Pipeline 以繼續後續流程
