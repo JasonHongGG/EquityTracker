@@ -176,15 +176,7 @@ class _CategoryAnalysisList extends ConsumerWidget {
     return statsAsync.when(
       data: (stats) {
         if (stats.isEmpty) {
-          return Center(
-            child: Text(
-              'No ${type.name} categories',
-              style: TextStyle(
-                color: Theme.of(context).brightness == Brightness.dark ? Colors.white54 : Colors.black54,
-                fontSize: 16,
-              ),
-            ),
-          );
+          return const SizedBox.shrink();
         }
 
         return ListView.builder(
