@@ -5,7 +5,7 @@ import 'package:equity_tracker/core/widgets/immersive_scaffold.dart';
 
 import 'package:equity_tracker/features/settings/screens/settings_screen/preferences_section.dart';
 import 'package:equity_tracker/features/data_management/widgets/data_management_section.dart';
-import 'package:equity_tracker/features/data_management/widgets/experimental_section.dart';
+import 'package:equity_tracker/features/data_management/widgets/integrations_section.dart';
 import 'package:equity_tracker/features/data_management/widgets/danger_zone_section.dart';
 import 'package:equity_tracker/features/app_update/widgets/app_update_section.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/ai_settings_screen.dart';
@@ -46,7 +46,7 @@ class SettingsScreen extends ConsumerWidget {
             ],
           ),
           const DataManagementSection(),
-          ExperimentalSection(), // Contains Notion Sync & Import
+          IntegrationsSection(), // Contains Notion Sync & Import
           DangerZoneSection(),
           AppUpdateSection(),
         ],

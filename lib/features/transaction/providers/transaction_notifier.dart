@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/domain/transaction_usecases.dart';
-import 'package:equity_tracker/features/transaction/domain/services/title_suggestion_service.dart';
+
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/core/enums/sync_status.dart';
 import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
@@ -264,8 +264,13 @@ final dailyTotalProvider = Provider.family<AsyncValue<int>, DateTime>((ref, date
   });
 });
 
-final titleSuggestionServiceProvider = FutureProvider<TitleSuggestionService>((ref) async {
+final titleSuggestionProvider = FutureProvider.autoDispose.family<List<String>, String>((ref, query) async {
+  // Add a small delay for debouncing in case the user is typing fast
+  await Future.delayed(const Duration(milliseconds: 150));
+  
+  // If the provider gets disposed (e.g. user types another letter before 150ms), this will throw and abort the request.
+  // We can use Riverpod's ref.onDispose or just rely on the future cancelling if the widget unmounts,
+  // but just adding a small delay naturally acts as a debounce in Riverpod UI.
   final repo = ref.watch(transactionRepositoryProvider);
-  final titles = await repo.getFrequentTitles(limit: 20);
-  return TitleSuggestionService(titles);
+  return repo.searchFrequentTitles(query, limit: 10);
 });

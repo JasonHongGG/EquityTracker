@@ -120,13 +120,25 @@ class TransactionRepository {
     return maps.map((m) => m['title'] as String).where((t) => t.isNotEmpty).toSet().toList();
   }
 
-  Future<List<String>> getFrequentTitles({int limit = 20}) async {
+  Future<List<String>> searchFrequentTitles(String query, {int limit = 10}) async {
     final db = await _dbHelper.database;
-    final List<Map<String, dynamic>> maps = await db.rawQuery(
-      "SELECT title, COUNT(title) as count FROM transactions WHERE title IS NOT NULL AND title != '' GROUP BY title ORDER BY count DESC LIMIT ?",
-      [limit]
-    );
-    return maps.map((m) => m['title'] as String).toList();
+    final String safeQuery = query.trim();
+
+    if (safeQuery.isEmpty) {
+      // 如果查詢字串為空，回傳全域最常記帳的前 N 筆標題
+      final List<Map<String, dynamic>> maps = await db.rawQuery(
+        "SELECT title, COUNT(title) as count FROM transactions WHERE title IS NOT NULL AND title != '' GROUP BY title ORDER BY count DESC LIMIT ?",
+        [limit]
+      );
+      return maps.map((m) => m['title'] as String).toList();
+    } else {
+      // 若有查詢字串，則全域搜索包含該字串的標題，並依頻率排序
+      final List<Map<String, dynamic>> maps = await db.rawQuery(
+        "SELECT title, COUNT(title) as count FROM transactions WHERE title IS NOT NULL AND title != '' AND title LIKE ? GROUP BY title ORDER BY count DESC LIMIT ?",
+        ['%$safeQuery%', limit]
+      );
+      return maps.map((m) => m['title'] as String).toList();
+    }
   }
 
   Future<List<RecurringTransactionModel>> getAllRecurringTransactions() async {

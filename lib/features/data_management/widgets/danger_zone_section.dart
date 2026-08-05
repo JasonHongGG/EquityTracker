@@ -23,8 +23,7 @@ class DangerZoneSection extends ConsumerWidget {
 
       // ignore: unused_result
       ref.refresh(transactionNotifierProvider);
-      // ignore: unused_result
-      ref.refresh(titleSuggestionServiceProvider);  
+      ref.invalidate(titleSuggestionProvider);
 
       ref.read(notificationControllerProvider.notifier).showSuccess('All data cleared.');
     } catch (e) {

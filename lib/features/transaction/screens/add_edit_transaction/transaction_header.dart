@@ -79,40 +79,39 @@ class TransactionHeader extends ConsumerWidget {
           const SizedBox(height: 12),
 
           // Title Input (Compact with Suggestion Chips)
-          Consumer(
-            builder: (context, ref, child) {
-              final suggestionServiceAsync = ref.watch(titleSuggestionServiceProvider);
+          Column(
+            children: [
+              TextField(
+                controller: titleController,
+                focusNode: titleFocusNode,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 24,
+                  color: txtColor,
+                  fontWeight: FontWeight.w500,
+                ),
+                decoration: InputDecoration(
+                  isDense: true,
+                  hintText: 'What is this for?',
+                  hintStyle: TextStyle(
+                    color: Colors.grey.withValues(alpha: 0.5),
+                  ),
+                  border: InputBorder.none,
+                ),
+              ),
+              // Suggestion Chips
+              ListenableBuilder(
+                listenable: Listenable.merge([titleController, titleFocusNode]),
+                builder: (context, child) {
+                  if (!titleFocusNode.hasFocus) return const SizedBox.shrink();
+                  final value = titleController.text;
 
-              return suggestionServiceAsync.when(
-                data: (suggestionService) {
-                  return Column(
-                    children: [
-                      TextField(
-                        controller: titleController,
-                        focusNode: titleFocusNode,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: txtColor,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        decoration: InputDecoration(
-                          isDense: true,
-                          hintText: 'What is this for?',
-                          hintStyle: TextStyle(
-                            color: Colors.grey.withValues(alpha: 0.5),
-                          ),
-                          border: InputBorder.none,
-                        ),
-                      ),
-                      // Suggestion Chips
-                      ListenableBuilder(
-                        listenable: Listenable.merge([titleController, titleFocusNode]),
-                        builder: (context, child) {
-                          final value = titleController.text;
-                          final displayOptions = suggestionService.getSuggestions(value);
-
-                          if (titleFocusNode.hasFocus && displayOptions.isNotEmpty) {
+                  return Consumer(
+                    builder: (context, ref, child) {
+                      final suggestionsAsync = ref.watch(titleSuggestionProvider(value));
+                      return suggestionsAsync.when(
+                        data: (displayOptions) {
+                          if (displayOptions.isEmpty) return const SizedBox.shrink();
                             return Container(
                               height: 40,
                               margin: const EdgeInsets.only(top: 4),
@@ -151,17 +150,15 @@ class TransactionHeader extends ConsumerWidget {
                                 ),
                               ),
                             );
-                          }
-                          return const SizedBox.shrink();
                         },
-                      ),
-                    ],
+                        loading: () => const SizedBox.shrink(),
+                        error: (_, __) => const SizedBox.shrink(),
+                      );
+                    },
                   );
                 },
-                loading: () => const SizedBox.shrink(),
-                error: (e, st) => const SizedBox.shrink(),
-              );
-            },
+              ),
+            ],
           ),
         ],
       ),

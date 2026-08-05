@@ -29,11 +29,12 @@ class SettingsTile extends StatelessWidget {
         ? Colors.redAccent
         : (isDark ? Colors.white : const Color(0xFF1A1D2B));
 
+    final unifiedIconColor = isDark ? Colors.white70 : const Color(0xFF64748B); // Unified Slate color
+    final displayIconColor = isDestructive ? Colors.redAccent : unifiedIconColor;
+    
     final iconBgColor = isDestructive
         ? Colors.redAccent.withValues(alpha: 0.1)
-        : iconColor.withValues(alpha: 0.15);
-
-    final displayIconColor = isDestructive ? Colors.redAccent : iconColor;
+        : unifiedIconColor.withValues(alpha: 0.1);
 
     return Material(
       color: Colors.transparent,

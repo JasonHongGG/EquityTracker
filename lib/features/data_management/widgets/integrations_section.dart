@@ -4,8 +4,8 @@ import 'package:equity_tracker/features/settings/widgets/common/settings_section
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
 import 'package:equity_tracker/features/notion_sync/screens/notion_config_screen.dart';
 
-class ExperimentalSection extends ConsumerWidget {
-  const ExperimentalSection({super.key});
+class IntegrationsSection extends ConsumerWidget {
+  const IntegrationsSection({super.key});
 
   void _showNotionConfig(BuildContext context) {
     Navigator.push(
@@ -17,7 +17,7 @@ class ExperimentalSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SettingsSection(
-      title: 'EXPERIMENTAL',
+      title: 'INTEGRATIONS',
       children: [
         SettingsTile(
           icon: Icons.sync_rounded,
