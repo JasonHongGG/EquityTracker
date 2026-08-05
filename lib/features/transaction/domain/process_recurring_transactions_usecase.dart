@@ -30,7 +30,7 @@ class ProcessRecurringTransactionsUseCase {
           categoryId: recurring.categoryId,
           date: nextDue,
           createdAt: DateTime.now(),
-          note: 'Auto-generated: ${recurring.note ?? recurring.frequency.label}',
+          note: recurring.note ?? '',
         );
 
         final insertedId = await _repository.insertTransaction(newTransaction);

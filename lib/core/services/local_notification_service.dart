@@ -83,8 +83,8 @@ class LocalNotificationService {
 
     await _flutterLocalNotificationsPlugin.show(
       id: notificationId,
-      title: '系統自動記帳：${transaction.title}',
-      body: '已自動記錄 $amountStr 的$typeStr，備註：${transaction.note}',
+      title: '自動記帳：${transaction.title}',
+      body: '已成功新增一筆 $typeStr $amountStr',
       notificationDetails: platformChannelSpecifics,
       payload: transaction.id?.toString(),
     );
