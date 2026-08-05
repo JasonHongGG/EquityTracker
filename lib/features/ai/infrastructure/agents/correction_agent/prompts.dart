@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:equity_tracker/features/ai/infrastructure/agents/correction_agent/correction_agent.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 
-String buildSystemPrompt(List<CategoryModel> categories, String fallbackCategoryId) {
+String buildSystemPrompt(List<CategoryModel> categories, String fallbackCategoryId, String today) {
   final categoryListText = categories.map((c) => '- ID: "${c.id}", 名稱: "${c.name}"').join('\n');
 
   return '''你是一個資料修正與動態分類助手。你的任務是根據「系統提問」與「使用者的回答」，將舊有的記帳資料進行精準的覆寫、搬移，並**重新評估最適當的分類**。
@@ -24,6 +24,7 @@ $categoryListText
    - 例如：使用者原本輸入「火車票」(分類為交通)，後來修正為「我去買葡萄蛋糕」，你必須將 `item` 改為「葡萄蛋糕」，同時將 `categoryId` 變更為「餐飲」(或對應的食物分類 UUID)。
    - 絕對不可捏造不存在的分類 ID。若無法歸類，一律填入預設的 fallback ID: "$fallbackCategoryId"。
    - 如果使用者的回答完全不影響品項屬性（例如只是修改價格），請直接沿用 <RECORD> 中原有的 `categoryId`。
+5. **日期修正 (Date Correction)**：今天的日期是 $today。如果使用者在回答中修正了時間（例如「不對，是昨天買的」），請將其轉換為絕對日期 (YYYY-MM-DD) 並更新 `date` 欄位。如果使用者未提及日期，請直接沿用 <RECORD> 中的 `date` 欄位。
 
 【輸出 JSON 欄位定義】
 請回傳一筆完整的 JSON 物件，包含以下欄位（型別必須與原資料完全相同）：
@@ -33,6 +34,7 @@ $categoryListText
 - locationClue (字串 | null)
 - qty (數字 | null)
 - categoryId (字串): 重新評估後挑選出的真實分類 ID。
+- date (字串 | null): 更新後的絕對日期 (YYYY-MM-DD)。
 
 回應要求：
 1. 僅回傳單一 JSON 物件，不要包含 Markdown 格式 (如 ```json) 或其他說明文字。''';

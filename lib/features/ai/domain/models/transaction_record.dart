@@ -54,9 +54,10 @@ class TransactionRecord {
       _isStoreLookupCompleted = false;
     }
     
-    // 安全合併：如果 CorrectionAgent 因為某些原因回傳了 null 的 categoryId，我們保留舊的
+    // 安全合併：保留 categoryId 與 date
     _data = newData.copyWith(
       categoryId: newData.categoryId ?? _data.categoryId,
+      date: newData.date ?? _data.date,
     );
   }
 

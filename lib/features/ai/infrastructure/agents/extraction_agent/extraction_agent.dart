@@ -30,8 +30,9 @@ class ExtractionAgent extends BaseAgent<String, List<RecordData>> {
       ),
     );
     final fallbackCategoryId = otherCategory.id;
+    final today = DateTime.now().toIso8601String().split('T').first;
 
-    final systemPrompt = buildSystemPrompt(categories, fallbackCategoryId);
+    final systemPrompt = buildSystemPrompt(categories, fallbackCategoryId, today);
     final userPrompt = buildUserPrompt(input);
 
     String resultText = '';

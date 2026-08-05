@@ -169,12 +169,17 @@ class AISessionController extends Notifier<AISessionState> {
       final title = (data.store != null && data.store!.isNotEmpty) ? data.store! : data.item!;
       final note = data.item!;
       
+      DateTime txDate = DateTime.now();
+      if (data.date != null && data.date!.isNotEmpty) {
+        txDate = DateTime.tryParse(data.date!) ?? DateTime.now();
+      }
+      
       final tx = TransactionModel(
         title: title,
         amount: data.price!,
         categoryId: data.categoryId ?? 'other',
         type: TransactionType.expense,
-        date: DateTime.now(),
+        date: txDate,
         createdAt: DateTime.now(),
         note: note,
       );

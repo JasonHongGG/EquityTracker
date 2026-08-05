@@ -5,6 +5,7 @@ class RecordData {
   String? locationClue;
   int? qty;
   String? categoryId;
+  String? date;
 
   RecordData({
     this.item,
@@ -13,6 +14,7 @@ class RecordData {
     this.locationClue,
     this.qty,
     this.categoryId,
+    this.date,
   });
 
   factory RecordData.fromMap(Map<String, dynamic> map) {
@@ -23,6 +25,7 @@ class RecordData {
       locationClue: map['locationClue'] as String?,
       qty: (map['qty'] as num?)?.toInt(),
       categoryId: map['categoryId'] as String?,
+      date: map['date'] as String?,
     );
   }
 
@@ -34,6 +37,7 @@ class RecordData {
       'locationClue': locationClue,
       'qty': qty,
       'categoryId': categoryId,
+      'date': date,
     };
   }
 
@@ -44,6 +48,7 @@ class RecordData {
     String? locationClue,
     int? qty,
     String? categoryId,
+    String? date,
   }) {
     return RecordData(
       item: item ?? this.item,
@@ -52,6 +57,7 @@ class RecordData {
       locationClue: locationClue ?? this.locationClue,
       qty: qty ?? this.qty,
       categoryId: categoryId ?? this.categoryId,
+      date: date ?? this.date,
     );
   }
 }

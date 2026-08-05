@@ -46,8 +46,9 @@ class CorrectionAgent extends BaseAgent<CorrectionInput, CorrectionResult> {
       ),
     );
     final fallbackCategoryId = otherCategory.id;
+    final today = DateTime.now().toIso8601String().split('T').first;
 
-    final systemPrompt = buildSystemPrompt(input.categories, fallbackCategoryId);
+    final systemPrompt = buildSystemPrompt(input.categories, fallbackCategoryId, today);
     final userPrompt = buildUserPrompt(input);
 
     String resultText = '';
