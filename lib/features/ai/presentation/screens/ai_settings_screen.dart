@@ -8,6 +8,7 @@ import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/core/widgets/app_switch.dart';
 import 'package:equity_tracker/core/widgets/premium_config_card.dart';
 import 'package:equity_tracker/core/widgets/premium_config_header.dart';
+import 'package:equity_tracker/core/widgets/immersive_scaffold.dart';
 
 class AiSettingsScreen extends ConsumerStatefulWidget {
   const AiSettingsScreen({super.key});
@@ -412,25 +413,7 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
 
     _syncControllers(state);
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
-      appBar: AppBar(
-        backgroundColor: isDark ? Colors.black.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.5),
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        elevation: 0,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-            child: Container(color: Colors.transparent),
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+    return ImmersiveScaffold(
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -438,7 +421,6 @@ class _AiSettingsScreenState extends ConsumerState<AiSettingsScreen> {
             PremiumConfigHeader(
               title: 'AI Engine\nConfiguration',
               subtitle: 'SMART CATEGORIZATION & INSIGHTS',
-              isBehindAppBar: true,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),

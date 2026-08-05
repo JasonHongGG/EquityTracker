@@ -3,6 +3,17 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 
 class AppTheme {
+  // Enforce Universal Gesture Navigation (Swipe-to-back on all platforms)
+  static const PageTransitionsTheme _universalPageTransitionsTheme = PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+      TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+    },
+  );
+
   static ThemeData get darkTheme {
     return ThemeData(
       brightness: Brightness.dark,
@@ -23,6 +34,7 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
       ),
+      pageTransitionsTheme: _universalPageTransitionsTheme,
       useMaterial3: true,
     );
   }
@@ -49,12 +61,7 @@ class AppTheme {
         iconTheme: IconThemeData(color: Colors.black),
       ),
       useMaterial3: true,
-      pageTransitionsTheme: const PageTransitionsTheme(
-        builders: {
-          TargetPlatform.android: ZoomPageTransitionsBuilder(),
-          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-        },
-      ),
+      pageTransitionsTheme: _universalPageTransitionsTheme,
     );
   }
 }

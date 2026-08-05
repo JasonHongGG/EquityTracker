@@ -1,13 +1,11 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
-import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/core/widgets/app_switch.dart';
 import 'package:equity_tracker/core/widgets/premium_config_card.dart';
 import 'package:equity_tracker/core/widgets/premium_config_header.dart';
+import 'package:equity_tracker/core/widgets/immersive_scaffold.dart';
 import 'package:equity_tracker/core/providers/notification_provider.dart';
 
 class NotionConfigScreen extends ConsumerStatefulWidget {
@@ -68,25 +66,7 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
-      appBar: AppBar(
-        backgroundColor: isDark ? Colors.black.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.5),
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        elevation: 0,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-            child: Container(color: Colors.transparent),
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: isDark ? Colors.white : Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
+    return ImmersiveScaffold(
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -94,7 +74,6 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
             PremiumConfigHeader(
               title: 'Notion\nIntegration',
               subtitle: 'AI Cross-Referencing Engine'.toUpperCase(),
-              isBehindAppBar: true,
               trailing: AppSwitch(
                 value: state.isEnabled,
                 onChanged: (val) {
