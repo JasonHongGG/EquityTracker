@@ -12,6 +12,10 @@
     <!-- Audio recording permission for voice input -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     
+    <!-- Notification permissions -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    
     <application
         android:label="EquityTracker"
         android:name="${applicationName}"

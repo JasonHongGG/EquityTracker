@@ -9,8 +9,8 @@ class ProcessRecurringTransactionsUseCase {
 
   ProcessRecurringTransactionsUseCase(this._repository);
 
-  Future<bool> execute() async {
-    bool generatedAny = false;
+  Future<List<TransactionModel>> execute() async {
+    final List<TransactionModel> generatedTransactions = [];
     final recurringList = await _repository.getEnabledRecurringTransactions();
     final now = DateTime.now();
 
@@ -21,7 +21,6 @@ class ProcessRecurringTransactionsUseCase {
       int iterations = 0;
 
       while ((nextDue.isBefore(now) || nextDue.isAtSameMomentAs(now)) && iterations < 50) {
-        generatedAny = true;
         iterations++;
 
         final newTransaction = TransactionModel(
@@ -34,7 +33,10 @@ class ProcessRecurringTransactionsUseCase {
           note: 'Auto-generated: ${recurring.note ?? recurring.frequency.label}',
         );
 
-        await _repository.insertTransaction(newTransaction);
+        final insertedId = await _repository.insertTransaction(newTransaction);
+        final insertedTransaction = newTransaction.copyWith(id: insertedId);
+        generatedTransactions.add(insertedTransaction);
+        
         DateTime lastGenerated = nextDue;
 
         switch (recurring.frequency) {
@@ -74,6 +76,6 @@ class ProcessRecurringTransactionsUseCase {
       }
     }
 
-    return generatedAny;
+    return generatedTransactions;
   }
 }

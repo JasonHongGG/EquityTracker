@@ -5,6 +5,7 @@ import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/transaction/domain/process_recurring_transactions_usecase.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
+import 'package:equity_tracker/core/services/local_notification_service.dart';
 
 final processRecurringTransactionsUseCaseProvider = Provider<ProcessRecurringTransactionsUseCase>((ref) {
   return ProcessRecurringTransactionsUseCase(ref.watch(transactionRepositoryProvider));
@@ -53,11 +54,16 @@ class RecurringTransactionListNotifier extends AsyncNotifier<List<RecurringTrans
 
   Future<void> checkAndProcess() async {
     final generated = await ref.read(processRecurringTransactionsUseCaseProvider).execute();
-    if (generated) {
+    if (generated.isNotEmpty) {
       ref.invalidate(transactionListProvider);
       final list = await _fetchExistingRecurringTransactions();
       state = AsyncValue.data(list);
       _scheduleNextTrigger(list);
+      
+      // 發送獨立的推播通知
+      for (final transaction in generated) {
+        await LocalNotificationService().showAutoTransactionNotification(transaction);
+      }
     }
   }
 
