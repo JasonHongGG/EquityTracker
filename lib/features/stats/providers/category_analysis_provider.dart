@@ -22,11 +22,10 @@ final categoryAnalysisTypeProvider = NotifierProvider<CategoryAnalysisTypeNotifi
   CategoryAnalysisTypeNotifier.new,
 );
 
-final categoryStatsProvider = Provider<AsyncValue<List<CategoryStat>>>((ref) {
+final categoryStatsProvider = Provider.family<AsyncValue<List<CategoryStat>>, TransactionType>((ref, type) {
   final transactionsAsync = ref.watch(filteredTransactionsProvider);
   final categoriesAsync = ref.watch(categoryListProvider);
   final useCase = ref.watch(calculateCategoryStatsUseCaseProvider);
-  final type = ref.watch(categoryAnalysisTypeProvider);
 
   if (transactionsAsync is AsyncLoading || categoriesAsync is AsyncLoading) {
     return const AsyncLoading();

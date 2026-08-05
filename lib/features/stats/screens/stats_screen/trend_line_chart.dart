@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:equity_tracker/core/utils/currency_formatter.dart';
 
 class TrendLineChart extends StatefulWidget {
@@ -27,9 +29,8 @@ class TrendLineChart extends StatefulWidget {
 }
 
 class _TrendLineChartState extends State<TrendLineChart> {
-  // Use local state effectively but sync with parent
-  // actually we can just use widget.selectedDay for display
-  // but if we want internal touch handling, we can keep state
+  Offset? _touchPosition;
+  int? _touchedDay;
 
   @override
   void didUpdateWidget(TrendLineChart oldWidget) {
@@ -81,7 +82,11 @@ class _TrendLineChartState extends State<TrendLineChart> {
       interval = 5000;
     }
 
-    return LineChart(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Stack(
+          children: [
+            LineChart(
       LineChartData(
         gridData: FlGridData(
           show: true,
@@ -228,68 +233,31 @@ class _TrendLineChartState extends State<TrendLineChart> {
           ),
         ],
         lineTouchData: LineTouchData(
+          getTouchedSpotIndicator: (LineChartBarData barData, List<int> spotIndexes) {
+            return spotIndexes.map((spotIndex) {
+              return TouchedSpotIndicatorData(
+                FlLine(
+                  color: isDark ? Colors.white24 : Colors.black12, 
+                  strokeWidth: 2,
+                  dashArray: [4, 4], // Dashed line
+                ),
+                FlDotData(
+                  show: true,
+                  getDotPainter: (spot, percent, bar, index) {
+                    return FlDotCirclePainter(
+                      radius: 5,
+                      color: bar.color!,
+                      strokeWidth: 3,
+                      strokeColor: bar.color!.withValues(alpha: 0.3), // Halo effect
+                    );
+                  },
+                ),
+              );
+            }).toList();
+          },
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (_) =>
-                isDark ? const Color(0xFF2C2C2E) : Colors.white,
-            tooltipPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            fitInsideHorizontally: true,
-            fitInsideVertically: true, // Should work better with extra Y space
-            tooltipBorder: BorderSide(
-              color: isDark ? Colors.white10 : Colors.black12,
-            ),
             getTooltipItems: (touchedSpots) {
-              if (touchedSpots.isEmpty) return [];
-
-              // Common date header variables (snap to nearest day)
-              final day = touchedSpots.first.x.round();
-              final safeDay = day.clamp(1, widget.daysInMonth);
-              final dateStr =
-                  '${widget.month.month.toString().padLeft(2, '0')}/${safeDay.toString().padLeft(2, '0')}';
-
-              return touchedSpots.map((spot) {
-                final isIncome = spot.barIndex == 0;
-                final color = isIncome ? incomeColor : expenseColor;
-                final sign = isIncome ? '+' : '-';
-
-                // Fetch the EXACT original value, ignoring the interpolated spline Y
-                final exactValue = isIncome ? (widget.incomeSpots[safeDay] ?? 0) : (widget.expenseSpots[safeDay] ?? 0);
-
-                // For the first item, show Date Header then Value
-                if (spot == touchedSpots.first) {
-                  return LineTooltipItem(
-                    '$dateStr\n', // Main text is just the date header
-                    TextStyle(
-                      color: isDark ? Colors.white70 : Colors.grey.shade600,
-                      fontSize: 12,
-                      fontWeight: FontWeight.normal,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: '$sign${CurrencyFormatter.format(exactValue.toInt(), widget.currencySymbol)}',
-                        style: TextStyle(
-                          color: color,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                    textAlign: TextAlign.center,
-                  );
-                } else {
-                  // Subsequent items only show value
-                  return LineTooltipItem(
-                    '$sign${CurrencyFormatter.format(exactValue.toInt(), widget.currencySymbol)}',
-                    TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  );
-                }
-              }).toList();
+              return touchedSpots.map((spot) => null).toList();
             },
           ),
           touchCallback: (FlTouchEvent event, LineTouchResponse? response) {
@@ -303,12 +271,21 @@ class _TrendLineChartState extends State<TrendLineChart> {
                                event is FlPanCancelEvent;
                                
             if (isEndEvent) {
+              setState(() {
+                _touchPosition = null;
+                _touchedDay = null;
+              });
               return;
             }
 
             final spot = response.lineBarSpots!.first;
             final day = spot.x.round(); // Snap to nearest integer day
             final safeDay = day.clamp(1, widget.daysInMonth);
+            
+            setState(() {
+              _touchPosition = event.localPosition;
+              _touchedDay = safeDay;
+            });
             
             if (widget.selectedDay != safeDay) {
               // Check against prop
@@ -318,6 +295,118 @@ class _TrendLineChartState extends State<TrendLineChart> {
             }
           },
           handleBuiltInTouches: true,
+        ),
+      ),
+    ),
+    _buildCustomTooltip(context, constraints, isDark, incomeColor, expenseColor),
+  ],
+);
+},
+);
+}
+
+  Widget _buildCustomTooltip(BuildContext context, BoxConstraints constraints, bool isDark, Color incomeColor, Color expenseColor) {
+    if (_touchPosition == null || _touchedDay == null) return const SizedBox.shrink();
+
+    final income = widget.incomeSpots[_touchedDay!] ?? 0;
+    final expense = widget.expenseSpots[_touchedDay!] ?? 0;
+
+    final dateStr = DateFormat('MMM d').format(DateTime(widget.month.year, widget.month.month, _touchedDay!));
+    
+    // Calculate tooltip width (Much narrower and minimalist!)
+    const double tooltipWidth = 96.0;
+    
+    // Calculate EXACT X position of the vertical line mathematically based on the chart domain
+    const double leftPadding = 32.0; // FlTitlesData left reservedSize
+    final double plotWidth = constraints.maxWidth - leftPadding;
+    final double dayPercent = (_touchedDay! - 1) / (widget.daysInMonth - 1);
+    final double exactX = leftPadding + (dayPercent * plotWidth);
+    
+    // Anchor X perfectly to the exact line, but keep it within bounds
+    double left = exactX - (tooltipWidth / 2);
+    // Ensure it doesn't clip on left or right, with an 8px safe margin
+    left = left.clamp(8.0, constraints.maxWidth - tooltipWidth - 8.0);
+
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.easeOutCubic,
+      left: left,
+      top: 8, // Float beautifully near the top
+      child: IgnorePointer(
+        child: Container(
+          width: tooltipWidth,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            // The shadow MUST be on a container outside the ClipRRect to render properly
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            // BackdropFilter provides the true Glassmorphism effect
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                decoration: BoxDecoration(
+                  // The container background MUST be highly transparent to let the blur show through
+                  color: isDark 
+                      ? const Color(0xFF1C1C1E).withValues(alpha: 0.55) 
+                      : Colors.white.withValues(alpha: 0.65),
+                  border: Border.all(
+                    color: isDark 
+                        ? Colors.white.withValues(alpha: 0.15) 
+                        : Colors.white.withValues(alpha: 0.8),
+                    width: 0.5,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      dateStr,
+                      style: TextStyle(
+                        color: isDark ? Colors.white60 : Colors.black54,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Income Row (Minimalist Icon + Value)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Icon(Icons.arrow_upward_rounded, color: incomeColor, size: 14),
+                        Text(
+                          CurrencyFormatter.format(income.toInt(), widget.currencySymbol),
+                          style: TextStyle(color: incomeColor, fontWeight: FontWeight.w700, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    // Expense Row (Minimalist Icon + Value)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Icon(Icons.arrow_downward_rounded, color: expenseColor, size: 14),
+                        Text(
+                          CurrencyFormatter.format(expense.toInt(), widget.currencySymbol),
+                          style: TextStyle(color: expenseColor, fontWeight: FontWeight.w700, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
