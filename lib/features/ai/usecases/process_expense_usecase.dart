@@ -224,13 +224,14 @@ class CorrectionWorker implements IAgenticWorker {
     // 消耗黑板上的輸入 (拿取並移除)
     final userInput = record.metadata.remove('CorrectionWorker_Input') as String;
     final categories = record.metadata.remove('CorrectionWorker_Categories') as List<CategoryModel>;
+    final question = record.metadata.remove('CorrectionWorker_Question') as String?;
     
     onProgress?.call('處理您的補充資訊...');
     final correctionResponse = await correctionAgent.execute(
       CorrectionInput(
         record: record.data, 
         answer: userInput,
-        question: record.validationQuestion,
+        question: question ?? record.validationQuestion,
         categories: categories,
       ),
     );
@@ -335,13 +336,21 @@ class ProcessExpenseUseCase {
     final record = session.records[recordIndex];
 
     if (pendingAction is RequireStoreSelectionResult) {
-      onProgress?.call('收到輸入「$userInput」，準備更新店家名稱...');
-      // 這種最簡單的修改不需要 AI，直接更新黑板即可。更新完後，其他專家 (如 ValidationWorker) 會自動接手。
-      record.updateStore(userInput);
+      if (pendingAction.options.contains(userInput)) {
+        onProgress?.call('收到選項「$userInput」，準備更新店家名稱...');
+        // 如果使用者精準選擇了選項，不需要 AI 解析，直接更新黑板即可
+        record.updateStore(userInput);
+      } else {
+        // 使用者輸入了其他內容 (如「商店 賣蛋糕的 150元」)，必須交給 CorrectionWorker 進行語意分析
+        record.metadata['CorrectionWorker_Input'] = userInput;
+        record.metadata['CorrectionWorker_Question'] = pendingAction.message;
+        record.metadata['CorrectionWorker_Categories'] = categories;
+      }
     } 
     else if (pendingAction is RequireCorrectionResult) {
       // 複雜的語義修正，將使用者的輸入寫在黑板上，交給 CorrectionWorker 去處理
       record.metadata['CorrectionWorker_Input'] = userInput;
+      record.metadata['CorrectionWorker_Question'] = pendingAction.question;
       record.metadata['CorrectionWorker_Categories'] = categories;
     }
 
