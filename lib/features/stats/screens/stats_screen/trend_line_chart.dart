@@ -184,11 +184,12 @@ class _TrendLineChartState extends State<TrendLineChart> {
         maxX: widget.daysInMonth.toDouble(),
         minY: 0,
         maxY: maxY, // Apply enhanced maxY
+        clipData: const FlClipData.none(),
         lineBarsData: [
           // Income Line
           LineChartBarData(
-            spots: _generateSpots(widget.incomeSpots),
-            isCurved: true,
+            spots: _generateSmoothSpots(widget.incomeSpots),
+            isCurved: false, // We use custom dense spots for smoothness
             color: incomeColor,
             barWidth: 3,
             isStrokeCapRound: true,
@@ -207,8 +208,8 @@ class _TrendLineChartState extends State<TrendLineChart> {
           ),
           // Expense Line
           LineChartBarData(
-            spots: _generateSpots(widget.expenseSpots),
-            isCurved: true,
+            spots: _generateSmoothSpots(widget.expenseSpots),
+            isCurved: false, // We use custom dense spots for smoothness
             color: expenseColor,
             barWidth: 3,
             isStrokeCapRound: true,
@@ -242,15 +243,19 @@ class _TrendLineChartState extends State<TrendLineChart> {
             getTooltipItems: (touchedSpots) {
               if (touchedSpots.isEmpty) return [];
 
-              // Common date header variables
-              final day = touchedSpots.first.x.toInt();
+              // Common date header variables (snap to nearest day)
+              final day = touchedSpots.first.x.round();
+              final safeDay = day.clamp(1, widget.daysInMonth);
               final dateStr =
-                  '${widget.month.month.toString().padLeft(2, '0')}/${day.toString().padLeft(2, '0')}';
+                  '${widget.month.month.toString().padLeft(2, '0')}/${safeDay.toString().padLeft(2, '0')}';
 
               return touchedSpots.map((spot) {
                 final isIncome = spot.barIndex == 0;
                 final color = isIncome ? incomeColor : expenseColor;
                 final sign = isIncome ? '+' : '-';
+
+                // Fetch the EXACT original value, ignoring the interpolated spline Y
+                final exactValue = isIncome ? (widget.incomeSpots[safeDay] ?? 0) : (widget.expenseSpots[safeDay] ?? 0);
 
                 // For the first item, show Date Header then Value
                 if (spot == touchedSpots.first) {
@@ -263,7 +268,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
                     ),
                     children: [
                       TextSpan(
-                        text: '$sign${CurrencyFormatter.format(spot.y.toInt(), widget.currencySymbol)}',
+                        text: '$sign${CurrencyFormatter.format(exactValue.toInt(), widget.currencySymbol)}',
                         style: TextStyle(
                           color: color,
                           fontWeight: FontWeight.bold,
@@ -276,7 +281,7 @@ class _TrendLineChartState extends State<TrendLineChart> {
                 } else {
                   // Subsequent items only show value
                   return LineTooltipItem(
-                    '$sign${CurrencyFormatter.format(spot.y.toInt(), widget.currencySymbol)}',
+                    '$sign${CurrencyFormatter.format(exactValue.toInt(), widget.currencySymbol)}',
                     TextStyle(
                       color: color,
                       fontWeight: FontWeight.bold,
@@ -288,19 +293,27 @@ class _TrendLineChartState extends State<TrendLineChart> {
             },
           ),
           touchCallback: (FlTouchEvent event, LineTouchResponse? response) {
-            if (response == null || response.lineBarSpots == null) {
-              // Don't clear selection on drag end instantly?
-              // Let's keep it simple
+            if (response == null || response.lineBarSpots == null || response.lineBarSpots!.isEmpty) {
               return;
             }
-            if (event is FlTapUpEvent || event is FlPanUpdateEvent) {
-              final spot = response.lineBarSpots!.first;
-              final day = spot.x.toInt();
-              if (widget.selectedDay != day) {
-                // Check against prop
-                if (widget.onDateSelected != null) {
-                  widget.onDateSelected!(day);
-                }
+            
+            // Ignore events that indicate the end of an interaction
+            final isEndEvent = event is FlTapCancelEvent || 
+                               event is FlPanEndEvent || 
+                               event is FlPanCancelEvent;
+                               
+            if (isEndEvent) {
+              return;
+            }
+
+            final spot = response.lineBarSpots!.first;
+            final day = spot.x.round(); // Snap to nearest integer day
+            final safeDay = day.clamp(1, widget.daysInMonth);
+            
+            if (widget.selectedDay != safeDay) {
+              // Check against prop
+              if (widget.onDateSelected != null) {
+                widget.onDateSelected!(safeDay);
               }
             }
           },
@@ -310,13 +323,48 @@ class _TrendLineChartState extends State<TrendLineChart> {
     );
   }
 
-  List<FlSpot> _generateSpots(Map<int, double> data) {
-    // Ensure we have spots for relevant days, or should we skip 0s?
-    // Using 0 for days with no data to show the drop/rise
-    final List<FlSpot> spots = [];
+  List<FlSpot> _generateSmoothSpots(Map<int, double> data) {
+    // 1. Get raw points
+    List<FlSpot> rawSpots = [];
     for (int i = 1; i <= widget.daysInMonth; i++) {
-      spots.add(FlSpot(i.toDouble(), data[i] ?? 0));
+      rawSpots.add(FlSpot(i.toDouble(), data[i] ?? 0));
     }
-    return spots;
+
+    if (rawSpots.length < 3) return rawSpots; 
+
+    // 2. Generate dense points using Catmull-Rom Spline
+    List<FlSpot> smoothSpots = [];
+    final int resolution = 10; // 10 points between each day for smoothness
+
+    for (int i = 0; i < rawSpots.length - 1; i++) {
+      FlSpot p0 = i == 0 ? rawSpots[i] : rawSpots[i - 1];
+      FlSpot p1 = rawSpots[i];
+      FlSpot p2 = rawSpots[i + 1];
+      FlSpot p3 = i + 2 < rawSpots.length ? rawSpots[i + 2] : rawSpots[i + 1];
+
+      for (int j = 0; j < resolution; j++) {
+        double t = j / resolution;
+        double x = p1.x + (p2.x - p1.x) * t;
+
+        double t2 = t * t;
+        double t3 = t2 * t;
+
+        // Standard 1D Catmull-Rom Spline formula
+        double y = 0.5 *
+            ((2 * p1.y) +
+                (-p0.y + p2.y) * t +
+                (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 +
+                (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3);
+
+        // MATHEMATICAL CLAMP: Prevent dropping below 0
+        if (y < 0) y = 0;
+
+        smoothSpots.add(FlSpot(x, y));
+      }
+    }
+    
+    // Add the final point
+    smoothSpots.add(rawSpots.last);
+    return smoothSpots;
   }
 }
