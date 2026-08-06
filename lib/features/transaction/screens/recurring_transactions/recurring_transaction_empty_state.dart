@@ -7,33 +7,39 @@ class RecurringTransactionEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return SliverFillRemaining(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              FontAwesomeIcons.repeat,
-              size: 64,
-              color: isDark ? Colors.white10 : Colors.black12,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No recurring transactions',
-              style: TextStyle(
-                color: isDark ? Colors.white30 : Colors.black26,
-                fontSize: 16,
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(top: 100.0, bottom: 100.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                FontAwesomeIcons.repeat,
+                size: 64,
+                color: isDark ? Colors.white10 : Colors.black12,
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Tap + to add one',
-              style: TextStyle(
-                color: isDark ? Colors.white30 : Colors.black26,
-                fontSize: 14,
+              const SizedBox(height: 16),
+              Text(
+                'No recurring transactions',
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  color: isDark ? Colors.white30 : Colors.black26,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                'Tap + to add one',
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  color: isDark ? Colors.white30 : Colors.black26,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
