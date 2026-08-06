@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
+import 'package:equity_tracker/features/notion_sync/controllers/sync_progress_controller.dart';
 import 'package:equity_tracker/core/widgets/app_switch.dart';
 import 'package:equity_tracker/core/widgets/premium_config_card.dart';
 import 'package:equity_tracker/core/widgets/premium_config_header.dart';
@@ -119,7 +120,9 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
                       ),
                     ),
 
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 16),
+                    _buildSyncProgress(ref, isDark),
+                    const SizedBox(height: 24),
 
                     // Save & Verify Button
                     SizedBox(
@@ -216,6 +219,67 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
         filled: true,
         fillColor: Colors.transparent,
       ),
+    );
+  }
+
+  Widget _buildSyncProgress(WidgetRef ref, bool isDark) {
+    final syncState = ref.watch(syncProgressProvider);
+    
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      child: syncState.isSyncing
+          ? Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? Colors.white12 : Colors.black12,
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        syncState.statusText,
+                        style: TextStyle(
+                          fontFamily: 'Outfit',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? Colors.white70 : Colors.black87,
+                        ),
+                      ),
+                      Text(
+                        '${(syncState.progress * 100).toInt()}%',
+                        style: TextStyle(
+                          fontFamily: 'Outfit',
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: LinearProgressIndicator(
+                      value: syncState.progress,
+                      minHeight: 6,
+                      backgroundColor: isDark ? Colors.white12 : Colors.black12,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : const SizedBox.shrink(),
     );
   }
 }

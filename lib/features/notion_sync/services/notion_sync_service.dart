@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/core/enums/sync_status.dart';
 import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
+import 'package:equity_tracker/features/notion_sync/controllers/sync_progress_controller.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 
@@ -17,10 +18,15 @@ class NotionSyncService {
     final config = _ref.read(notionConfigControllerProvider);
     if (!config.isEnabled || config.token.isEmpty || config.dbId.isEmpty) return;
 
+    final progressController = _ref.read(syncProgressProvider.notifier);
+    if (!silent) progressController.startSync('Pushing local changes...');
+
     // First push local changes
     await pushPendingChanges(silent: true);
 
     try {
+      if (!silent) progressController.updateProgress('Fetching transactions from Notion...', 0.2);
+      
       final lastSyncStr = await syncRepo.getLastSyncTime();
       final DateTime? lastSync = lastSyncStr != null ? DateTime.parse(lastSyncStr) : null;
 
@@ -33,13 +39,21 @@ class NotionSyncService {
       );
 
       if (transactions.isEmpty) {
+        if (!silent) progressController.stopSync(finalStatus: 'Sync Complete');
         return;
       }
 
       final repo = _ref.read(transactionRepositoryProvider);
       final List<int> insertedIds = [];
+      final totalTx = transactions.length;
 
-      for (final tx in transactions) {
+      for (int i = 0; i < totalTx; i++) {
+        final tx = transactions[i];
+        if (!silent && i % 10 == 0) { // Update progress every 10 items to prevent UI spam
+           final progress = 0.5 + (0.5 * (i / totalTx));
+           progressController.updateProgress('Syncing $i / $totalTx items...', progress);
+        }
+
         if (tx.notionId == null || tx.notionId!.isEmpty) continue;
 
         final existing = await repo.getTransactionByNotionId(tx.notionId!);
@@ -68,9 +82,11 @@ class NotionSyncService {
       // Silent reload instead of destructive refresh
       await _ref.read(transactionNotifierProvider.notifier).refresh();
 
+      if (!silent) progressController.stopSync(finalStatus: 'Sync Complete');
     } catch (e) {
+      if (!silent) progressController.stopSync(finalStatus: 'Sync Failed');
       // Background sync errors can be logged or ignored silently
-      debugPrint('Sync Error: \$e');
+      debugPrint('Sync Error: $e');
     }
   }
 

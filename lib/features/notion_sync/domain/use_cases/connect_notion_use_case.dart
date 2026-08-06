@@ -44,7 +44,8 @@ class ConnectNotionUseCase {
       }
     }
 
-    // 4. Trigger background bidirectional sync
-    await _notionSyncService.syncFromNotion(silent: true);
+    // 4. Trigger background bidirectional sync asynchronously so it doesn't block verification
+    // Passing silent: false so the UI shows the progress bar for the initial massive sync.
+    Future.microtask(() => _notionSyncService.syncFromNotion(silent: false));
   }
 }
