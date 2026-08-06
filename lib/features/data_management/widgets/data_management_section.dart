@@ -40,7 +40,14 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
       final backupService = ref.read(nativeBackupServiceProvider);
       final jsonContent = await backupService.createBackupJson();
 
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final now = DateTime.now();
+      final yyyy = now.year.toString();
+      final mm = now.month.toString().padLeft(2, '0');
+      final dd = now.day.toString().padLeft(2, '0');
+      final hh = now.hour.toString().padLeft(2, '0');
+      final min = now.minute.toString().padLeft(2, '0');
+      final ss = now.second.toString().padLeft(2, '0');
+      final timestamp = '${yyyy}${mm}${dd}_${hh}${min}${ss}';
       final filename = 'equity_tracker_backup_$timestamp.json';
       final path = '$selectedDirectory/$filename';
 

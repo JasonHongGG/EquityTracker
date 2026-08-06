@@ -30,19 +30,14 @@ class _DangerZoneSectionState extends ConsumerState<DangerZoneSection> {
       
       // 2. Delegate to the Wipe All Data Use Case for atomic wipe
       await ref.read(wipeAllDataUseCaseProvider).execute();
-      
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Notion Sync cursor reset to protect your cloud archive.')),
-        );
-      }
 
       // 3. Refresh state
       // ignore: unused_result
       ref.refresh(transactionNotifierProvider);
       ref.invalidate(titleSuggestionProvider);
+      ref.invalidate(notionConfigControllerProvider); // Force Notion UI state to reset
 
-      ref.read(notificationControllerProvider.notifier).showSuccess('All data cleared successfully.');
+      ref.read(notificationControllerProvider.notifier).showSuccess('All data & Notion sync cleared successfully.');
     } catch (e) {
       ref.read(notificationControllerProvider.notifier).showError('Failed to clear data: $e');
     } finally {
