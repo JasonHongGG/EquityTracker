@@ -99,10 +99,13 @@ class _RollingDigit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Target adds 10 for every spin cycle so it ALWAYS rolls forward, even if the digit is the same
-    final targetValue = (spinCount * 10) + digit;
-    // For newly mounted digits, start them 1 cycle behind so they spin exactly into place
-    final beginValue = spinCount == 0 ? 0.0 : ((spinCount - 1) * 10).toDouble();
+    // Target adds 10 for every spin cycle so it ALWAYS rolls forward.
+    // We add 1 to the spinCount modifier so that even on initial mount (spinCount=0),
+    // it rolls at least one full cycle (10 steps) + digit. This ensures '0' animates.
+    final targetValue = ((spinCount + 1) * 10) + digit;
+    // For newly mounted digits, start them exactly 1 cycle behind the target value
+    // so they spin smoothly into place alongside existing digits.
+    final beginValue = (spinCount * 10).toDouble();
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: beginValue, end: targetValue.toDouble()),
