@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/core/providers/usecase_providers.dart';
 import 'package:equity_tracker/features/notion_sync/services/notion_sync_service.dart';
+import 'package:equity_tracker/core/providers/notification_provider.dart';
 
 class NotionConfigState {
   final String token;
@@ -9,8 +10,6 @@ class NotionConfigState {
   final bool isEnabled;
   final bool isLoading;
   final bool isVerifying;
-  final String? message;
-  final bool isError;
   final bool connectionSuccess;
 
   NotionConfigState({
@@ -19,8 +18,6 @@ class NotionConfigState {
     this.isEnabled = false,
     this.isLoading = false,
     this.isVerifying = false,
-    this.message,
-    this.isError = false,
     this.connectionSuccess = false,
   });
 
@@ -30,8 +27,6 @@ class NotionConfigState {
     bool? isEnabled,
     bool? isLoading,
     bool? isVerifying,
-    String? message,
-    bool? isError,
     bool? connectionSuccess,
   }) {
     return NotionConfigState(
@@ -40,8 +35,6 @@ class NotionConfigState {
       isEnabled: isEnabled ?? this.isEnabled,
       isLoading: isLoading ?? this.isLoading,
       isVerifying: isVerifying ?? this.isVerifying,
-      message: message, // Allow nulling
-      isError: isError ?? this.isError,
       connectionSuccess: connectionSuccess ?? this.connectionSuccess,
     );
   }
@@ -86,10 +79,6 @@ class NotionConfigController extends Notifier<NotionConfigState> {
     state = state.copyWith(isEnabled: enabled);
   }
 
-  void clearMessage() {
-    state = state.copyWith(message: null, isError: false, connectionSuccess: false);
-  }
-
   Future<void> reloadConfig() async {
     await _loadConfig();
   }
@@ -113,18 +102,19 @@ class NotionConfigController extends Notifier<NotionConfigState> {
       
       state = state.copyWith(
         isVerifying: false, 
-        message: 'Connected Successfully.', 
-        isError: false, 
         connectionSuccess: true,
         isEnabled: true // Force UI to reflect domain state
       );
+      
+      ref.read(notificationControllerProvider.notifier).showSuccess('Connected Successfully.');
     } catch (e) {
       state = state.copyWith(
         isVerifying: false, 
-        message: e.toString().replaceAll('Exception: ', ''), 
-        isError: true, 
         connectionSuccess: false
       );
+      
+      final errorMsg = e.toString().replaceAll('Exception: ', '');
+      ref.read(notificationControllerProvider.notifier).showError(errorMsg);
     }
   }
 }

@@ -47,7 +47,7 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
       final hh = now.hour.toString().padLeft(2, '0');
       final min = now.minute.toString().padLeft(2, '0');
       final ss = now.second.toString().padLeft(2, '0');
-      final timestamp = '${yyyy}${mm}${dd}_${hh}${min}${ss}';
+      final timestamp = '$yyyy${mm}${dd}_$hh$min$ss';
       final filename = 'equity_tracker_backup_$timestamp.json';
       final path = '$selectedDirectory/$filename';
 

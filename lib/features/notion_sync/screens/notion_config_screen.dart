@@ -6,7 +6,6 @@ import 'package:equity_tracker/core/widgets/app_switch.dart';
 import 'package:equity_tracker/core/widgets/premium_config_card.dart';
 import 'package:equity_tracker/core/widgets/premium_config_header.dart';
 import 'package:equity_tracker/core/widgets/immersive_scaffold.dart';
-import 'package:equity_tracker/core/providers/notification_provider.dart';
 
 class NotionConfigScreen extends ConsumerStatefulWidget {
   const NotionConfigScreen({super.key});
@@ -51,17 +50,7 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
       _dbIdController.text = state.dbId;
     }
 
-    ref.listen<NotionConfigState>(notionConfigControllerProvider, (previous, next) {
-      if (next.message != null && (previous?.message != next.message)) {
-        if (next.isError) {
-          ref.read(notificationControllerProvider.notifier).showError(next.message!);
-        } else {
-          ref.read(notificationControllerProvider.notifier).showSuccess(next.message!);
-        }
-        
-        Future.microtask(() => controller.clearMessage());
-      }
-    });
+    // Transient UI state handling (like notifications) is now directly managed by the UseCase/Controller methods instead of state listening
 
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
