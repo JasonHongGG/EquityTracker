@@ -80,7 +80,14 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 16),
-                  if (state.isEnabled) ...[
+                  AnimatedOpacity(
+                    duration: const Duration(milliseconds: 300),
+                    opacity: state.isEnabled ? 1.0 : 0.4,
+                    child: IgnorePointer(
+                      ignoring: !state.isEnabled,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
                     PremiumConfigCard(
                       child: Column(
                         children: [
@@ -178,7 +185,10 @@ class _NotionConfigScreenState extends ConsumerState<NotionConfigScreen> with Si
                         ),
                       ),
                     ),
-                  ],
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
