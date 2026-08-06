@@ -119,19 +119,34 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                   child: ListView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                    itemCount: sessionState.messages.length + (sessionState.isProcessing ? 1 : 0),
+                    itemCount: sessionState.messages.length + 
+                               (sessionState.isProcessing ? 1 : 0) + 
+                               (sessionState.pendingAction != null ? 1 : 0),
                     itemBuilder: (context, index) {
-                      if (index == sessionState.messages.length) {
-                        return _buildThinkingBubble(sessionState, isDark);
+                      if (index < sessionState.messages.length) {
+                        return _buildChatBubble(sessionState.messages[index], isDark);
                       }
-                      return _buildChatBubble(sessionState.messages[index], isDark);
+                      
+                      int offset = sessionState.messages.length;
+                      
+                      if (sessionState.isProcessing) {
+                        if (index == offset) {
+                          return _buildThinkingBubble(sessionState, isDark);
+                        }
+                        offset++;
+                      }
+                      
+                      if (sessionState.pendingAction != null) {
+                        if (index == offset) {
+                          return _buildActionCard(context, sessionState.pendingAction!, isDark);
+                        }
+                      }
+                      
+                      return const SizedBox.shrink();
                     },
                   ),
                 ),
               ),
-              
-              if (sessionState.pendingAction != null)
-                _buildActionCard(context, sessionState.pendingAction!, isDark),
 
               _buildInputArea(sessionState, voiceState, isDark),
             ],
