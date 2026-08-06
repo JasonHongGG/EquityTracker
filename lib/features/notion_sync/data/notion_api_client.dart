@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
+import 'package:flutter/foundation.dart';
 
 import 'package:equity_tracker/core/enums/transaction_type.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
+import 'package:equity_tracker/features/notion_sync/domain/notion_models.dart';
 
 class NotionApiClient {
   static const String _kApiUrl = 'https://api.notion.com/v1/pages';
@@ -75,68 +76,20 @@ class NotionApiClient {
 
           for (var page in results) {
             try {
-              final props = page['properties'];
-              if (props == null) continue;
-
-              String? title;
-              final nameProp = props['名稱']?['title'];
-              if (nameProp != null && (nameProp as List).isNotEmpty) {
-                title = nameProp[0]['plain_text'];
-              }
-              if (title == null || title.isEmpty) title = 'Notion Import';
-
-              int amount = 0;
-              final amountProp = props['金額']?['number'];
-              if (amountProp != null) {
-                amount = (amountProp as num).toInt();
-              }
-              if (amount <= 0) continue; 
-
-              DateTime date = DateTime.now();
-              final dateProp = props['時間']?['date']?['start'];
-              if (dateProp != null) {
-                date = DateTime.parse(dateProp).toLocal();
-              }
-
-              String categoryId = 'other';
-              String? catName;
-
-              catName = props['類別']?['select']?['name'];
-              if (catName == null) {
-                final richText = props['類別']?['rich_text'];
-                if (richText != null && (richText as List).isNotEmpty) {
-                  catName = richText[0]['plain_text'];
-                }
-              }
-
-              TransactionType type = TransactionType.expense;
-              if (catName != null) {
-                final matched = categories.firstWhere(
-                  (c) => c.name.toLowerCase() == catName!.toLowerCase(),
-                  orElse: () => categories.firstWhere((c) => c.id == 'other', orElse: () => categories.first),
-                );
-                categoryId = matched.id;
-                type = matched.type;
-              }
-
-              allTransactions.add(
-                TransactionModel(
-                  notionId: page['id'],
-                  title: title,
-                  amount: amount,
-                  type: type,
-                  categoryId: categoryId,
-                  date: date,
-                  createdAt: DateTime.now(),
-                  note: '',
-                ),
-              );
+              final dto = NotionPageDto.fromJson(page);
+              final transaction = NotionTransactionMapper.toTransactionModel(dto, categories);
+              allTransactions.add(transaction);
+            } on FormatException catch (e) {
+              debugPrint('NotionAPI: Skipped transaction ID ${page["id"]}. Reason: ${e.message}');
+              continue; // Skip invalid records but log them
             } catch (e) {
+              debugPrint('NotionAPI: Unexpected error parsing transaction ${page["id"]}: $e');
               continue;
             }
           }
         } else {
           hasMore = false;
+          debugPrint('NotionAPI: fetchTransactions failed with status \${response.statusCode}, body: \${response.body}');
         }
       }
       return allTransactions;

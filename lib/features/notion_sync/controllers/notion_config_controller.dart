@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
-import 'package:equity_tracker/core/enums/sync_status.dart';
+import 'package:equity_tracker/core/providers/usecase_providers.dart';
 import 'package:equity_tracker/features/notion_sync/services/notion_sync_service.dart';
 
 class NotionConfigState {
@@ -56,12 +55,18 @@ class NotionConfigController extends Notifier<NotionConfigState> {
   }
 
   Future<void> _loadConfig() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('notion_token') ?? '';
-    final dbId = prefs.getString('notion_database_id') ?? '';
-    final isEnabled = prefs.getBool('notion_enabled') ?? false;
+    final syncRepo = ref.read(syncStateRepositoryProvider);
+    final token = await syncRepo.getToken();
+    final dbId = await syncRepo.getDatabaseId();
+    final isEnabled = await syncRepo.getIsEnabled();
     final connectionSuccess = isEnabled && token.isNotEmpty && dbId.isNotEmpty;
-    state = state.copyWith(token: token, dbId: dbId, isEnabled: isEnabled, connectionSuccess: connectionSuccess);
+    
+    state = state.copyWith(
+      token: token, 
+      dbId: dbId, 
+      isEnabled: isEnabled, 
+      connectionSuccess: connectionSuccess
+    );
 
     if (connectionSuccess) {
       // Auto-sync on startup via service
@@ -85,42 +90,41 @@ class NotionConfigController extends Notifier<NotionConfigState> {
     state = state.copyWith(message: null, isError: false, connectionSuccess: false);
   }
 
-  Future<void> disableSync() async {
-    state = state.copyWith(isEnabled: false);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('notion_enabled', false);
+  Future<void> reloadConfig() async {
+    await _loadConfig();
   }
 
+  Future<void> disableSync() async {
+    state = state.copyWith(isEnabled: false);
+    await ref.read(syncStateRepositoryProvider).setIsEnabled(false);
+  }
 
+  Future<void> resetSyncState() async {
+    state = state.copyWith(isEnabled: false);
+    await ref.read(syncStateRepositoryProvider).resetCursors();
+  }
 
   Future<void> saveAndVerify(String token, String dbId) async {
     state = state.copyWith(isVerifying: true, token: token, dbId: dbId);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('notion_token', token.trim());
-    await prefs.setString('notion_database_id', dbId.trim());
-    await prefs.setBool('notion_enabled', state.isEnabled);
 
-    if (state.isEnabled) {
-      final success = await ref.read(notionApiClientProvider).testConnection(token.trim(), dbId.trim());
-      if (success) {
-        // Initial bulk mark: find all local transactions without notionId and mark them to push
-        final repo = ref.read(transactionRepositoryProvider);
-        final unsynced = await repo.getTransactionsWithoutNotionId();
-        for (var tx in unsynced) {
-          if (tx.syncStatus == SyncStatus.synced) {
-            await repo.updateTransaction(tx.copyWith(syncStatus: SyncStatus.pendingCreate));
-          }
-        }
-        
-        state = state.copyWith(isVerifying: false, message: 'Connected Successfully.', isError: false, connectionSuccess: true);
-        
-        // After verifying successfully, automatically push any pending changes silently
-        Future.microtask(() => ref.read(notionSyncServiceProvider).pushPendingChanges(silent: true));
-      } else {
-        state = state.copyWith(isVerifying: false, message: 'Connection Failed.', isError: true, connectionSuccess: false);
-      }
-    } else {
-      state = state.copyWith(isVerifying: false, message: 'Notion Sync Disabled.', isError: false, connectionSuccess: true);
+    try {
+      // Delegate to domain use case
+      await ref.read(connectNotionUseCaseProvider).execute(token, dbId);
+      
+      state = state.copyWith(
+        isVerifying: false, 
+        message: 'Connected Successfully.', 
+        isError: false, 
+        connectionSuccess: true,
+        isEnabled: true // Force UI to reflect domain state
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isVerifying: false, 
+        message: e.toString().replaceAll('Exception: ', ''), 
+        isError: true, 
+        connectionSuccess: false
+      );
     }
   }
 }

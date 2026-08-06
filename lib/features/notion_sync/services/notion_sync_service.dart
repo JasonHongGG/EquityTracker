@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// Removed shared_preferences import
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/core/enums/sync_status.dart';
 import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
@@ -13,7 +13,7 @@ class NotionSyncService {
   NotionSyncService(this._ref);
 
   Future<void> syncFromNotion({bool silent = false}) async {
-    final prefs = await SharedPreferences.getInstance();
+    final syncRepo = _ref.read(syncStateRepositoryProvider);
     final config = _ref.read(notionConfigControllerProvider);
     if (!config.isEnabled || config.token.isEmpty || config.dbId.isEmpty) return;
 
@@ -21,7 +21,7 @@ class NotionSyncService {
     await pushPendingChanges(silent: true);
 
     try {
-      final lastSyncStr = prefs.getString('notion_last_sync_time');
+      final lastSyncStr = await syncRepo.getLastSyncTime();
       final DateTime? lastSync = lastSyncStr != null ? DateTime.parse(lastSyncStr) : null;
 
       final categories = List<CategoryModel>.from(await _ref.read(categoryRepositoryProvider).getCategories());
@@ -59,13 +59,11 @@ class NotionSyncService {
         }
       }
 
-      await prefs.setStringList('notion_last_pull_ids', insertedIds.map((e) => e.toString()).toList());
+      await syncRepo.setLastPullIds(insertedIds.map((e) => e.toString()).toList());
       if (lastSyncStr != null) {
-        await prefs.setString('notion_prev_sync_time', lastSyncStr);
-      } else {
-        await prefs.remove('notion_prev_sync_time');
+        await syncRepo.setPrevSyncTime(lastSyncStr);
       }
-      await prefs.setString('notion_last_sync_time', DateTime.now().toIso8601String());
+      await syncRepo.setLastSyncTime(DateTime.now().toIso8601String());
 
       // Silent reload instead of destructive refresh
       await _ref.read(transactionNotifierProvider.notifier).refresh();
@@ -77,8 +75,8 @@ class NotionSyncService {
   }
 
   Future<void> undoNotionSync() async {
-    final prefs = await SharedPreferences.getInstance();
-    final idsStr = prefs.getStringList('notion_last_pull_ids');
+    final syncRepo = _ref.read(syncStateRepositoryProvider);
+    final idsStr = await syncRepo.getLastPullIds();
     if (idsStr == null || idsStr.isEmpty) return;
 
     try {
@@ -88,15 +86,16 @@ class NotionSyncService {
         await _ref.read(transactionRepositoryProvider).deleteTransaction(id);
       }
 
-      final prevTime = prefs.getString('notion_prev_sync_time');
+      final prevTime = await syncRepo.getPrevSyncTime();
       if (prevTime != null) {
-        await prefs.setString('notion_last_sync_time', prevTime);
-      } else {
-        await prefs.remove('notion_last_sync_time');
+        await syncRepo.setLastSyncTime(prevTime);
       }
 
-      await prefs.remove('notion_last_pull_ids');
-      await prefs.remove('notion_prev_sync_time');
+      // We just call reset on these specific fields manually or via a new method.
+      // Since ISyncStateRepository doesn't expose remove() directly except through resetCursors,
+      // we can just pass an empty list/string to overwrite.
+      await syncRepo.setLastPullIds([]);
+      await syncRepo.setPrevSyncTime('');
 
       await _ref.read(transactionNotifierProvider.notifier).refresh();
     } catch (e) {

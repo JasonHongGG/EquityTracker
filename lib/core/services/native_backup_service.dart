@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
+import 'package:equity_tracker/features/notion_sync/domain/sync_state_repository.dart';
+
 import 'package:equity_tracker/features/category/data/category_repository.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_repository.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
@@ -23,13 +25,16 @@ enum SnapshotSource {
 class NativeBackupService {
   final CategoryRepository _categoryRepo;
   final TransactionRepository _transactionRepo;
+  final ISyncStateRepository _syncStateRepo;
 
-  NativeBackupService(this._categoryRepo, this._transactionRepo);
+  NativeBackupService(this._categoryRepo, this._transactionRepo, this._syncStateRepo);
 
   Future<String> createBackupJson() async {
     final categories = await _categoryRepo.getCategories();
     final transactions = await _transactionRepo.getAllTransactions();
     final recurring = await _transactionRepo.getAllRecurringTransactions();
+    
+    final notionConfig = await _syncStateRepo.exportState();
 
     final backupData = {
       'version': 2,
@@ -37,6 +42,7 @@ class NativeBackupService {
       'categories': categories.map((c) => c.toMap()).toList(),
       'transactions': transactions.map((t) => t.toMap()).toList(),
       'recurring_transactions': recurring.map((r) => r.toMap()).toList(),
+      'notion_config': notionConfig,
     };
 
     const encoder = JsonEncoder.withIndent('  ');
@@ -133,6 +139,16 @@ class NativeBackupService {
       } catch (e) {
         // ignore
       }
+    }
+
+    // Restore Notion Config if present
+    if (json.containsKey('notion_config') && json['notion_config'] is Map<String, dynamic>) {
+      final notionConfig = json['notion_config'] as Map<String, dynamic>;
+      await _syncStateRepo.importState(notionConfig);
+    } else {
+      // If the backup doesn't have notion config (e.g. older version), wipe the sync cursor to prevent split-brain
+      await _syncStateRepo.resetCursors();
+      await _syncStateRepo.importState({'token': null, 'database_id': null});
     }
 
     return BackupRestoreResult(categoriesImported, transactionsImported, recurringTransactionsImported);

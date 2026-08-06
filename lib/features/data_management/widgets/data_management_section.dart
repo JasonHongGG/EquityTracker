@@ -9,6 +9,7 @@ import 'package:equity_tracker/core/providers/notification_provider.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
 import 'package:equity_tracker/features/data_management/providers/snapshot_notifier.dart';
+import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
 import 'package:go_router/go_router.dart';
 
 class DataManagementSection extends ConsumerStatefulWidget {
@@ -91,6 +92,9 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
         final backupService = ref.read(nativeBackupServiceProvider);
         final report = await backupService.replaceDatabaseFromContent(content);
 
+        // Reload Notion config in case the backup restored the sync cursor
+        await ref.read(notionConfigControllerProvider.notifier).reloadConfig();
+
         // ignore: unused_result
         ref.refresh(transactionNotifierProvider);
         // ignore: unused_result
@@ -128,6 +132,9 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
       }
 
       await ref.read(snapshotNotifierProvider.notifier).restoreFromSnapshot(SnapshotSource.importBackup);
+      
+      // Reload Notion config in case the snapshot restored the sync cursor
+      await ref.read(notionConfigControllerProvider.notifier).reloadConfig();
       
       // ignore: unused_result
       ref.refresh(transactionNotifierProvider);

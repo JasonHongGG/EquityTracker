@@ -6,6 +6,7 @@ final nativeBackupServiceProvider = Provider<NativeBackupService>((ref) {
   return NativeBackupService(
     ref.read(categoryRepositoryProvider),
     ref.read(transactionRepositoryProvider),
+    ref.read(syncStateRepositoryProvider),
   );
 });
 

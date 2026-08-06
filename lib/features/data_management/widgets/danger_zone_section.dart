@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/core/providers/repository_providers.dart';
+import 'package:equity_tracker/core/providers/usecase_providers.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/core/providers/notification_provider.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
 import 'package:equity_tracker/core/services/native_backup_service.dart';
-import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
 import 'package:equity_tracker/features/data_management/providers/snapshot_notifier.dart';
+import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
 
 class DangerZoneSection extends ConsumerStatefulWidget {
   const DangerZoneSection({super.key});
@@ -28,23 +28,16 @@ class _DangerZoneSectionState extends ConsumerState<DangerZoneSection> {
       // 1. Create a snapshot for undo via Notifier
       await ref.read(snapshotNotifierProvider.notifier).createSnapshot(SnapshotSource.clearData);
       
-      // 2. Protect Notion Sync by disabling it
-      final config = ref.read(notionConfigControllerProvider);
-      if (config.isEnabled) {
-        await ref.read(notionConfigControllerProvider.notifier).disableSync();
-        // Show notification that sync was disabled for protection
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Notion Sync has been automatically disabled to protect your cloud archive.')),
-          );
-        }
+      // 2. Delegate to the Wipe All Data Use Case for atomic wipe
+      await ref.read(wipeAllDataUseCaseProvider).execute();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Notion Sync cursor reset to protect your cloud archive.')),
+        );
       }
 
-      // 3. Clear all local transactions
-      await ref.read(transactionRepositoryProvider).clearAllTransactions();
-      await ref.read(transactionRepositoryProvider).clearAllRecurringTransactions();
-
-      // 4. Refresh state
+      // 3. Refresh state
       // ignore: unused_result
       ref.refresh(transactionNotifierProvider);
       ref.invalidate(titleSuggestionProvider);
@@ -65,6 +58,9 @@ class _DangerZoneSectionState extends ConsumerState<DangerZoneSection> {
 
     try {
       await ref.read(snapshotNotifierProvider.notifier).restoreFromSnapshot(SnapshotSource.clearData);
+      
+      // Reload Notion config in case the snapshot restored the sync cursor
+      await ref.read(notionConfigControllerProvider.notifier).reloadConfig();
       
       // ignore: unused_result
       ref.refresh(transactionNotifierProvider);
