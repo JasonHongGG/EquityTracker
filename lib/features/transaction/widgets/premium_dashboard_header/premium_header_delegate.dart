@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/core/utils/currency_formatter.dart';
-import 'premium_aura_bg.dart';
 
 class PremiumHeaderDelegate extends SliverPersistentHeaderDelegate {
   final int totalBalance;
@@ -188,7 +187,7 @@ class _PremiumHeaderContentState extends State<_PremiumHeaderContent> {
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
-                            const PremiumAuraBg(),
+                            // Removed PremiumAuraBg completely for a pristine, clean look
                             
                             // === 2. EXPANDED CONTENT ===
                             if (expandedOpacity > 0)
