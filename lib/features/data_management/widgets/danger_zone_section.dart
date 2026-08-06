@@ -1,37 +1,111 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/core/providers/notification_provider.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
+import 'package:equity_tracker/core/services/native_backup_service.dart';
+import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
 
-class DangerZoneSection extends ConsumerWidget {
+class DangerZoneSection extends ConsumerStatefulWidget {
   const DangerZoneSection({super.key});
 
-  Future<void> _clearAllData(BuildContext context, WidgetRef ref) async {
+  @override
+  ConsumerState<DangerZoneSection> createState() => _DangerZoneSectionState();
+}
+
+class _DangerZoneSectionState extends ConsumerState<DangerZoneSection> {
+  late NativeBackupService _backupService;
+  bool _hasSnapshot = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initServices();
+  }
+
+  void _initServices() {
+    _backupService = NativeBackupService(
+      ref.read(categoryRepositoryProvider),
+      ref.read(transactionRepositoryProvider),
+    );
+    _checkSnapshot();
+  }
+
+  Future<void> _checkSnapshot() async {
+    final has = await _backupService.hasSnapshot();
+    if (mounted) {
+      setState(() => _hasSnapshot = has);
+    }
+  }
+
+  Future<void> _clearAllData() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+    
     try {
+      // 1. Create a snapshot for undo
+      await _backupService.createSnapshot();
+      await _checkSnapshot(); // Update state so undo button shows up
+      
+      // 2. Protect Notion Sync by disabling it
+      final config = ref.read(notionConfigControllerProvider);
+      if (config.isEnabled) {
+        await ref.read(notionConfigControllerProvider.notifier).disableSync();
+        // Show notification that sync was disabled for protection
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Notion Sync has been automatically disabled to protect your cloud archive.')),
+          );
+        }
+      }
+
+      // 3. Clear all local transactions
       await ref.read(transactionRepositoryProvider).clearAllTransactions();
+      await ref.read(transactionRepositoryProvider).clearAllRecurringTransactions();
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('last_import_ids');
-      await prefs.remove('notion_last_sync_time');
-      await prefs.remove('notion_last_pull_ids');
-      await prefs.remove('notion_prev_sync_time');
-
+      // 4. Refresh state
       // ignore: unused_result
       ref.refresh(transactionNotifierProvider);
       ref.invalidate(titleSuggestionProvider);
 
-      ref.read(notificationControllerProvider.notifier).showSuccess('All data cleared.');
+      ref.read(notificationControllerProvider.notifier).showSuccess('All data cleared successfully.');
     } catch (e) {
       ref.read(notificationControllerProvider.notifier).showError('Failed to clear data: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
-  void _showClearDataConfirmation(BuildContext context, WidgetRef ref) {
+  Future<void> _undoClearData() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
+    try {
+      await _backupService.restoreFromSnapshot();
+      
+      // ignore: unused_result
+      ref.refresh(transactionNotifierProvider);
+      ref.invalidate(titleSuggestionProvider);
+
+      ref.read(notificationControllerProvider.notifier).showSuccess('Data restored successfully!');
+      
+      await _checkSnapshot();
+    } catch (e) {
+      ref.read(notificationControllerProvider.notifier).showError('Undo failed: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _showClearDataConfirmation(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
@@ -64,7 +138,7 @@ class DangerZoneSection extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                'This action cannot be undone. All transactions will be permanently deleted.',
+                'This will wipe all local data. A temporary snapshot will be created in case you need to undo.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Outfit',
@@ -101,7 +175,7 @@ class DangerZoneSection extends ConsumerWidget {
                     child: ScaleButton(
                       onPressed: () async {
                         Navigator.pop(ctx);
-                        await _clearAllData(context, ref);
+                        await _clearAllData();
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -117,14 +191,19 @@ class DangerZoneSection extends ConsumerWidget {
                           ],
                         ),
                         alignment: Alignment.center,
-                        child: const Text(
-                          'Delete All',
-                          style: TextStyle(
-                            fontFamily: 'Outfit',
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
+                        child: _isLoading 
+                          ? const SizedBox(
+                              width: 16, height: 16, 
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                            )
+                          : const Text(
+                              'Delete All',
+                              style: TextStyle(
+                                fontFamily: 'Outfit',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                       ),
                     ),
                   ),
@@ -138,17 +217,25 @@ class DangerZoneSection extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return SettingsSection(
       title: 'DANGER ZONE',
       children: [
+        if (_hasSnapshot)
+          SettingsTile(
+            icon: Icons.undo_rounded,
+            iconColor: Colors.blueAccent,
+            title: 'Undo Clear Data',
+            subtitle: 'Restore your local data from snapshot',
+            onTap: _isLoading ? null : _undoClearData,
+          ),
         SettingsTile(
           icon: Icons.delete_forever_rounded,
           iconColor: Colors.red,
           title: 'Clear All Data',
-          subtitle: 'Permanently delete all records',
+          subtitle: 'Delete all records (with undo option)',
           isDestructive: true,
-          onTap: () => _showClearDataConfirmation(context, ref),
+          onTap: _isLoading ? null : () => _showClearDataConfirmation(context),
         ),
       ],
     );

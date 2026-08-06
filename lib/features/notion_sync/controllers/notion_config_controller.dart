@@ -89,6 +89,12 @@ class NotionConfigController extends Notifier<NotionConfigState> {
     state = state.copyWith(message: null, isError: false, connectionSuccess: false);
   }
 
+  Future<void> disableSync() async {
+    state = state.copyWith(isEnabled: false);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('notion_enabled', false);
+  }
+
 
 
   Future<void> saveAndVerify(String token, String dbId) async {
