@@ -7,7 +7,7 @@ import 'package:equity_tracker/features/settings/screens/settings_screen/prefere
 import 'package:equity_tracker/features/data_management/widgets/data_management_section.dart';
 import 'package:equity_tracker/features/data_management/widgets/integrations_section.dart';
 import 'package:equity_tracker/features/data_management/widgets/danger_zone_section.dart';
-import 'package:equity_tracker/core/updater/widgets/github_update_checker_button.dart';
+import 'package:equity_tracker/features/app_update/widgets/app_update_section.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/ai_settings_screen.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
@@ -47,7 +47,7 @@ class SettingsScreen extends ConsumerWidget {
           const DataManagementSection(),
           IntegrationsSection(), // Contains Notion Sync & Import
           DangerZoneSection(),
-          const GithubUpdateCheckerButton(),
+          AppUpdateSection(),
         ],
       ),
     );
