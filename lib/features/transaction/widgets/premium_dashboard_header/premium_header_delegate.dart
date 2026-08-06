@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/core/utils/currency_formatter.dart';
+import 'package:equity_tracker/core/widgets/animated_odometer.dart';
 
 class PremiumHeaderDelegate extends SliverPersistentHeaderDelegate {
   final int totalBalance;
@@ -205,26 +206,9 @@ class _PremiumHeaderContentState extends State<_PremiumHeaderContent> {
                                         }
                                       },
                                       behavior: HitTestBehavior.opaque,
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                                        child: AnimatedSwitcher(
-                                          duration: const Duration(milliseconds: 350),
-                                          switchInCurve: Curves.easeOutCubic,
-                                          switchOutCurve: Curves.easeInCubic,
-                                          transitionBuilder: (Widget child, Animation<double> animation) {
-                                            return FadeTransition(
-                                              opacity: animation,
-                                              child: SlideTransition(
-                                                position: Tween<Offset>(
-                                                  begin: const Offset(0.0, 0.08),
-                                                  end: Offset.zero,
-                                                ).animate(animation),
-                                                child: child,
-                                              ),
-                                            );
-                                          },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 24),
                                           child: Row(
-                                            key: ValueKey<bool>(delegate.isMonthlyView),
                                             crossAxisAlignment: CrossAxisAlignment.center,
                                             children: [
                                               // Left: Balance
@@ -234,20 +218,25 @@ class _PremiumHeaderContentState extends State<_PremiumHeaderContent> {
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
-                                                    Text(
-                                                      labelTitle,
-                                                      style: TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight: FontWeight.w600,
-                                                        color: subTextColor,
+                                                    AnimatedSwitcher(
+                                                      duration: const Duration(milliseconds: 300),
+                                                      child: Text(
+                                                        labelTitle,
+                                                        key: ValueKey(labelTitle),
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: subTextColor,
+                                                        ),
                                                       ),
                                                     ),
                                                     const SizedBox(height: 8),
                                                     FittedBox(
                                                       fit: BoxFit.scaleDown,
                                                       alignment: Alignment.centerLeft,
-                                                      child: Text(
-                                                        _formatCurrency(currentBalance),
+                                                      child: AnimatedOdometer(
+                                                        formattedValue: _formatCurrency(currentBalance),
+                                                        duration: const Duration(milliseconds: 600),
                                                         style: TextStyle(
                                                           fontSize: 40,
                                                           fontWeight: FontWeight.w800,
@@ -293,7 +282,6 @@ class _PremiumHeaderContentState extends State<_PremiumHeaderContent> {
                                             ],
                                           ),
                                         ),
-                                      ),
                                     ),
                                   ),
                                 ),
@@ -368,8 +356,9 @@ class _PremiumHeaderContentState extends State<_PremiumHeaderContent> {
                                 FittedBox(
                                   fit: BoxFit.scaleDown,
                                   alignment: Alignment.centerRight,
-                                  child: Text(
-                                    _formatCurrency(currentBalance),
+                                  child: AnimatedOdometer(
+                                    formattedValue: _formatCurrency(currentBalance),
+                                    duration: const Duration(milliseconds: 600),
                                     style: TextStyle(color: textColor, fontWeight: FontWeight.w800, fontSize: 15, fontFamily: 'Outfit'),
                                   ),
                                 ),
@@ -381,11 +370,19 @@ class _PremiumHeaderContentState extends State<_PremiumHeaderContent> {
                                     children: [
                                       Icon(Icons.arrow_downward_rounded, color: const Color(0xFF10B981), size: 10),
                                       const SizedBox(width: 2),
-                                      Text(_formatCurrency(currentIncome), style: TextStyle(color: textColor.withValues(alpha: 0.7), fontSize: 10)),
+                                      AnimatedOdometer(
+                                        formattedValue: _formatCurrency(currentIncome), 
+                                        duration: const Duration(milliseconds: 600),
+                                        style: TextStyle(color: textColor.withValues(alpha: 0.7), fontSize: 10)
+                                      ),
                                       const SizedBox(width: 8),
                                       Icon(Icons.arrow_upward_rounded, color: const Color(0xFFF43F5E), size: 10),
                                       const SizedBox(width: 2),
-                                      Text(_formatCurrency(currentExpense), style: TextStyle(color: textColor.withValues(alpha: 0.7), fontSize: 10)),
+                                      AnimatedOdometer(
+                                        formattedValue: _formatCurrency(currentExpense), 
+                                        duration: const Duration(milliseconds: 600),
+                                        style: TextStyle(color: textColor.withValues(alpha: 0.7), fontSize: 10)
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -434,8 +431,9 @@ class _PremiumHeaderContentState extends State<_PremiumHeaderContent> {
               FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  amount,
+                child: AnimatedOdometer(
+                  formattedValue: amount,
+                  duration: const Duration(milliseconds: 600),
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: textColor, fontFamily: 'Outfit', letterSpacing: -0.5),
                 ),
               ),
