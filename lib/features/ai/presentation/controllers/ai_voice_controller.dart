@@ -1,10 +1,67 @@
+import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/ai/services/voice_recognition_service.dart';
+
+class VoiceBufferAccumulator {
+  final List<String> _confirmedChunks = [];
+  String _activeChunk = '';
+
+  String get fullText {
+    if (_confirmedChunks.isEmpty) return _activeChunk;
+    if (_activeChunk.isEmpty) return _confirmedChunks.join(' ');
+    return '${_confirmedChunks.join(' ')} $_activeChunk';
+  }
+
+  void onNewText(String newText, bool isFinal) {
+    newText = newText.trim();
+    if (newText.isEmpty) return;
+
+    if (isFinal) {
+      _commit(newText);
+      return;
+    }
+
+    if (_activeChunk.isEmpty) {
+      _activeChunk = newText;
+      return;
+    }
+
+    if (_isNewChunk(newText)) {
+      _commit(_activeChunk);
+      _activeChunk = newText;
+    } else {
+      _activeChunk = newText;
+    }
+  }
+
+  void _commit(String text) {
+    if (text.isNotEmpty) {
+      _confirmedChunks.add(text);
+      _activeChunk = '';
+    }
+  }
+
+  bool _isNewChunk(String newText) {
+    int commonLen = 0;
+    int minLen = math.min(_activeChunk.length, newText.length);
+    for (int i = 0; i < minLen; i++) {
+      if (_activeChunk[i] == newText[i]) {
+        commonLen++;
+      } else {
+        break;
+      }
+    }
+    // 如果連前兩個字都不一樣 (或長度不足但全不同)，代表 OS 已經清空緩衝區，這是一個全新的句子
+    if (commonLen < 2 && _activeChunk.length >= 2) return true;
+    if (commonLen == 0) return true;
+    return false;
+  }
+}
 
 class AiVoiceState {
   final bool isListening;
   final bool hasError;
-  final String recognizedText;
+  final String recognizedText; // 本次麥克風連線的純語音文字
   
   const AiVoiceState({
     this.isListening = false,
@@ -29,6 +86,7 @@ final voiceRecognitionServiceProvider = Provider((ref) => VoiceRecognitionServic
 
 class AiVoiceController extends Notifier<AiVoiceState> {
   late VoiceRecognitionService _voiceService;
+  VoiceBufferAccumulator _accumulator = VoiceBufferAccumulator();
   
   @override
   AiVoiceState build() {
@@ -51,14 +109,14 @@ class AiVoiceController extends Notifier<AiVoiceState> {
   Future<void> toggleListening() async {
     if (state.isListening) {
       await _voiceService.stopListening();
-      state = state.copyWith(isListening: false);
     } else {
-      // Clear previous text
-      state = state.copyWith(recognizedText: '', hasError: false, isListening: true);
+      _accumulator = VoiceBufferAccumulator();
+      state = const AiVoiceState(isListening: true, hasError: false, recognizedText: '');
       
       await _voiceService.startListening(
-        onResult: (text) {
-          state = state.copyWith(recognizedText: text);
+        onResult: (text, isFinal) {
+          _accumulator.onNewText(text, isFinal);
+          state = state.copyWith(recognizedText: _accumulator.fullText);
         }
       );
     }
@@ -67,11 +125,11 @@ class AiVoiceController extends Notifier<AiVoiceState> {
   Future<void> stopListening() async {
     if (state.isListening) {
       await _voiceService.stopListening();
-      state = state.copyWith(isListening: false);
     }
   }
 
   void clearText() {
+    _accumulator = VoiceBufferAccumulator();
     state = state.copyWith(recognizedText: '');
   }
 }

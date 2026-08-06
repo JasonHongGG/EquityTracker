@@ -30,6 +30,7 @@ class AiInputBottomSheet extends ConsumerStatefulWidget {
 class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  String _baseTypedText = '';
 
   @override
   void initState() {
@@ -65,6 +66,16 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
     }
     
     _controller.clear();
+    _baseTypedText = '';
+    ref.read(aiVoiceControllerProvider.notifier).clearText();
+  }
+
+  void _handleMicToggle(bool isCurrentlyListening) {
+    if (!isCurrentlyListening) {
+      // 即將開始語音：將目前輸入框的字鎖定為 _baseTypedText
+      _baseTypedText = _controller.text.trim();
+    }
+    ref.read(aiVoiceControllerProvider.notifier).toggleListening();
   }
 
   @override
@@ -78,8 +89,17 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
     ref.listen<AISessionState>(aiSessionControllerProvider, (_, __) => _scrollToBottom());
     
     ref.listen<AiVoiceState>(aiVoiceControllerProvider, (previous, next) {
-      if (next.recognizedText != previous?.recognizedText && next.recognizedText.isNotEmpty) {
-        _controller.text = next.recognizedText;
+      if (next.recognizedText != previous?.recognizedText) {
+        final newText = _baseTypedText.isEmpty 
+            ? next.recognizedText 
+            : (_baseTypedText + (next.recognizedText.isNotEmpty ? ' ${next.recognizedText}' : ''));
+            
+        if (_controller.text != newText) {
+          _controller.text = newText;
+          _controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: _controller.text.length)
+          );
+        }
       }
       if (next.hasError && !(previous?.hasError ?? false)) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -680,18 +700,14 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                     GestureDetector(
                       onLongPress: () {
                         if (!voiceState.isListening) {
-                          _controller.text = '';
-                          ref.read(aiVoiceControllerProvider.notifier).toggleListening();
+                          _handleMicToggle(voiceState.isListening);
                         }
                       },
                       onLongPressUp: () {
                         ref.read(aiVoiceControllerProvider.notifier).stopListening();
                       },
                       onTap: () {
-                        if (!voiceState.isListening) {
-                          _controller.text = '';
-                        }
-                        ref.read(aiVoiceControllerProvider.notifier).toggleListening();
+                        _handleMicToggle(voiceState.isListening);
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),

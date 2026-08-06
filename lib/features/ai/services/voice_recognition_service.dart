@@ -20,7 +20,7 @@ class VoiceRecognitionService {
   }
 
   /// Starts listening for speech and calls [onResult] with recognized words.
-  Future<void> startListening({required void Function(String recognizedWords) onResult}) async {
+  Future<void> startListening({required void Function(String recognizedWords, bool isFinal) onResult}) async {
     if (!_isInitialized) {
       final success = await initialize(onStatus: (_) {});
       if (!success) return;
@@ -28,7 +28,7 @@ class VoiceRecognitionService {
     
     await _speechToText.listen(
       onResult: (result) {
-        onResult(result.recognizedWords);
+        onResult(result.recognizedWords, result.finalResult);
       },
       localeId: 'zh_TW', // Default to traditional Chinese
       pauseFor: const Duration(seconds: 5), // Allow longer pauses before auto-stopping
