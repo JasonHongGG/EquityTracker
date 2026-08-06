@@ -9,6 +9,7 @@ import 'package:equity_tracker/features/settings/widgets/common/settings_tile.da
 import 'package:equity_tracker/core/services/native_backup_service.dart';
 import 'package:equity_tracker/features/data_management/providers/snapshot_notifier.dart';
 import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
+import 'package:equity_tracker/core/widgets/swipe_to_obliterate_button.dart';
 
 class DangerZoneSection extends ConsumerStatefulWidget {
   const DangerZoneSection({super.key});
@@ -73,111 +74,59 @@ class _DangerZoneSectionState extends ConsumerState<DangerZoneSection> {
   }
 
   void _showClearDataConfirmation(BuildContext context) {
-    showDialog(
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.redAccent.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.warning_rounded,
-                  color: Colors.redAccent,
-                  size: 32,
-                ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1C1C1E) : const Color(0xFFF2F2F7), // Match time picker light background if light mode
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.only(left: 24, right: 24, top: 12, bottom: 48),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle for bottom sheet
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white24 : Colors.black12,
+                borderRadius: BorderRadius.circular(2),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Clear All Data?',
+            ),
+            const SizedBox(height: 24),
+            
+            // Refined Header (Time Picker Style from image)
+            Center(
+              child: Text(
+                'CLEAR ALL DATA',
                 style: TextStyle(
                   fontFamily: 'Outfit',
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 2.0,
+                  color: isDark ? Colors.white54 : Colors.black54,
                 ),
               ),
-              const SizedBox(height: 8),
-              const Text(
-                'This will wipe all local data. A temporary snapshot will be created in case you need to undo.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Outfit',
-                  color: Colors.grey,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: ScaleButton(
-                      onPressed: () => Navigator.pop(ctx),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        alignment: Alignment.center,
-                        child: const Text(
-                          'Cancel',
-                          style: TextStyle(
-                            fontFamily: 'Outfit',
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ScaleButton(
-                      onPressed: () async {
-                        Navigator.pop(ctx);
-                        await _clearAllData();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.redAccent.withValues(alpha: 0.3),
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        alignment: Alignment.center,
-                        child: _isLoading 
-                          ? const SizedBox(
-                              width: 16, height: 16, 
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                            )
-                          : const Text(
-                              'Delete All',
-                              style: TextStyle(
-                                fontFamily: 'Outfit',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+            
+            const SizedBox(height: 32),
+            
+            // Solid, minimalistic Swipe Button
+            SwipeToObliterateButton(
+              title: 'SLIDE TO WIPE',
+              isLoading: _isLoading,
+              activeColor: Colors.redAccent,
+              onConfirmed: () async {
+                Navigator.pop(ctx);
+                await _clearAllData();
+              },
+            ),
+          ],
         ),
       ),
     );

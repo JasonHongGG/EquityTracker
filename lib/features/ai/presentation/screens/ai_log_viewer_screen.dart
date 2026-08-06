@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/ai/infrastructure/logger/system_log_manager.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/agent_log_detail_screen.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/map_log_detail_screen.dart';
+import 'package:equity_tracker/core/widgets/swipe_to_obliterate_button.dart';
 
 class AiLogViewerScreen extends ConsumerStatefulWidget {
   const AiLogViewerScreen({super.key});
@@ -36,28 +37,59 @@ class _AiLogViewerScreenState extends ConsumerState<AiLogViewerScreen> with Sing
     super.dispose();
   }
   
-  Future<void> _clearAllLogs() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear All Logs'),
-        content: const Text('Are you sure you want to delete all Agent and Map logs? This cannot be undone.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true), 
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      )
-    );
+  void _clearAllLogs() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     
-    if (confirm == true) {
-      await ref.read(systemLogManagerProvider).clearAllLogs();
-      // Reactive state invalidation
-      ref.invalidate(agentLogListProvider);
-      ref.invalidate(mapLogListProvider);
-    }
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1C1C1E) : const Color(0xFFF2F2F7),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.only(left: 24, right: 24, top: 12, bottom: 48),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Colors.white24 : Colors.black12,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Center(
+              child: Text(
+                'CLEAR AI LOGS',
+                style: TextStyle(
+                  fontFamily: 'Outfit',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 2.0,
+                  color: isDark ? Colors.white54 : Colors.black54,
+                ),
+              ),
+            ),
+            const SizedBox(height: 32),
+            SwipeToObliterateButton(
+              title: 'SLIDE TO WIPE',
+              isLoading: false,
+              activeColor: Colors.redAccent,
+              onConfirmed: () async {
+                Navigator.pop(ctx);
+                await ref.read(systemLogManagerProvider).clearAllLogs();
+                ref.invalidate(agentLogListProvider);
+                ref.invalidate(mapLogListProvider);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _openLogDetail(FileSystemEntity file, bool isDark, bool isMapLog) async {
