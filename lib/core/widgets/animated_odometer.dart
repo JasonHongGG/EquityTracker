@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 
 /// A widget that animates number changes column by column, similar to a slot machine or odometer.
-class AnimatedOdometer extends StatelessWidget {
+class AnimatedOdometer extends StatefulWidget {
   final String formattedValue;
   final TextStyle style;
   final Duration duration;
@@ -15,33 +15,55 @@ class AnimatedOdometer extends StatelessWidget {
   });
 
   @override
+  State<AnimatedOdometer> createState() => _AnimatedOdometerState();
+}
+
+class _AnimatedOdometerState extends State<AnimatedOdometer> {
+  int _spinCount = 0;
+
+  @override
+  void didUpdateWidget(covariant AnimatedOdometer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.formattedValue != widget.formattedValue) {
+      _spinCount++;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Ensure tabular figures so digits have fixed widths (prevents jittering during animation)
-    final tabularStyle = style.copyWith(
+    final tabularStyle = widget.style.copyWith(
       fontFeatures: const [FontFeature.tabularFigures()],
     );
 
-    final digitCount = formattedValue.characters.where((c) => int.tryParse(c) != null).length;
+    final digitCount = widget.formattedValue.characters.where((c) => int.tryParse(c) != null).length;
     int symbolCount = 0;
     int currentDigitIndex = digitCount;
 
     return AnimatedSize(
-      duration: duration,
+      duration: widget.duration,
       curve: Curves.easeOutCubic,
       alignment: Alignment.centerRight,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: formattedValue.split('').map((char) {
+        children: widget.formattedValue.split('').map((char) {
           final digit = int.tryParse(char);
           
           if (digit != null) {
             currentDigitIndex--;
+            
+            // Stagger index: 0 for the left-most digit, increasing to the right
+            final staggerIndex = digitCount - 1 - currentDigitIndex;
+            // Add a slight delay to the duration for each subsequent digit to create a slot-machine stopping effect
+            final staggeredDuration = widget.duration + Duration(milliseconds: staggerIndex * 150);
+
             return _RollingDigit(
               key: ValueKey('digit_$currentDigitIndex'),
               digit: digit,
+              spinCount: _spinCount,
               style: tabularStyle,
-              duration: duration,
+              duration: staggeredDuration,
             );
           } else {
             final symIndex = symbolCount++;
@@ -63,21 +85,27 @@ class AnimatedOdometer extends StatelessWidget {
 
 class _RollingDigit extends StatelessWidget {
   final int digit;
+  final int spinCount;
   final TextStyle style;
   final Duration duration;
 
   const _RollingDigit({
     super.key,
     required this.digit,
+    required this.spinCount,
     required this.style,
     required this.duration,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Target adds 10 for every spin cycle so it ALWAYS rolls forward, even if the digit is the same
+    final targetValue = (spinCount * 10) + digit;
+    // For newly mounted digits, start them 1 cycle behind so they spin exactly into place
+    final beginValue = spinCount == 0 ? 0.0 : ((spinCount - 1) * 10).toDouble();
+
     return TweenAnimationBuilder<double>(
-      // By supplying begin: 0.0, newly added digits (like hundreds place) will roll from 0 to target
-      tween: Tween<double>(begin: 0.0, end: digit.toDouble()),
+      tween: Tween<double>(begin: beginValue, end: targetValue.toDouble()),
       duration: duration,
       curve: Curves.easeOutCubic,
       builder: (context, value, child) {
