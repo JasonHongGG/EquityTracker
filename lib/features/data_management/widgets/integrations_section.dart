@@ -21,7 +21,6 @@ class IntegrationsSection extends ConsumerWidget {
       children: [
         SettingsTile(
           icon: Icons.sync_rounded,
-          iconColor: Colors.black87,
           title: 'Notion Integration',
           subtitle: 'Sync new transactions to Notion',
           onTap: () => _showNotionConfig(context),

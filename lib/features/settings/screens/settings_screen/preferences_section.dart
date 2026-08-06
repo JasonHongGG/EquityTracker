@@ -19,7 +19,6 @@ class PreferencesSection extends ConsumerWidget {
       children: [
         SettingsTile(
           icon: Icons.dark_mode_rounded,
-          iconColor: Colors.purpleAccent,
           title: 'Dark Mode',
           trailing: themeModeAsync.when(
             data: (settings) => AppSwitch(
@@ -43,7 +42,6 @@ class PreferencesSection extends ConsumerWidget {
         ),
         SettingsTile(
           icon: Icons.security_rounded,
-          iconColor: const Color(0xFF34C759), // iOS Green
           title: 'Privacy Mode',
           subtitle: 'Hide balance on dashboard',
           trailing: themeModeAsync.when(
@@ -60,7 +58,6 @@ class PreferencesSection extends ConsumerWidget {
         ),
         SettingsTile(
           icon: Icons.currency_exchange,
-          iconColor: Colors.amber,
           title: 'Currency Symbol',
           subtitle: themeModeAsync.when(
             data: (settings) => settings.currencySymbol,

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:equity_tracker/core/services/native_backup_service.dart';
-import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
 import 'package:equity_tracker/core/providers/notification_provider.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
+import 'package:equity_tracker/features/data_management/providers/snapshot_notifier.dart';
 import 'package:go_router/go_router.dart';
 
 class DataManagementSection extends ConsumerStatefulWidget {
@@ -20,27 +20,6 @@ class DataManagementSection extends ConsumerStatefulWidget {
 
 class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
   bool _isLoading = false;
-  bool _hasSnapshot = false;
-  late NativeBackupService _backupService;
-
-  @override
-  void initState() {
-    super.initState();
-    _backupService = NativeBackupService(
-      ref.read(categoryRepositoryProvider), 
-      ref.read(transactionRepositoryProvider)
-    );
-    _checkSnapshot();
-  }
-
-  Future<void> _checkSnapshot() async {
-    final hasSnap = await _backupService.hasSnapshot();
-    if (mounted) {
-      setState(() {
-        _hasSnapshot = hasSnap;
-      });
-    }
-  }
 
   Future<void> _exportBackup() async {
     try {
@@ -57,7 +36,8 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
         );
       }
 
-      final jsonContent = await _backupService.createBackupJson();
+      final backupService = ref.read(nativeBackupServiceProvider);
+      final jsonContent = await backupService.createBackupJson();
 
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final filename = 'equity_tracker_backup_$timestamp.json';
@@ -104,11 +84,12 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
         final file = File(path);
         final content = await file.readAsString();
 
-        // 1. Create a snapshot for undo
-        await _backupService.createSnapshot();
+        // 1. Create a snapshot for undo via Notifier
+        await ref.read(snapshotNotifierProvider.notifier).createSnapshot(SnapshotSource.importBackup);
         
         // 2. Replace database
-        final report = await _backupService.replaceDatabaseFromContent(content);
+        final backupService = ref.read(nativeBackupServiceProvider);
+        final report = await backupService.replaceDatabaseFromContent(content);
 
         // ignore: unused_result
         ref.refresh(transactionNotifierProvider);
@@ -118,7 +99,6 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
         if (mounted) {
           Navigator.of(context).pop();
           setState(() => _isLoading = false);
-          _checkSnapshot();
         }
         ref.read(notificationControllerProvider.notifier).showSuccess(
           'Restored: ${report.categoriesImported} Categories, ${report.transactionsImported} Transactions, ${report.recurringTransactionsImported} Recurring',
@@ -147,7 +127,7 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
         );
       }
 
-      await _backupService.restoreFromSnapshot();
+      await ref.read(snapshotNotifierProvider.notifier).restoreFromSnapshot(SnapshotSource.importBackup);
       
       // ignore: unused_result
       ref.refresh(transactionNotifierProvider);
@@ -157,7 +137,6 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
       if (mounted) {
         Navigator.of(context).pop();
         setState(() => _isLoading = false);
-        _checkSnapshot();
       }
       ref.read(notificationControllerProvider.notifier).showSuccess('Restore reverted successfully.');
     } catch (e) {
@@ -173,35 +152,34 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
 
   @override
   Widget build(BuildContext context) {
+    final hasSnapshot = ref.watch(snapshotNotifierProvider.select((state) => state[SnapshotSource.importBackup] ?? false));
+
     return SettingsSection(
       title: 'DATA MANAGEMENT',
       children: [
         SettingsTile(
           icon: Icons.category_rounded,
-          iconColor: Colors.deepPurple,
           title: 'Manage Categories',
           subtitle: 'Add, Edit, or Remove',
           onTap: () => context.push('/manage-categories'),
         ),
         SettingsTile(
           icon: Icons.file_download_rounded,
-          iconColor: Colors.teal,
           title: 'Export Backup',
           subtitle: 'Save to JSON',
           onTap: _isLoading ? null : _exportBackup,
         ),
         SettingsTile(
           icon: Icons.restore_page_rounded,
-          iconColor: Colors.indigoAccent,
           title: 'Restore Backup',
           subtitle: 'Replace current data with backup',
           onTap: _isLoading ? null : _importBackup,
         ),
-        if (_hasSnapshot)
+        if (hasSnapshot)
           SettingsTile(
             icon: Icons.undo_rounded,
             iconColor: Colors.orange,
-            title: 'Undo Last Restore',
+            title: 'Undo Last Action',
             subtitle: 'Revert to previous state',
             onTap: _isLoading ? null : _undoRestore,
           ),

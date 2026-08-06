@@ -8,6 +8,7 @@ import 'package:equity_tracker/features/settings/widgets/common/settings_section
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
 import 'package:equity_tracker/core/services/native_backup_service.dart';
 import 'package:equity_tracker/features/notion_sync/controllers/notion_config_controller.dart';
+import 'package:equity_tracker/features/data_management/providers/snapshot_notifier.dart';
 
 class DangerZoneSection extends ConsumerStatefulWidget {
   const DangerZoneSection({super.key});
@@ -17,39 +18,15 @@ class DangerZoneSection extends ConsumerStatefulWidget {
 }
 
 class _DangerZoneSectionState extends ConsumerState<DangerZoneSection> {
-  late NativeBackupService _backupService;
-  bool _hasSnapshot = false;
   bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initServices();
-  }
-
-  void _initServices() {
-    _backupService = NativeBackupService(
-      ref.read(categoryRepositoryProvider),
-      ref.read(transactionRepositoryProvider),
-    );
-    _checkSnapshot();
-  }
-
-  Future<void> _checkSnapshot() async {
-    final has = await _backupService.hasSnapshot();
-    if (mounted) {
-      setState(() => _hasSnapshot = has);
-    }
-  }
 
   Future<void> _clearAllData() async {
     if (_isLoading) return;
     setState(() => _isLoading = true);
     
     try {
-      // 1. Create a snapshot for undo
-      await _backupService.createSnapshot();
-      await _checkSnapshot(); // Update state so undo button shows up
+      // 1. Create a snapshot for undo via Notifier
+      await ref.read(snapshotNotifierProvider.notifier).createSnapshot(SnapshotSource.clearData);
       
       // 2. Protect Notion Sync by disabling it
       final config = ref.read(notionConfigControllerProvider);
@@ -87,7 +64,7 @@ class _DangerZoneSectionState extends ConsumerState<DangerZoneSection> {
     setState(() => _isLoading = true);
 
     try {
-      await _backupService.restoreFromSnapshot();
+      await ref.read(snapshotNotifierProvider.notifier).restoreFromSnapshot(SnapshotSource.clearData);
       
       // ignore: unused_result
       ref.refresh(transactionNotifierProvider);
@@ -95,7 +72,6 @@ class _DangerZoneSectionState extends ConsumerState<DangerZoneSection> {
 
       ref.read(notificationControllerProvider.notifier).showSuccess('Data restored successfully!');
       
-      await _checkSnapshot();
     } catch (e) {
       ref.read(notificationControllerProvider.notifier).showError('Undo failed: $e');
     } finally {
@@ -218,25 +194,26 @@ class _DangerZoneSectionState extends ConsumerState<DangerZoneSection> {
 
   @override
   Widget build(BuildContext context) {
+    final hasSnapshot = ref.watch(snapshotNotifierProvider.select((state) => state[SnapshotSource.clearData] ?? false));
+
     return SettingsSection(
       title: 'DANGER ZONE',
       children: [
-        if (_hasSnapshot)
-          SettingsTile(
-            icon: Icons.undo_rounded,
-            iconColor: Colors.blueAccent,
-            title: 'Undo Clear Data',
-            subtitle: 'Restore your local data from snapshot',
-            onTap: _isLoading ? null : _undoClearData,
-          ),
         SettingsTile(
           icon: Icons.delete_forever_rounded,
-          iconColor: Colors.red,
           title: 'Clear All Data',
           subtitle: 'Delete all records (with undo option)',
           isDestructive: true,
           onTap: _isLoading ? null : () => _showClearDataConfirmation(context),
         ),
+        if (hasSnapshot)
+          SettingsTile(
+            icon: Icons.undo_rounded,
+            iconColor: Colors.orange,
+            title: 'Undo Last Action',
+            subtitle: 'Revert to previous state',
+            onTap: _isLoading ? null : _undoClearData,
+          ),
       ],
     );
   }

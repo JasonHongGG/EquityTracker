@@ -1,10 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
-import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
-import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
-import 'package:equity_tracker/features/category/data/category_model.dart';
 import 'package:equity_tracker/core/enums/sync_status.dart';
 import 'package:equity_tracker/features/notion_sync/services/notion_sync_service.dart';
 

@@ -15,6 +15,11 @@ class BackupRestoreResult {
   const BackupRestoreResult(this.categoriesImported, this.transactionsImported, this.recurringTransactionsImported);
 }
 
+enum SnapshotSource {
+  importBackup,
+  clearData,
+}
+
 class NativeBackupService {
   final CategoryRepository _categoryRepo;
   final TransactionRepository _transactionRepo;
@@ -38,27 +43,36 @@ class NativeBackupService {
     return encoder.convert(backupData);
   }
 
+  String _getSnapshotFileName(SnapshotSource source) {
+    switch (source) {
+      case SnapshotSource.importBackup:
+        return 'snapshot_import_backup.json';
+      case SnapshotSource.clearData:
+        return 'snapshot_clear_data.json';
+    }
+  }
+
   /// Creates a snapshot of the current database before a restore operation.
-  Future<void> createSnapshot() async {
+  Future<void> createSnapshot(SnapshotSource source) async {
     final jsonContent = await createBackupJson();
     final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/snapshot_before_restore.json');
+    final file = File('${directory.path}/${_getSnapshotFileName(source)}');
     await file.writeAsString(jsonContent);
   }
 
   /// Checks if a snapshot exists.
-  Future<bool> hasSnapshot() async {
+  Future<bool> hasSnapshot(SnapshotSource source) async {
     final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/snapshot_before_restore.json');
+    final file = File('${directory.path}/${_getSnapshotFileName(source)}');
     return await file.exists();
   }
 
   /// Restores from the snapshot, effectively undoing the last restore.
-  Future<BackupRestoreResult> restoreFromSnapshot() async {
+  Future<BackupRestoreResult> restoreFromSnapshot(SnapshotSource source) async {
     final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/snapshot_before_restore.json');
+    final file = File('${directory.path}/${_getSnapshotFileName(source)}');
     if (!await file.exists()) {
-      throw Exception('No snapshot found.');
+      throw Exception('No snapshot found for $source.');
     }
     final content = await file.readAsString();
     final result = await replaceDatabaseFromContent(content);

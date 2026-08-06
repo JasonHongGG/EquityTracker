@@ -3,7 +3,7 @@ import 'package:equity_tracker/features/settings/widgets/common/settings_tile.da
 
 class SettingsDropdownTile<T> extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
+  final Color? iconColor;
   final String title;
   final String? subtitle;
   final T value;
@@ -14,7 +14,7 @@ class SettingsDropdownTile<T> extends StatelessWidget {
   const SettingsDropdownTile({
     super.key,
     required this.icon,
-    required this.iconColor,
+    this.iconColor,
     required this.title,
     this.subtitle,
     required this.value,

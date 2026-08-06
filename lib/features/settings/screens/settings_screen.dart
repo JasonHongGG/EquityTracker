@@ -31,7 +31,6 @@ class SettingsScreen extends ConsumerWidget {
             children: [
               SettingsTile(
                 icon: Icons.smart_toy_rounded,
-                iconColor: Colors.blueAccent,
                 title: 'AI Configuration',
                 subtitle: 'Manage API keys and models',
                 onTap: () {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class SettingsTile extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
+  final Color? iconColor;
   final String title;
   final String? subtitle;
   final Widget? trailing;
@@ -12,7 +12,7 @@ class SettingsTile extends StatelessWidget {
   const SettingsTile({
     super.key,
     required this.icon,
-    required this.iconColor,
+    this.iconColor,
     required this.title,
     this.subtitle,
     this.trailing,
@@ -29,12 +29,12 @@ class SettingsTile extends StatelessWidget {
         ? Colors.redAccent
         : (isDark ? Colors.white : const Color(0xFF1A1D2B));
 
-    final unifiedIconColor = isDark ? Colors.white70 : const Color(0xFF64748B); // Unified Slate color
-    final displayIconColor = isDestructive ? Colors.redAccent : unifiedIconColor;
+    final defaultIconColor = isDark ? Colors.white70 : const Color(0xFF64748B);
+    final displayIconColor = isDestructive 
+        ? Colors.redAccent 
+        : (iconColor ?? defaultIconColor);
     
-    final iconBgColor = isDestructive
-        ? Colors.redAccent.withValues(alpha: 0.1)
-        : unifiedIconColor.withValues(alpha: 0.1);
+    final iconBgColor = displayIconColor.withValues(alpha: 0.1);
 
     return Material(
       color: Colors.transparent,
