@@ -36,6 +36,13 @@ class NotionSyncService {
         config.dbId.trim(),
         categories,
         since: lastSync,
+        onProgress: (fetchedCount) {
+          if (!silent) {
+            // Cap network progress at 50%, assuming a max of 2000 transactions for progress estimation
+            final double networkProgress = 0.2 + (0.3 * (fetchedCount / 2000).clamp(0.0, 1.0));
+            progressController.updateProgress('Downloading data... ($fetchedCount items)', networkProgress);
+          }
+        }
       );
 
       if (transactions.isEmpty) {
@@ -43,35 +50,12 @@ class NotionSyncService {
         return;
       }
 
+      if (!silent) progressController.updateProgress('Writing data to local database...', 0.6);
+
       final repo = _ref.read(transactionRepositoryProvider);
-      final List<int> insertedIds = [];
-      final totalTx = transactions.length;
+      final List<int> insertedIds = await repo.batchUpsertTransactions(transactions);
 
-      for (int i = 0; i < totalTx; i++) {
-        final tx = transactions[i];
-        if (!silent && i % 10 == 0) { // Update progress every 10 items to prevent UI spam
-           final progress = 0.5 + (0.5 * (i / totalTx));
-           progressController.updateProgress('Syncing $i / $totalTx items...', progress);
-        }
-
-        if (tx.notionId == null || tx.notionId!.isEmpty) continue;
-
-        final existing = await repo.getTransactionByNotionId(tx.notionId!);
-        if (existing != null) {
-          final updated = existing.copyWith(
-            title: tx.title,
-            amount: tx.amount,
-            date: tx.date,
-            categoryId: tx.categoryId,
-            type: tx.type,
-            syncStatus: SyncStatus.synced,
-          );
-          await repo.updateTransaction(updated);
-        } else {
-          final id = await repo.insertTransaction(tx);
-          insertedIds.add(id);
-        }
-      }
+      if (!silent) progressController.updateProgress('Finalizing sync...', 0.9);
 
       await syncRepo.setLastPullIds(insertedIds.map((e) => e.toString()).toList());
       if (lastSyncStr != null) {

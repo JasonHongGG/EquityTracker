@@ -99,6 +99,83 @@ class TransactionRepository {
     await db.delete('transactions');
   }
 
+  /// Bulk upsert transactions using SQLite Batch for maximum performance.
+  /// Returns a list of newly inserted SQLite IDs.
+  Future<List<int>> batchUpsertTransactions(List<TransactionModel> transactions) async {
+    if (transactions.isEmpty) return [];
+
+    final db = await _dbHelper.database;
+    
+    // First, fetch all existing notionIds locally to do an in-memory diff
+    final existingMaps = await db.query(
+      'transactions',
+      columns: ['id', 'notionId'],
+      where: 'notionId IS NOT NULL AND notionId != ""',
+    );
+    
+    final existingNotionIds = <String, int>{};
+    for (final row in existingMaps) {
+      if (row['notionId'] != null) {
+        existingNotionIds[row['notionId'] as String] = row['id'] as int;
+      }
+    }
+
+    final batch = db.batch();
+    final List<String> newlyInsertedNotionIds = [];
+
+    for (final tx in transactions) {
+      if (tx.notionId == null || tx.notionId!.isEmpty) continue;
+      
+      final existingLocalId = existingNotionIds[tx.notionId!];
+      
+      if (existingLocalId != null) {
+        final updated = tx.copyWith(
+          id: existingLocalId,
+          syncStatus: SyncStatus.synced,
+        );
+        batch.update(
+          'transactions',
+          updated.toMap(),
+          where: 'id = ?',
+          whereArgs: [existingLocalId],
+        );
+      } else {
+        final toInsert = tx.copyWith(syncStatus: SyncStatus.synced);
+        batch.insert(
+          'transactions', 
+          toInsert.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+        newlyInsertedNotionIds.add(tx.notionId!);
+      }
+    }
+
+    await batch.commit(noResult: true);
+
+    // Fetch the auto-generated IDs for the newly inserted records
+    if (newlyInsertedNotionIds.isEmpty) return [];
+
+    // SQLite has a limit on variables in IN clause (usually 999), so chunk it if necessary
+    final List<int> insertedIds = [];
+    final chunkSize = 900;
+    for (var i = 0; i < newlyInsertedNotionIds.length; i += chunkSize) {
+      final chunk = newlyInsertedNotionIds.sublist(
+        i, 
+        i + chunkSize > newlyInsertedNotionIds.length ? newlyInsertedNotionIds.length : i + chunkSize
+      );
+      final placeholders = List.filled(chunk.length, '?').join(',');
+      final maps = await db.query(
+        'transactions',
+        columns: ['id'],
+        where: 'notionId IN ($placeholders)',
+        whereArgs: chunk,
+      );
+      insertedIds.addAll(maps.map((m) => m['id'] as int));
+    }
+
+    return insertedIds;
+  }
+
   Future<void> reassignCategoryModel(String oldCategoryId, String newCategoryId) async {
     final db = await _dbHelper.database;
     await db.update(

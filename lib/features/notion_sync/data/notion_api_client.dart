@@ -32,7 +32,7 @@ class NotionApiClient {
     String token, 
     String dbId, 
     List<CategoryModel> categories, 
-    {DateTime? since}
+    {DateTime? since, void Function(int fetchedCount)? onProgress}
   ) async {
     if (token.isEmpty || dbId.isEmpty) return [];
 
@@ -87,9 +87,13 @@ class NotionApiClient {
               continue;
             }
           }
+          
+          if (onProgress != null) {
+            onProgress(allTransactions.length);
+          }
         } else {
           hasMore = false;
-          debugPrint('NotionAPI: fetchTransactions failed with status \${response.statusCode}, body: \${response.body}');
+          debugPrint('NotionAPI: fetchTransactions failed with status ${response.statusCode}, body: ${response.body}');
         }
       }
       return allTransactions;
