@@ -8,14 +8,27 @@ import 'package:equity_tracker/core/router/global_navigator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:equity_tracker/core/providers/shared_prefs_provider.dart';
 
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:equity_tracker/core/providers/package_info_provider.dart';
+import 'package:equity_tracker/core/updater/github_updater_config.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final sharedPreferences = await SharedPreferences.getInstance();
+  final packageInfo = await PackageInfo.fromPlatform();
 
   runApp(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+        packageInfoProvider.overrideWithValue(packageInfo),
+        githubUpdaterConfigProvider.overrideWithValue(
+          const GithubUpdaterConfig(
+            githubOwner: 'JasonHongGG',
+            githubRepo: 'EquityTracker',
+            downloadFileName: 'EquityTracker_update.apk',
+          ),
+        ),
       ],
       child: const MyApp(),
     ),
