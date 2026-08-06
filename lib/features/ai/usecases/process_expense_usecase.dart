@@ -93,47 +93,105 @@ class StoreLookupWorker implements IAgenticWorker {
     final hintDisplay = (data.store == null || data.store!.isEmpty) ? '可能的線索' : data.store;
     onProgress?.call('查詢店家名稱: $hintDisplay...');
 
-    final queryParts = [data.locationClue, data.store, data.item]
+    final fullQueryParts = [data.locationClue, data.store, data.item]
         .where((s) => s != null && s.isNotEmpty)
         .toList();
-    final queryStr = queryParts.join(' ').trim();
+    final fullQueryStr = fullQueryParts.join(' ').trim();
 
+    final relaxedQueryParts = [data.locationClue, data.store]
+        .where((s) => s != null && s.isNotEmpty)
+        .toList();
+    final relaxedQueryStr = relaxedQueryParts.join(' ').trim();
+
+    StoreLookupResult? finalLookupResponse;
     List<StoreSearchResult> searchResults = [];
+
     if (!isGoogleMapEnabled) {
       onProgress?.call('Google Map 查詢未啟用，交由 AI 直接推斷');
-    } else if (queryStr.isNotEmpty) {
-      searchResults = await mapSearchService.search(queryStr);
+      finalLookupResponse = await storeLookupAgent.execute(
+        StoreLookupInput(
+          originalText: session.originalText,
+          hint: data.store ?? '',
+          location: data.locationClue ?? '',
+          item: data.item ?? '',
+          searchResults: [],
+        ),
+      );
+    } else if (fullQueryStr.isNotEmpty) {
+      // 階段一：包含商品名稱的完整搜尋
+      searchResults = await mapSearchService.search(fullQueryStr);
       if (searchResults.isEmpty) {
         onProgress?.call('Google Map 查無結果，交由 AI 直接推斷');
       } else {
         onProgress?.call('Google Map 找到 ${searchResults.length} 筆可能店家，交由 AI 篩選');
       }
+
+      finalLookupResponse = await storeLookupAgent.execute(
+        StoreLookupInput(
+          originalText: session.originalText,
+          hint: data.store ?? '',
+          location: data.locationClue ?? '',
+          item: data.item ?? '',
+          searchResults: searchResults,
+        ),
+      );
+
+      // 階段二：退避搜尋 (如果 AI 判定階段一的結果全是垃圾)
+      if (!finalLookupResponse.isCertain && 
+          (finalLookupResponse.options == null || finalLookupResponse.options!.isEmpty) && 
+          data.item != null && data.item!.isNotEmpty && 
+          relaxedQueryStr.isNotEmpty && relaxedQueryStr != fullQueryStr) {
+        
+        onProgress?.call('AI 判定地圖結果不符，嘗試移除品項名稱進行擴大搜尋...');
+        searchResults = await mapSearchService.search(relaxedQueryStr);
+        if (searchResults.isNotEmpty) {
+          onProgress?.call('擴大搜尋找到 ${searchResults.length} 筆可能店家，交由 AI 再次篩選');
+          finalLookupResponse = await storeLookupAgent.execute(
+            StoreLookupInput(
+              originalText: session.originalText,
+              hint: data.store ?? '',
+              location: data.locationClue ?? '',
+              item: data.item ?? '',
+              searchResults: searchResults,
+            ),
+          );
+        }
+      }
     } else {
       onProgress?.call('無足夠線索查詢地圖，交由 AI 推斷');
+      finalLookupResponse = await storeLookupAgent.execute(
+        StoreLookupInput(
+          originalText: session.originalText,
+          hint: data.store ?? '',
+          location: data.locationClue ?? '',
+          item: data.item ?? '',
+          searchResults: [],
+        ),
+      );
     }
-
-    final lookupResponse = await storeLookupAgent.execute(
-      StoreLookupInput(
-        originalText: session.originalText,
-        hint: data.store ?? '',
-        location: data.locationClue ?? '',
-        item: data.item ?? '',
-        searchResults: searchResults,
-      ),
-    );
 
     // 紀錄這次查詢的關鍵字，寫入黑板記憶
     record.metadata['StoreLookupWorker_LastQuery'] = [data.locationClue, data.store].join('|');
 
-    if (lookupResponse.isCertain && lookupResponse.storeName != null && lookupResponse.storeName!.isNotEmpty) {
-      onProgress?.call('確認店家名稱為: ${lookupResponse.storeName}');
-      record.updateStore(lookupResponse.storeName!);
+    if (finalLookupResponse != null && finalLookupResponse.isCertain && finalLookupResponse.storeName != null && finalLookupResponse.storeName!.isNotEmpty) {
+      onProgress?.call('確認店家名稱為: ${finalLookupResponse.storeName}');
+      record.updateStore(finalLookupResponse.storeName!);
       // 因為 updateStore 改變了 store 名字，這會導致 requiresProcessing 再度回傳 true，
       // 所以我們必須同時更新 metadata 的 LastQuery，防止下一次迴圈再次執行！
-      record.metadata['StoreLookupWorker_LastQuery'] = [data.locationClue, lookupResponse.storeName].join('|');
+      record.metadata['StoreLookupWorker_LastQuery'] = [data.locationClue, finalLookupResponse.storeName].join('|');
       return null;
     } else {
-      final options = lookupResponse.options ?? [];
+      final options = finalLookupResponse?.options ?? [];
+      
+      // 終極防呆機制：如果 AI 還是無法提供選項，且這是使用者手動補填的修正，
+      // 就不要再無限輪迴逼問使用者，直接強制採用現有的店家名稱！
+      bool isUserCorrected = record.metadata.containsKey('User_Corrected_Store');
+      if (options.isEmpty && isUserCorrected && data.store != null && data.store!.isNotEmpty) {
+        onProgress?.call('地圖依然無匹配結果，強制採用您的輸入: ${data.store}');
+        record.metadata['StoreLookupWorker_LastQuery'] = [data.locationClue, data.store].join('|');
+        return null;
+      }
+
       String message;
       if (options.isEmpty) {
         message = '請問「${data.item ?? data.store ?? '未知項目'}」是在哪家店消費的？請直接輸入：';
@@ -345,6 +403,7 @@ class ProcessExpenseUseCase {
         record.metadata['CorrectionWorker_Input'] = userInput;
         record.metadata['CorrectionWorker_Question'] = pendingAction.message;
         record.metadata['CorrectionWorker_Categories'] = categories;
+        record.metadata['User_Corrected_Store'] = true;
       }
     } 
     else if (pendingAction is RequireCorrectionResult) {
