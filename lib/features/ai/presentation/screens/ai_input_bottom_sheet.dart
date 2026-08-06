@@ -30,6 +30,7 @@ class AiInputBottomSheet extends ConsumerStatefulWidget {
 class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _textFieldScrollController = ScrollController();
   String _baseTypedText = '';
 
   @override
@@ -48,6 +49,18 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
           _scrollController.position.maxScrollExtent,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOutQuart,
+        );
+      }
+    });
+  }
+
+  void _scrollTextFieldToRight() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_textFieldScrollController.hasClients) {
+        _textFieldScrollController.animateTo(
+          _textFieldScrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOut,
         );
       }
     });
@@ -99,6 +112,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
           _controller.selection = TextSelection.fromPosition(
             TextPosition(offset: _controller.text.length)
           );
+          _scrollTextFieldToRight();
         }
       }
       if (next.hasError && !(previous?.hasError ?? false)) {
@@ -677,6 +691,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                     Expanded(
                       child: TextField(
                         controller: _controller,
+                        scrollController: _textFieldScrollController,
                         style: TextStyle(
                           color: isDark ? Colors.white : Colors.black87,
                         ),
