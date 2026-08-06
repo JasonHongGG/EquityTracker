@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/features/app_update/domain/update_info.dart';
+import 'package:equity_tracker/core/updater/services/updater_permission_service.dart';
 import 'package:equity_tracker/features/app_update/constants/update_ui_constants.dart';
 
 class PermissionRequestDialog extends StatelessWidget {
-  final PermissionType permissionType;
+  final UpdaterPermissionType permissionType;
   final String message;
 
   const PermissionRequestDialog({
@@ -194,13 +194,13 @@ class PermissionRequestDialog extends StatelessWidget {
 
   (IconData, String, List<String>) _getPermissionDetails() {
     switch (permissionType) {
-      case PermissionType.installPackages:
+      case UpdaterPermissionType.installPackages:
         return (
           Icons.admin_panel_settings_rounded,
           '需要安裝權限',
           ['點擊「前往設定」', '找到「Equity Tracker」', '開啟「允許來自此來源」', '返回 App 繼續更新'],
         );
-      case PermissionType.storage:
+      case UpdaterPermissionType.storage:
         return (
           Icons.folder_special_rounded,
           '需要儲存空間權限',

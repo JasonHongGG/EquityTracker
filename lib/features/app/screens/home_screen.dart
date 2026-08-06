@@ -11,7 +11,7 @@ import 'package:equity_tracker/core/theme/app_colors.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/features/transaction/providers/recurring_transaction_notifier.dart';
-import 'package:equity_tracker/features/app_update/providers/update_notifier.dart';
+import 'package:equity_tracker/core/updater/updater_notifier.dart';
 import 'package:equity_tracker/features/app_update/widgets/update_dialog_helpers.dart';
 
 import 'package:equity_tracker/core/services/local_notification_service.dart';
@@ -46,10 +46,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
 
   Future<void> _checkUpdate() async {
     // Check update in background, it won't block UI
-    await ref.read(updateNotifierProvider.notifier).checkForUpdate();
-    if (!mounted) return;
-    
-    final updateState = ref.read(updateNotifierProvider);
+      await ref.read(githubUpdaterNotifierProvider.notifier).checkForUpdate();
+      
+      final updateState = ref.read(githubUpdaterNotifierProvider);
     if (updateState.hasUpdate && updateState.releaseInfo != null) {
       showUpdateDialog(context);
     }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:equity_tracker/features/app_update/providers/update_notifier.dart';
-import 'package:equity_tracker/features/app_update/data/update_repository.dart';
+import 'package:equity_tracker/core/updater/updater_notifier.dart';
 import 'package:equity_tracker/features/app_update/constants/update_ui_constants.dart';
 import 'package:equity_tracker/features/app_update/widgets/permission_request_dialog.dart';
+import 'package:equity_tracker/core/providers/package_info_provider.dart';
 
 class UpdatePromptDialog extends ConsumerStatefulWidget {
   const UpdatePromptDialog({super.key});
@@ -18,7 +18,9 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final updateState = ref.watch(updateNotifierProvider);
+    final updateState = ref.watch(githubUpdaterNotifierProvider);
+    final packageInfo = ref.watch(packageInfoProvider);
+    final currentAppVersion = packageInfo.version;
     final releaseInfo = updateState.releaseInfo;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -79,7 +81,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      UpdateRepository.currentAppVersion,
+                      currentAppVersion,
                       style: TextStyle(
                         fontFamily: 'Outfit',
                         color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 
@@ -216,7 +218,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
                       onPressed: _isProcessing
                           ? null
                           : () {
-                              ref.read(updateNotifierProvider.notifier).skipUpdate();
+                              ref.read(githubUpdaterNotifierProvider.notifier).skipUpdate();
                               Navigator.of(context).pop();
                             },
                       style: TextButton.styleFrom(
@@ -280,7 +282,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
   Future<void> _handleUpdate() async {
     setState(() => _isProcessing = true);
 
-    final notifier = ref.read(updateNotifierProvider.notifier);
+    final notifier = ref.read(githubUpdaterNotifierProvider.notifier);
 
     final permissionResult = await notifier.checkPermissions();
 
@@ -305,7 +307,7 @@ class _UpdatePromptDialogState extends ConsumerState<UpdatePromptDialog> {
 
     await notifier.downloadUpdate();
 
-    final updateState = ref.read(updateNotifierProvider);
+    final updateState = ref.read(githubUpdaterNotifierProvider);
 
     if (updateState.downloadedFilePath != null) {
       await notifier.installUpdate();
