@@ -28,6 +28,7 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
     final currentTab = ref.watch(statsTabProvider);
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: isDark ? const Color(0xFF0F111A) : const Color(0xFFF5F7FA),
       appBar: AppBar(
         centerTitle: true,

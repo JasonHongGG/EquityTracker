@@ -23,19 +23,25 @@ class TrendTransactionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (selectedDay == null) {
-      return Center(
-        child: Text(
-          'Select a day to view transactions',
-          style: TextStyle(color: Theme.of(context).hintColor),
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 100),
+        child: Center(
+          child: Text(
+            'Select a day to view transactions',
+            style: TextStyle(color: Theme.of(context).hintColor),
+          ),
         ),
       );
     }
 
     if (transactions.isEmpty) {
-      return Center(
-        child: Text(
-          'No transactions',
-          style: TextStyle(color: Theme.of(context).hintColor),
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 100),
+        child: Center(
+          child: Text(
+            'No transactions',
+            style: TextStyle(color: Theme.of(context).hintColor),
+          ),
         ),
       );
     }

@@ -35,6 +35,7 @@ class _TransactionListScreenState extends ConsumerState<TransactionListScreen> {
     final state = stateAsync.value ?? TransactionListState.initial();
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: CustomScrollView(
         slivers: [
           // 1. Scrollable Month Selector

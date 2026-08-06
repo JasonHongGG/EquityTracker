@@ -32,6 +32,7 @@ class _RecurringTransactionModelsScreenState
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: isDark
           ? AppColors.backgroundDark
           : AppColors.backgroundLight,
