@@ -7,7 +7,7 @@ import 'package:equity_tracker/core/theme/app_colors.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/ai_log_viewer_screen.dart';
 import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
 import 'package:equity_tracker/features/ai/presentation/widgets/thinking_orb.dart';
-import 'package:equity_tracker/features/ai/presentation/controllers/ai_voice_controller.dart';
+import 'package:equity_tracker/core/voice/controllers/voice_controller.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math' as math;
 
@@ -38,7 +38,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
     super.initState();
     // Initialize speech engine early
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(aiVoiceControllerProvider.notifier).initialize();
+      ref.read(voiceControllerProvider.notifier).initialize();
     });
   }
 
@@ -80,7 +80,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
     
     _controller.clear();
     _baseTypedText = '';
-    ref.read(aiVoiceControllerProvider.notifier).clearText();
+    ref.read(voiceControllerProvider.notifier).clearText();
   }
 
   void _handleMicToggle(bool isCurrentlyListening) {
@@ -88,20 +88,20 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
       // 即將開始語音：將目前輸入框的字鎖定為 _baseTypedText
       _baseTypedText = _controller.text.trim();
     }
-    ref.read(aiVoiceControllerProvider.notifier).toggleListening();
+    ref.read(voiceControllerProvider.notifier).toggleListening();
   }
 
   @override
   Widget build(BuildContext context) {
     final sessionState = ref.watch(aiSessionControllerProvider);
     final aiConfig = ref.watch(aiConfigControllerProvider);
-    final voiceState = ref.watch(aiVoiceControllerProvider);
+    final voiceState = ref.watch(voiceControllerProvider);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
     ref.listen<AISessionState>(aiSessionControllerProvider, (_, __) => _scrollToBottom());
     
-    ref.listen<AiVoiceState>(aiVoiceControllerProvider, (previous, next) {
+    ref.listen<VoiceState>(voiceControllerProvider, (previous, next) {
       if (next.recognizedText != previous?.recognizedText) {
         final newText = _baseTypedText.isEmpty 
             ? next.recognizedText 
@@ -659,7 +659,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
     return const SizedBox();
   }
 
-  Widget _buildInputArea(AISessionState sessionState, AiVoiceState voiceState, bool isDark) {
+  Widget _buildInputArea(AISessionState sessionState, VoiceState voiceState, bool isDark) {
     
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
@@ -719,7 +719,7 @@ class _AiInputBottomSheetState extends ConsumerState<AiInputBottomSheet> {
                         }
                       },
                       onLongPressUp: () {
-                        ref.read(aiVoiceControllerProvider.notifier).stopListening();
+                        ref.read(voiceControllerProvider.notifier).stopListening();
                       },
                       onTap: () {
                         _handleMicToggle(voiceState.isListening);

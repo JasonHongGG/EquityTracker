@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/features/ai/services/voice_recognition_service.dart';
+import 'package:equity_tracker/core/voice/services/voice_recognition_service.dart';
 
 class VoiceBufferAccumulator {
   final List<String> _confirmedChunks = [];
@@ -58,23 +58,23 @@ class VoiceBufferAccumulator {
   }
 }
 
-class AiVoiceState {
+class VoiceState {
   final bool isListening;
   final bool hasError;
   final String recognizedText; // 本次麥克風連線的純語音文字
   
-  const AiVoiceState({
+  const VoiceState({
     this.isListening = false,
     this.hasError = false,
     this.recognizedText = '',
   });
   
-  AiVoiceState copyWith({
+  VoiceState copyWith({
     bool? isListening,
     bool? hasError,
     String? recognizedText,
   }) {
-    return AiVoiceState(
+    return VoiceState(
       isListening: isListening ?? this.isListening,
       hasError: hasError ?? this.hasError,
       recognizedText: recognizedText ?? this.recognizedText,
@@ -84,14 +84,14 @@ class AiVoiceState {
 
 final voiceRecognitionServiceProvider = Provider((ref) => VoiceRecognitionService());
 
-class AiVoiceController extends Notifier<AiVoiceState> {
+class VoiceController extends Notifier<VoiceState> {
   late VoiceRecognitionService _voiceService;
   VoiceBufferAccumulator _accumulator = VoiceBufferAccumulator();
   
   @override
-  AiVoiceState build() {
+  VoiceState build() {
     _voiceService = ref.watch(voiceRecognitionServiceProvider);
-    return const AiVoiceState();
+    return const VoiceState();
   }
   
   Future<void> initialize() async {
@@ -111,7 +111,7 @@ class AiVoiceController extends Notifier<AiVoiceState> {
       await _voiceService.stopListening();
     } else {
       _accumulator = VoiceBufferAccumulator();
-      state = const AiVoiceState(isListening: true, hasError: false, recognizedText: '');
+      state = const VoiceState(isListening: true, hasError: false, recognizedText: '');
       
       await _voiceService.startListening(
         onResult: (text, isFinal) {
@@ -134,6 +134,6 @@ class AiVoiceController extends Notifier<AiVoiceState> {
   }
 }
 
-final aiVoiceControllerProvider = NotifierProvider<AiVoiceController, AiVoiceState>(() {
-  return AiVoiceController();
+final voiceControllerProvider = NotifierProvider<VoiceController, VoiceState>(() {
+  return VoiceController();
 });
