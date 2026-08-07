@@ -32,7 +32,7 @@ class HorizontalDaySlider extends StatelessWidget {
         children: [
           // Prev
           _ArrowButton(
-            icon: FontAwesomeIcons.chevronLeft,
+            icon: Icons.chevron_left,
             onTap: selectedDay > 1 ? () => _updateDay(selectedDay - 1) : null,
             color: color,
           ),
@@ -66,7 +66,7 @@ class HorizontalDaySlider extends StatelessWidget {
 
           // Next
           _ArrowButton(
-            icon: FontAwesomeIcons.chevronRight,
+            icon: Icons.chevron_right,
             onTap: selectedDay < daysInMonth
                 ? () => _updateDay(selectedDay + 1)
                 : null,

@@ -51,6 +51,7 @@ class CustomBottomNavBar extends StatelessWidget {
       child: Container(
         height: 50,
         width: 50,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: LinearGradient(
@@ -69,7 +70,7 @@ class CustomBottomNavBar extends StatelessWidget {
             ),
           ],
         ),
-        child: const Icon(
+        child: const FaIcon(
           FontAwesomeIcons.plus,
           color: Colors.white,
           size: 20,
@@ -78,7 +79,7 @@ class CustomBottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, int index, IconData icon, String label, {VoidCallback? onTapOverride}) {
+  Widget _buildNavItem(BuildContext context, int index, dynamic icon, String label, {VoidCallback? onTapOverride}) {
     final isSelected = selectedIndex == index;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
@@ -92,11 +93,9 @@ class CustomBottomNavBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(15),
               )
             : null,
-        child: Icon(
-          icon,
-          color: isSelected ? Theme.of(context).primaryColor : Colors.grey,
-          size: 20,
-        ),
+        child: icon is IconData
+            ? Icon(icon, color: isSelected ? Theme.of(context).primaryColor : Colors.grey, size: 20)
+            : FaIcon(icon, color: isSelected ? Theme.of(context).primaryColor : Colors.grey, size: 20),
       ),
     );
   }

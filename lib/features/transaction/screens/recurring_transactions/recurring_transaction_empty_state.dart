@@ -14,7 +14,7 @@ class RecurringTransactionEmptyState extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              FaIcon(
                 FontAwesomeIcons.repeat,
                 size: 64,
                 color: isDark ? Colors.white10 : Colors.black12,

@@ -53,7 +53,7 @@ class RecurringTransactionItem extends ConsumerWidget {
           color: Colors.redAccent.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: const Icon(
+        child: const FaIcon(
           FontAwesomeIcons.trashCan,
           color: Colors.white,
           size: 20,
@@ -124,7 +124,7 @@ class RecurringTransactionItem extends ConsumerWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  category?.iconData ?? FontAwesomeIcons.question,
+                  category?.iconData ?? Icons.help_outline,
                   color: category?.color ?? Colors.grey,
                   size: 18,
                 ),

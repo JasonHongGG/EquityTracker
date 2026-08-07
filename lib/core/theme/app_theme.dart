@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:equity_tracker/core/theme/app_colors.dart';
 
 class AppTheme {
-  // Enforce Universal Gesture Navigation (Swipe-to-back on all platforms)
+
+
   static const PageTransitionsTheme _universalPageTransitionsTheme = PageTransitionsTheme(
-    builders: {
+    builders: <TargetPlatform, PageTransitionsBuilder>{
       TargetPlatform.android: CupertinoPageTransitionsBuilder(),
       TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-      TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
       TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
-      TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
     },
   );
 
   static ThemeData get darkTheme {
     return ThemeData(
+      pageTransitionsTheme: _universalPageTransitionsTheme,
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.backgroundDark,
       primaryColor: AppColors.primary,
@@ -34,13 +35,14 @@ class AppTheme {
         elevation: 0,
         centerTitle: true,
       ),
-      pageTransitionsTheme: _universalPageTransitionsTheme,
+
       useMaterial3: true,
     );
   }
 
   static ThemeData get lightTheme {
     return ThemeData(
+      pageTransitionsTheme: _universalPageTransitionsTheme,
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.backgroundLight,
       primaryColor: AppColors.primary,
@@ -61,7 +63,7 @@ class AppTheme {
         iconTheme: IconThemeData(color: Colors.black),
       ),
       useMaterial3: true,
-      pageTransitionsTheme: _universalPageTransitionsTheme,
+
     );
   }
 }
