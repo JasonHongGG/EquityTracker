@@ -23,6 +23,20 @@ class CategoryRepository {
     }
   }
 
+  Future<CategoryModel?> getCategoryById(String id) async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'categories',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (maps.isNotEmpty) {
+      return CategoryModel.fromMap(maps.first);
+    }
+    return null;
+  }
+
   Future<void> addCategoryModel(CategoryModel category) async {
     final db = await _dbHelper.database;
     await db.insert(

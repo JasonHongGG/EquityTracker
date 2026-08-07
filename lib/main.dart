@@ -11,11 +11,16 @@ import 'package:equity_tracker/core/providers/shared_prefs_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:equity_tracker/core/providers/package_info_provider.dart';
 import 'package:equity_tracker/features/updater/data/github_updater_config.dart';
+import 'package:equity_tracker/core/notifications/services/system_notification_service.dart';
+import 'package:equity_tracker/core/notifications/providers/notification_providers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final sharedPreferences = await SharedPreferences.getInstance();
   final packageInfo = await PackageInfo.fromPlatform();
+  
+  final systemNotificationService = SystemNotificationServiceImpl();
+  await systemNotificationService.init();
 
   runApp(
     ProviderScope(
@@ -29,6 +34,7 @@ void main() async {
             downloadFileName: 'EquityTracker_update.apk',
           ),
         ),
+        systemNotificationServiceProvider.overrideWithValue(systemNotificationService),
       ],
       child: const MyApp(),
     ),

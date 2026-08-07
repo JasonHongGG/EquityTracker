@@ -19,7 +19,7 @@ class SystemNotificationServiceImpl implements SystemNotificationService {
     if (_isInitialized) return;
 
     const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@mipmap/launcher_icon');
 
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
@@ -69,7 +69,7 @@ class SystemNotificationServiceImpl implements SystemNotificationService {
       importance: Importance.max,
       priority: Priority.high,
       showWhen: true,
-      icon: '@mipmap/ic_launcher',
+      icon: '@mipmap/launcher_icon',
     );
     
     const DarwinNotificationDetails iOSPlatformChannelSpecifics =
