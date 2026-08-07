@@ -24,7 +24,7 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
 
   Future<void> _exportBackup() async {
     try {
-      final String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+      final String? selectedDirectory = await FilePicker.getDirectoryPath();
       if (selectedDirectory == null) return;
 
       setState(() => _isLoading = true);
@@ -72,7 +72,7 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
 
   Future<void> _importBackup() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
