@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:equity_tracker/core/router/global_navigator.dart';
 import 'package:equity_tracker/core/widgets/premium_toast_widget.dart';
-import 'package:equity_tracker/core/notifications/domain/models/in_app_notification.dart';
+import 'package:equity_tracker/core/notifications/domain/in_app_notification.dart';
 
 abstract class InAppNotificationService {
   void showSuccess(String message, {String? title});

@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/core/notifications/domain/models/in_app_notification.dart';
+import 'package:equity_tracker/core/notifications/domain/in_app_notification.dart';
 
 class PremiumToastWidget extends StatelessWidget {
   final InAppNotification notification;
