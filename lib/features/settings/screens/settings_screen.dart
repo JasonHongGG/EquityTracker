@@ -7,7 +7,7 @@ import 'package:equity_tracker/features/settings/screens/settings_screen/prefere
 import 'package:equity_tracker/features/data_management/widgets/data_management_section.dart';
 import 'package:equity_tracker/features/data_management/widgets/integrations_section.dart';
 import 'package:equity_tracker/features/data_management/widgets/danger_zone_section.dart';
-import 'package:equity_tracker/features/app_update/widgets/app_update_section.dart';
+import 'package:equity_tracker/features/updater/presentation/widgets/app_update_section.dart';
 import 'package:equity_tracker/features/ai/presentation/screens/ai_settings_screen.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';

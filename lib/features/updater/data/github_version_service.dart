@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/core/updater/github_updater_config.dart';
-import 'package:equity_tracker/core/updater/models/release_info.dart';
+import 'package:equity_tracker/features/updater/data/github_updater_config.dart';
+import 'package:equity_tracker/features/updater/domain/release_info.dart';
 import 'package:equity_tracker/core/providers/package_info_provider.dart';
 
 class GithubVersionService {

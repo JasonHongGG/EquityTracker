@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/core/updater/updater_notifier.dart';
-import 'package:equity_tracker/core/updater/widgets/github_updater_bottom_sheet.dart';
-import 'package:equity_tracker/features/app_update/widgets/version_display_button.dart';
+import 'package:equity_tracker/features/updater/presentation/providers/updater_notifier.dart';
+import 'package:equity_tracker/features/updater/presentation/widgets/github_updater_bottom_sheet.dart';
+import 'package:equity_tracker/features/updater/presentation/widgets/version_display_button.dart';
 import 'package:equity_tracker/core/providers/package_info_provider.dart';
 
 class AppUpdateSection extends ConsumerWidget {

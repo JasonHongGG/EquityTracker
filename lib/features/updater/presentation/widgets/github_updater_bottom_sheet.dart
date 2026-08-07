@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/providers/package_info_provider.dart';
-import 'package:equity_tracker/core/updater/updater_notifier.dart';
-import 'package:equity_tracker/core/updater/models/release_info.dart';
-import 'package:equity_tracker/core/updater/services/updater_permission_service.dart';
+import 'package:equity_tracker/features/updater/presentation/providers/updater_notifier.dart';
+import 'package:equity_tracker/features/updater/domain/release_info.dart';
+import 'package:equity_tracker/features/updater/data/updater_permission_service.dart';
 
 Future<void> showGithubUpdaterBottomSheet(BuildContext context) async {
   return showModalBottomSheet(

@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/core/updater/github_updater_config.dart';
+import 'package:equity_tracker/features/updater/data/github_updater_config.dart';
 
 class ApkDownloadService {
   final Dio _dio;

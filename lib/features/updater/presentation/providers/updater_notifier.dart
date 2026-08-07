@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:equity_tracker/core/updater/models/release_info.dart';
-import 'package:equity_tracker/core/updater/services/github_version_service.dart';
-import 'package:equity_tracker/core/updater/services/updater_permission_service.dart';
-import 'package:equity_tracker/core/updater/services/apk_download_service.dart';
-import 'package:equity_tracker/core/updater/services/apk_install_service.dart';
+import 'package:equity_tracker/features/updater/domain/release_info.dart';
+import 'package:equity_tracker/features/updater/data/github_version_service.dart';
+import 'package:equity_tracker/features/updater/data/updater_permission_service.dart';
+import 'package:equity_tracker/features/updater/data/apk_download_service.dart';
+import 'package:equity_tracker/features/updater/data/apk_install_service.dart';
 
 class UpdaterState {
   final bool isChecking;
