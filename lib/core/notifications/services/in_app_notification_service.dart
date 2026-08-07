@@ -1,29 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/router/global_navigator.dart';
 import 'package:equity_tracker/core/widgets/premium_toast_widget.dart';
+import 'package:equity_tracker/core/notifications/domain/models/in_app_notification.dart';
 
-enum NotificationType { success, error, info, warning }
-
-class NotificationModel {
-  final String id;
-  final String message;
-  final NotificationType type;
-  final String? title;
-
-  NotificationModel({
-    required this.id,
-    required this.message,
-    required this.type,
-    this.title,
-  });
+abstract class InAppNotificationService {
+  void showSuccess(String message, {String? title});
+  void showError(String message, {String? title});
+  void showInfo(String message, {String? title});
+  void showWarning(String message, {String? title});
 }
 
-class NotificationController extends Notifier<void> {
-  @override
-  void build() {}
-
-  void show(
+class InAppNotificationServiceImpl implements InAppNotificationService {
+  void _show(
     String message, {
     NotificationType type = NotificationType.info,
     String? title,
@@ -33,7 +21,7 @@ class NotificationController extends Notifier<void> {
     if (overlay == null) return;
 
     final id = DateTime.now().millisecondsSinceEpoch.toString();
-    final notification = NotificationModel(
+    final notification = InAppNotification(
       id: id,
       message: message,
       type: type,
@@ -83,12 +71,12 @@ class NotificationController extends Notifier<void> {
     });
   }
 
-  void showSuccess(String message, {String? title}) => show(message, type: NotificationType.success, title: title);
-  void showError(String message, {String? title}) => show(message, type: NotificationType.error, title: title);
-  void showInfo(String message, {String? title}) => show(message, type: NotificationType.info, title: title);
-  void showWarning(String message, {String? title}) => show(message, type: NotificationType.warning, title: title);
+  @override
+  void showSuccess(String message, {String? title}) => _show(message, type: NotificationType.success, title: title);
+  @override
+  void showError(String message, {String? title}) => _show(message, type: NotificationType.error, title: title);
+  @override
+  void showInfo(String message, {String? title}) => _show(message, type: NotificationType.info, title: title);
+  @override
+  void showWarning(String message, {String? title}) => _show(message, type: NotificationType.warning, title: title);
 }
-
-final notificationControllerProvider = NotifierProvider<NotificationController, void>(() {
-  return NotificationController();
-});

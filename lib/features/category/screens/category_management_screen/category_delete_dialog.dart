@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:equity_tracker/features/category/providers/category_notifier.dart';
 import 'package:equity_tracker/features/category/data/category_model.dart';
-import 'package:equity_tracker/core/providers/notification_provider.dart';
+import 'package:equity_tracker/core/notifications/providers/notification_providers.dart';
 
 class CategoryDeleteDialog extends ConsumerWidget {
   final CategoryModel category;
@@ -95,7 +95,7 @@ class CategoryDeleteDialog extends ConsumerWidget {
                       ref
                           .read(categoryListProvider.notifier)
                           .deleteCategoryModel(category.id, category.type);
-                      ref.read(notificationControllerProvider.notifier).showSuccess('Category deleted');
+                      ref.read(inAppNotificationServiceProvider).showSuccess('Category deleted');
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(

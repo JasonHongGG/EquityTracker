@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/providers/usecase_providers.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
-import 'package:equity_tracker/core/providers/notification_provider.dart';
+import 'package:equity_tracker/core/notifications/providers/notification_providers.dart';
 import 'package:equity_tracker/core/widgets/scale_button.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
@@ -38,9 +38,9 @@ class _DangerZoneSectionState extends ConsumerState<DangerZoneSection> {
       ref.invalidate(titleSuggestionProvider);
       ref.invalidate(notionConfigControllerProvider); // Force Notion UI state to reset
 
-      ref.read(notificationControllerProvider.notifier).showSuccess('All data & Notion sync cleared successfully.');
+      ref.read(inAppNotificationServiceProvider).showSuccess('All data & Notion sync cleared successfully.');
     } catch (e) {
-      ref.read(notificationControllerProvider.notifier).showError('Failed to clear data: $e');
+      ref.read(inAppNotificationServiceProvider).showError('Failed to clear data: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -62,10 +62,10 @@ class _DangerZoneSectionState extends ConsumerState<DangerZoneSection> {
       ref.refresh(transactionNotifierProvider);
       ref.invalidate(titleSuggestionProvider);
 
-      ref.read(notificationControllerProvider.notifier).showSuccess('Data restored successfully!');
+      ref.read(inAppNotificationServiceProvider).showSuccess('Data restored successfully!');
       
     } catch (e) {
-      ref.read(notificationControllerProvider.notifier).showError('Undo failed: $e');
+      ref.read(inAppNotificationServiceProvider).showError('Undo failed: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);

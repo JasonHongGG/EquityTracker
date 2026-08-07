@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/core/providers/usecase_providers.dart';
 import 'package:equity_tracker/features/notion_sync/services/notion_sync_service.dart';
-import 'package:equity_tracker/core/providers/notification_provider.dart';
+import 'package:equity_tracker/core/notifications/providers/notification_providers.dart';
 
 class NotionConfigState {
   final String token;
@@ -106,7 +106,7 @@ class NotionConfigController extends Notifier<NotionConfigState> {
         isEnabled: true // Force UI to reflect domain state
       );
       
-      ref.read(notificationControllerProvider.notifier).showSuccess('Connected Successfully.');
+      ref.read(inAppNotificationServiceProvider).showSuccess('Connected Successfully.');
     } catch (e) {
       state = state.copyWith(
         isVerifying: false, 
@@ -114,7 +114,7 @@ class NotionConfigController extends Notifier<NotionConfigState> {
       );
       
       final errorMsg = e.toString().replaceAll('Exception: ', '');
-      ref.read(notificationControllerProvider.notifier).showError(errorMsg);
+      ref.read(inAppNotificationServiceProvider).showError(errorMsg);
     }
   }
 }

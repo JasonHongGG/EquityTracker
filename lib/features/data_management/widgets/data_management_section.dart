@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:equity_tracker/core/services/native_backup_service.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/settings/providers/settings_notifier.dart';
-import 'package:equity_tracker/core/providers/notification_provider.dart';
+import 'package:equity_tracker/core/notifications/providers/notification_providers.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_section.dart';
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
 import 'package:equity_tracker/features/data_management/providers/snapshot_notifier.dart';
@@ -58,7 +58,7 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
         Navigator.of(context).pop();
         setState(() => _isLoading = false);
       }
-      ref.read(notificationControllerProvider.notifier).showSuccess('Backup saved to: $filename');
+      ref.read(inAppNotificationServiceProvider).showSuccess('Backup saved to: $filename');
     } catch (e) {
       if (mounted) {
         if (_isLoading) {
@@ -66,7 +66,7 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
           setState(() => _isLoading = false);
         }
       }
-      ref.read(notificationControllerProvider.notifier).showError('Export failed: $e');
+      ref.read(inAppNotificationServiceProvider).showError('Export failed: $e');
     }
   }
 
@@ -111,7 +111,7 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
           Navigator.of(context).pop();
           setState(() => _isLoading = false);
         }
-        ref.read(notificationControllerProvider.notifier).showSuccess(
+        ref.read(inAppNotificationServiceProvider).showSuccess(
           'Restored: ${report.categoriesImported} Categories, ${report.transactionsImported} Transactions, ${report.recurringTransactionsImported} Recurring',
         );
       }
@@ -122,7 +122,7 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
           setState(() => _isLoading = false);
         }
       }
-      ref.read(notificationControllerProvider.notifier).showError('Restore failed: $e');
+      ref.read(inAppNotificationServiceProvider).showError('Restore failed: $e');
     }
   }
 
@@ -152,7 +152,7 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
         Navigator.of(context).pop();
         setState(() => _isLoading = false);
       }
-      ref.read(notificationControllerProvider.notifier).showSuccess('Restore reverted successfully.');
+      ref.read(inAppNotificationServiceProvider).showSuccess('Restore reverted successfully.');
     } catch (e) {
       if (mounted) {
         if (_isLoading) {
@@ -160,7 +160,7 @@ class _DataManagementSectionState extends ConsumerState<DataManagementSection> {
           setState(() => _isLoading = false);
         }
       }
-      ref.read(notificationControllerProvider.notifier).showError('Undo failed: $e');
+      ref.read(inAppNotificationServiceProvider).showError('Undo failed: $e');
     }
   }
 

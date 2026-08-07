@@ -1,25 +1,26 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:equity_tracker/features/transaction/data/transaction_model.dart';
-import 'package:intl/intl.dart';
 
-class LocalNotificationService {
-  // Singleton pattern
-  static final LocalNotificationService _instance = LocalNotificationService._internal();
-  factory LocalNotificationService() => _instance;
-  LocalNotificationService._internal();
+abstract class SystemNotificationService {
+  Future<void> init();
+  Future<void> showNotification({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+  });
+}
 
+class SystemNotificationServiceImpl implements SystemNotificationService {
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   bool _isInitialized = false;
 
+  @override
   Future<void> init() async {
     if (_isInitialized) return;
 
-    // Initialization Settings for Android
-    // "@mipmap/ic_launcher" must exist.
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    // Initialization Settings for iOS
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
       requestAlertPermission: true,
@@ -38,10 +39,10 @@ class LocalNotificationService {
     );
     
     _isInitialized = true;
-    await requestPermissions();
+    await _requestPermissions();
   }
 
-  Future<void> requestPermissions() async {
+  Future<void> _requestPermissions() async {
     final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
         _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
@@ -53,11 +54,13 @@ class LocalNotificationService {
     // Handle notification tapped logic here if needed
   }
 
-  Future<void> showAutoTransactionNotification(TransactionModel transaction) async {
-    // Use transaction ID as notification ID to ensure independence
-    // If ID is null (which shouldn't happen after DB insert), fallback to hashcode
-    final int notificationId = transaction.id ?? transaction.hashCode;
-
+  @override
+  Future<void> showNotification({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
     const AndroidNotificationDetails androidPlatformChannelSpecifics =
         AndroidNotificationDetails(
       'recurring_transactions_channel', // id
@@ -77,16 +80,12 @@ class LocalNotificationService {
       iOS: iOSPlatformChannelSpecifics,
     );
 
-    final amountStr = NumberFormat.currency(symbol: '\$', decimalDigits: 0).format(transaction.amount);
-
-    final typeStr = transaction.type.isIncome ? '收入' : '支出';
-
     await _flutterLocalNotificationsPlugin.show(
-      id: notificationId,
-      title: '自動記帳：${transaction.title}',
-      body: '已成功新增一筆 $typeStr $amountStr',
+      id: id,
+      title: title,
+      body: body,
       notificationDetails: platformChannelSpecifics,
-      payload: transaction.id?.toString(),
+      payload: payload,
     );
   }
 }

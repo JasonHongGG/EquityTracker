@@ -8,7 +8,7 @@ import 'package:equity_tracker/core/widgets/calculator_pad.dart';
 import 'package:equity_tracker/core/widgets/pickers/date_time_wheel_picker.dart';
 import 'package:equity_tracker/core/widgets/pickers/premium_calendar_picker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:equity_tracker/core/providers/notification_provider.dart';
+import 'package:equity_tracker/core/notifications/providers/notification_providers.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_transaction/transaction_header.dart';
 import 'package:equity_tracker/features/transaction/screens/add_edit_transaction/transaction_date_selector.dart';
 import 'package:equity_tracker/core/widgets/segmented_type_tab.dart';
@@ -115,12 +115,12 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
     );
 
     if (success && mounted) {
-      ref.read(notificationControllerProvider.notifier).showSuccess('Transaction saved');
+      ref.read(inAppNotificationServiceProvider).showSuccess('Transaction saved');
       Navigator.pop(context);
     } else if (mounted) {
       final error = ref.read(addEditTransactionControllerProvider).error;
       if (error != null) {
-        ref.read(notificationControllerProvider.notifier).showError(error);
+        ref.read(inAppNotificationServiceProvider).showError(error);
       }
     }
   }
@@ -128,7 +128,7 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
   void _deleteTransaction() async {
     await ref.read(addEditTransactionControllerProvider.notifier).deleteTransaction();
     if (mounted) {
-      ref.read(notificationControllerProvider.notifier).showSuccess('Transaction deleted');
+      ref.read(inAppNotificationServiceProvider).showSuccess('Transaction deleted');
       Navigator.pop(context);
     }
   }
@@ -259,7 +259,7 @@ class _AddEditTransactionScreenState extends ConsumerState<AddEditTransactionScr
 
                             if (state.categoryId == null && filtered.isNotEmpty) {
                               final defaultCat = filtered.firstWhere(
-                                (c) => c.name == '飲食',
+                                (c) => c.name == '飲�?',
                                 orElse: () => filtered.first,
                               );
                               Future.microtask(() {

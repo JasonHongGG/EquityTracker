@@ -14,7 +14,7 @@ import 'package:equity_tracker/core/updater/updater_notifier.dart';
 import 'package:equity_tracker/features/transaction/providers/recurring_transaction_notifier.dart';
 import 'package:equity_tracker/core/updater/widgets/github_updater_bottom_sheet.dart';
 
-import 'package:equity_tracker/core/services/local_notification_service.dart';
+import 'package:equity_tracker/core/notifications/providers/notification_providers.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -38,7 +38,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     Future.microtask(() async {
-      await LocalNotificationService().init();
+      ref.read(systemNotificationServiceProvider);
       ref.read(recurringTransactionListProvider.notifier).checkAndProcess();
       _checkUpdate();
     });

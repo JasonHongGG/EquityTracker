@@ -5,7 +5,8 @@ import 'package:equity_tracker/core/providers/repository_providers.dart';
 import 'package:equity_tracker/features/transaction/providers/transaction_notifier.dart';
 import 'package:equity_tracker/features/transaction/domain/process_recurring_transactions_usecase.dart';
 import 'package:equity_tracker/features/transaction/data/recurring_transaction_model.dart';
-import 'package:equity_tracker/core/services/local_notification_service.dart';
+import 'package:equity_tracker/core/notifications/providers/notification_providers.dart';
+import 'package:intl/intl.dart';
 
 final processRecurringTransactionsUseCaseProvider = Provider<ProcessRecurringTransactionsUseCase>((ref) {
   return ProcessRecurringTransactionsUseCase(ref.watch(transactionRepositoryProvider));
@@ -61,8 +62,16 @@ class RecurringTransactionListNotifier extends AsyncNotifier<List<RecurringTrans
       _scheduleNextTrigger(list);
       
       // 發送獨立的推播通知
+      final sysNotifService = ref.read(systemNotificationServiceProvider);
       for (final transaction in generated) {
-        await LocalNotificationService().showAutoTransactionNotification(transaction);
+        final amountStr = NumberFormat.currency(symbol: '\$', decimalDigits: 0).format(transaction.amount);
+        final typeStr = transaction.type.isIncome ? '收入' : '支出';
+        await sysNotifService.showNotification(
+          id: transaction.id ?? transaction.hashCode,
+          title: '自動記帳：${transaction.title}',
+          body: '已成功新增一筆 $typeStr $amountStr',
+          payload: transaction.id?.toString(),
+        );
       }
     }
   }

@@ -1,9 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:equity_tracker/core/providers/notification_provider.dart';
+import 'package:equity_tracker/core/notifications/domain/models/in_app_notification.dart';
 
 class PremiumToastWidget extends StatelessWidget {
-  final NotificationModel notification;
+  final InAppNotification notification;
   final Animation<double> animation;
   final VoidCallback onDismiss;
 

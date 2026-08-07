@@ -5,7 +5,7 @@ import 'package:equity_tracker/features/settings/widgets/common/settings_section
 import 'package:equity_tracker/features/settings/widgets/common/settings_tile.dart';
 import 'package:equity_tracker/core/widgets/app_switch.dart';
 import 'package:equity_tracker/features/settings/widgets/premium_currency_picker.dart';
-import 'package:equity_tracker/core/providers/notification_provider.dart';
+import 'package:equity_tracker/core/notifications/providers/notification_providers.dart';
 
 class PreferencesSection extends ConsumerWidget {
   const PreferencesSection({super.key});
@@ -29,7 +29,7 @@ class PreferencesSection extends ConsumerWidget {
                     .setThemeMode(
                       val ? ThemeMode.dark : ThemeMode.light,
                     );
-                ref.read(notificationControllerProvider.notifier).showInfo(val ? 'Dark Mode Enabled' : 'Light Mode Enabled');
+                ref.read(inAppNotificationServiceProvider).showInfo(val ? 'Dark Mode Enabled' : 'Light Mode Enabled');
               },
             ),
             loading: () => const SizedBox(
@@ -49,7 +49,7 @@ class PreferencesSection extends ConsumerWidget {
               value: settings.isPrivacyModeEnabled,
               onChanged: (val) {
                 ref.read(settingsNotifierProvider.notifier).setPrivacyMode(val);
-                ref.read(notificationControllerProvider.notifier).showInfo(val ? 'Privacy Mode Enabled' : 'Privacy Mode Disabled');
+                ref.read(inAppNotificationServiceProvider).showInfo(val ? 'Privacy Mode Enabled' : 'Privacy Mode Disabled');
               },
             ),
             loading: () => const SizedBox(height: 0),
@@ -80,7 +80,7 @@ class PreferencesSection extends ConsumerWidget {
       currentSymbol, 
       (sym) {
         ref.read(settingsNotifierProvider.notifier).setCurrencySymbol(sym);
-        ref.read(notificationControllerProvider.notifier).showSuccess('Currency updated to \$sym');
+        ref.read(inAppNotificationServiceProvider).showSuccess('Currency updated to \$sym');
       },
     );
   }
